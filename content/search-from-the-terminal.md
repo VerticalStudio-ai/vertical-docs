@@ -1,7 +1,7 @@
 ---
 title: Search from the terminal
 description: Run the search of the site as a command, and get the same ranked sections as plain text or as JSON.
-order: 5
+order: 6
 ---
 
 `pnpm run search "<query>"` prints the sections that match a query, best first. The command reads the search index of the last build, so the order is the order the site shows.

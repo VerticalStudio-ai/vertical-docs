@@ -1,7 +1,7 @@
 ---
 title: Search the site
 description: Open the search with one key, type a word, and go to the section of the page that matches.
-order: 4
+order: 5
 ---
 
 Press `/` on any page, type a word and choose a result. The result opens the page at the section that matched.

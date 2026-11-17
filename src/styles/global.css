@@ -270,6 +270,8 @@
 		background: var(--bg);
 		color: inherit;
 		overflow-y: auto;
+		/* Room around the current page when the script scrolls it into view. */
+		scroll-padding-block: 4rem;
 
 		&::backdrop {
 			background: rgb(0 0 0 / 0.4);
@@ -279,6 +281,31 @@
 			margin: 0.125rem 0 0.5rem 0.75rem;
 			border-left: 1px solid var(--border);
 			padding-left: 0.5rem;
+		}
+
+		/* A group: its title opens the group's page, the arrow beside it opens and closes the list. */
+		& summary {
+			display: flex;
+			cursor: pointer;
+
+			& a {
+				flex: 1;
+			}
+
+			&::after {
+				content: "";
+				align-self: center;
+				width: 0.375rem;
+				height: 0.375rem;
+				margin-inline: 0.75rem;
+				border: solid var(--fg-muted);
+				border-width: 0 1.5px 1.5px 0;
+				rotate: -45deg;
+			}
+		}
+
+		& [open] > summary::after {
+			rotate: 45deg;
 		}
 
 		& a[aria-current] {
@@ -409,6 +436,8 @@
 	.prose {
 		max-width: 44rem;
 		margin-inline: auto;
+		/* A long path or address breaks instead of pushing a phone screen sideways. */
+		overflow-wrap: break-word;
 
 		& h1,
 		& h2,
@@ -509,10 +538,67 @@
 			}
 		}
 
+		/* The button on a code block floats in the block's top right corner and takes no room, so adding it moves nothing. */
+		& .copy {
+			position: relative;
+			float: right;
+			width: auto;
+			height: 1.75rem;
+			margin: 1.75rem 0.5rem -3.5rem 0;
+			padding-inline: 0.625rem;
+			border: 1px solid var(--border);
+			background: var(--bg);
+			font: 0.75rem var(--sans);
+
+			/* Copy page sits beside the title. */
+			&[data-page] {
+				margin: 0.375rem 0 0 1rem;
+			}
+
+			/* Without JavaScript the button cannot copy. */
+			@media (scripting: none) {
+				display: none;
+			}
+		}
+
+		& img {
+			max-width: 100%;
+			height: auto;
+		}
+
+		/* A diagram drawn once per theme, as name-light.svg and name-dark.svg: only the one for the theme shows. */
+		& img[src*="-dark."] {
+			display: none;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) & img[src*="-dark."] {
+				display: inline;
+			}
+
+			:root:not([data-theme="light"]) & img[src*="-light."] {
+				display: none;
+			}
+		}
+
+		:root[data-theme="dark"] & img[src*="-dark."] {
+			display: inline;
+		}
+
+		:root[data-theme="dark"] & img[src*="-light."] {
+			display: none;
+		}
+
 		& table {
 			width: 100%;
 			border-collapse: collapse;
 			font-size: 0.9375rem;
+
+			/* On a small screen a table wider than the column scrolls sideways inside itself instead of pushing the page. */
+			@media (width < 56rem) {
+				display: block;
+				overflow-x: auto;
+			}
 		}
 
 		& :is(th, td) {

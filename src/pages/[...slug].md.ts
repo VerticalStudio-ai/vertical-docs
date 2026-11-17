@@ -1,6 +1,6 @@
 import type { APIRoute, InferGetStaticPropsType } from "astro";
-import { pageMarkdown } from "../core/llms.ts";
-import { loadPages } from "../load.ts";
+import { pageMarkdown, withImageUrls } from "../core/llms.ts";
+import { loadImageUrls, loadPages } from "../load.ts";
 
 export const getStaticPaths = async () =>
 	(await loadPages()).map((page) => ({
@@ -8,6 +8,12 @@ export const getStaticPaths = async () =>
 		props: { page },
 	}));
 
-export const GET: APIRoute<InferGetStaticPropsType<typeof getStaticPaths>> = ({
-	props,
-}) => new Response(pageMarkdown(props.page));
+export const GET: APIRoute<
+	InferGetStaticPropsType<typeof getStaticPaths>
+> = async ({ props: { page } }) =>
+	new Response(
+		pageMarkdown({
+			...page,
+			body: withImageUrls(page.body ?? "", await loadImageUrls(page)),
+		}),
+	);

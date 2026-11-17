@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phases 0 to 2 are built. Phases 3 and 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
+Status: phases 0 to 2 and 3a are built. Phases 3b and 4 are planned. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -32,6 +32,7 @@ This is the "functional core, imperative shell" pattern. It is the lightest form
 | Runtime | Node 22.23 or later | Required by Astro 7. It also runs `.ts` files and `node --test` directly, which removes the test framework and any build step for the command-line tool. |
 | Framework | **Astro 7.4**, static output | Zero client JavaScript by default. Content collections validate frontmatter. A `content/` folder outside `src/` works, and so does one outside the project folder (both tested). |
 | Markdown | Astro's built-in engine | Plain `.md` only. Callouts use GitHub alert syntax through a 15-line plugin of our own (tested). |
+| Images | Astro's built-in image handling | A Markdown image beside the page gets its width and height, loads lazily and is served as WebP. It works for a content folder outside the project, and `sharp` comes with Astro, so nothing is added (tested in phase 3a). |
 | Styling | **Plain CSS**, one token block | Custom properties, nesting, `light-dark()`, `@layer` and `:has()` are all Baseline now. Removes two dependencies. |
 | Code highlighting | Shiki (inside Astro), light and dark themes | One CSS rule with `light-dark()` switches themes. No client JavaScript. |
 | Search | **MiniSearch 7.2** | Zero dependencies, pure JavaScript, runs in the browser, in Node and in a Worker. Pagefind cannot be queried outside a browser, so it cannot serve the MCP server or the command line. |
@@ -69,7 +70,7 @@ Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remar
 
 ```
 docs-kit/
-├── content/                  the kit's own docs; the only folder a docs agent edits
+├── content/                  the kit's own docs and their images; the only folder a docs agent edits
 ├── docs.config.json          name, description, repo, accent; url arrives with its first use
 ├── public/                   logo.svg, favicon.svg, fonts/
 ├── src/
@@ -77,12 +78,12 @@ docs-kit/
 │   │   ├── nav.ts            pages → sidebar tree, previous and next
 │   │   ├── sections.ts       Markdown → heading-level section records
 │   │   ├── search.ts         records → index; query → ranked hits
-│   │   ├── llms.ts           pages → llms.txt; page → Markdown with title
+│   │   ├── llms.ts           pages → llms.txt; page → Markdown with title and image URLs
 │   │   ├── writing.ts        Markdown node → the WRITING.md rule it breaks
 │   │   ├── callout.ts        blockquote text → callout kind
 │   │   └── *.test.ts         beside the file they test
-│   ├── load.ts               the only file that reads the content collection
-│   ├── content.config.ts     collection and frontmatter schema
+│   ├── load.ts               the only file that reads the content folder: pages and image URLs
+│   ├── content.config.ts     collection and frontmatter schema; DOCS_ROOT names the folder
 │   ├── pages/
 │   │   ├── [...slug].astro
 │   │   ├── [...slug].md.ts
@@ -96,15 +97,15 @@ docs-kit/
 │   │   └── search-worker.ts  Web Worker: loads search.json and MiniSearch, answers queries
 │   ├── styles/global.css     tokens, base, prose
 │   ├── cli.ts                terminal edge
-│   └── worker.ts             MCP and Markdown negotiation (phase 3)
-├── scripts/check-dist.ts     links, anchors, sizes, dependency list
+│   └── worker.ts             MCP and Markdown negotiation (phase 3b)
+├── scripts/check-dist.ts     links, anchors, heading order, sizes, dependency list
 ├── AGENTS.md                 rules for agents changing the code
 ├── WRITING.md                rules for anyone writing a page
 ├── astro.config.ts
 ├── biome.json
 ├── package.json
 ├── tsconfig.json
-└── .github/workflows/        ci.yml, docs-sync.yml (phase 3)
+└── .github/workflows/        ci.yml, docs-sync.yml (phase 3b)
 ```
 
 About 25 files. The brief's `Header`, `PageActions`, `PrevNext` and `ThemeToggle` components are each used once, so they start inside `Doc.astro` and are split out only if that file comes to hold two responsibilities.
@@ -115,16 +116,21 @@ About 25 files. The brief's `Header`, `PageActions`, `PrevNext` and `ThemeToggle
 - The URL is the file path. A folder is a sidebar group, and its `index.md` sets the group's title and order. Navigation has no second source in the config file.
 - Callouts are GitHub alerts: `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`. GitHub renders them, and anywhere else they degrade to a readable blockquote. The `:::steps` block is removed; an ordered list is already a list of steps.
 - `docs.config.json` is JSON so that a consuming repository needs no TypeScript.
+- An image is a Markdown image whose file sits in the content folder, beside the page. Alt text is required, and a web address is not allowed: a local file is the only kind the build can size and convert. A diagram drawn per theme is two files, `name-light.*` and `name-dark.*`, on two lines; one CSS rule shows the right one. A caption is a line in italics.
+- Left out on purpose, because the two first sites do not need them: task lists, tabs, columns, cards, mermaid diagrams, code block titles, hidden pages and breadcrumbs. Task lists fail the build with a message; the rest is plain Markdown that has no syntax here.
 
 ## Surfaces
 
 ### For human readers
 
-Three columns: sidebar, content, table of contents. Client JavaScript is limited to the theme toggle, the search opener, copy buttons, and the search worker that loads on first open. Everything else is HTML and CSS:
+Three columns: sidebar, content, table of contents. Client JavaScript is limited to the theme toggle, the search opener, the copy buttons, scrolling the sidebar to the current page, and the search worker that loads on first open. Everything else is HTML and CSS:
 
 | Feature | Built with |
 |---|---|
 | Mobile navigation | Popover API |
+| Sidebar groups | `<details>`: a folder is a group that opens and closes, and the build opens the groups that hold the current page. One sidebar holds all sections; header tabs per section were prototyped and dropped. |
+| Diagram per theme | One CSS rule on the file name (`-light.` and `-dark.`), which also follows the manual theme switch. Tested in Chrome and Firefox. |
+| Wide table on a small screen | CSS: the table scrolls sideways inside itself. |
 | Search dialog | `<dialog>`, with the search in a Web Worker. A lazy `import()` would be the obvious way to load the search on first open, but Vite adds a preload helper of about 0.8 KB gzipped to any page script that has one. A worker loads just as late, needs no helper, and keeps indexing off the page. |
 | Theme | `color-scheme` and `light-dark()`; a few inline lines apply a saved choice before paint |
 | Active section in the table of contents | CSS `scroll-target-group` and `:target-current`, as an enhancement. Tested on 2026-11-17: Chrome 157 marks the section at the top of the window, the first entry above the first heading and the last entry at the end of the page. Safari 26.2 and Firefox 151 do not support it and show a plain list. The brief's JavaScript scroll-spy is not built unless this proves too weak. |
@@ -163,11 +169,12 @@ The research changed how the rules are enforced more than what they are. The one
 | Core imports nothing from Astro, Node or the browser | Biome import restriction on `src/core/` |
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
-| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand, set from the phase 2 build (2.2 KB, 0.9 KB and 6.1 KB) |
+| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1.25 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand. The phase 3a build measures 2.5 KB, 1.2 KB and 6.1 KB; the page budget rose from 1 KB for the copy buttons. |
 | Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |
-| Headings are `##` or `###`, code blocks name a language, no HTML | Markdown plugin at build, registered in `astro.config.ts` |
+| Headings are `##` or `###`, code blocks name a language, no HTML, no task lists, an image has alt text and is a local file | Markdown plugin at build, registered in `astro.config.ts` |
+| A `###` heading has a `##` above it | `check-dist` |
 | The lint rules and `check-dist` still catch what they should | Tests beside `biome.json` and `scripts/check-dist.ts` |
 | Docs agent edits only `content/` | Path guard in the sync workflow |
 
@@ -196,27 +203,33 @@ Differences from the brief, with reasons:
 - Start with the default `GITHUB_TOKEN`. The check has already run before the pull request opens, and CI on that pull request starts after one "Approve workflows to run" click. A GitHub App token is only needed once docs live in a separate repository.
 - The writing rules are one file, `WRITING.md`, read by the workflow. The brief copied a style guide into every connected repository.
 
-A product repository holds only its `content/` folder, `docs.config.json`, a logo and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that folder. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`) and is added in phase 3 with the first product repository. Nothing is published to npm in version 1.
+A product repository holds only its `content/` folder, `docs.config.json`, a logo and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that folder. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`), in since phase 3a: the docs of the first two sites build and pass `pnpm check` from a folder outside the project. Nothing is published to npm in version 1.
 
 ## Build order
 
-Phase 0 is small enough to do directly. Phases 1 to 3 are ticket-sized. Each phase ends with a deletion pass.
+Phase 0 is small enough to do directly. Phases 1 to 3b are ticket-sized. Each phase ends with a deletion pass. Phase 3a was added after phase 2: the first two sites (the vAPI docs and the Vertical Studio docs, both on GitBook today) need images and a sidebar for a hundred pages, and hosting a site that cannot show its content proves nothing.
 
 | Phase | Builds | Done when |
 |---|---|---|
 | 0. Skeleton | Package, pnpm pin, TypeScript and Biome config, one page, `pnpm check`, CI | `pnpm check` passes locally and in CI in under 30 seconds |
 | 1. Site | `load.ts`, `nav.ts`, layout, sidebar, table of contents, prose, code themes, callouts, theme, mobile navigation, fonts, logo, favicon, accent | Sample content reads well in both themes; size budgets are set from the measured build |
 | 2. Search and reading surfaces | `sections.ts`, `search.ts`, `search.json`, search dialog, `.md` pages, `llms.txt`, `pnpm run search` | Searching a word from an `h3` opens that `h3`; the site and the command line return the same ranking |
-| 3. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected. With the site's public URL: canonical URLs, `sitemap.xml`, `robots.txt`, share-image tags, structured data, and absolute URLs in `llms.txt` | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
+| 3a. Real content | `DOCS_ROOT`, images, diagrams per theme, a sidebar with groups that open and close, copy buttons, tables on a small screen, and build rules for images, task lists and heading order | Both sites, imported into throwaway folders, pass `pnpm check` and the Lighthouse scores |
+| 3b. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected, old GitBook paths redirected. With the site's public URL: canonical URLs, `sitemap.xml`, `robots.txt`, share-image tags, structured data, and absolute URLs in `llms.txt` | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
 | 4. Brand | Final name and wordmark, share image, polish | Your sign-off |
+
+## Versions, when a site needs them
+
+Neither of the first two sites has versions, and versions multiply URLs, search records and content, so none are built. The way in, when a site needs them: a version is a folder of content built under a path prefix. `DOCS_ROOT` already selects the folder; the missing parts are a base path for the build, one `search.json` per version, and a switcher that links the same page across versions. Decide then whether old versions are built again on every change or kept as frozen builds.
 
 ## Still to verify
 
 Each is checked with a small test at the start of its phase.
 
-- Whether `@modelcontextprotocol/server` alone serves a stateless route on Workers, or Cloudflare's `agents` package is needed. Take the smaller option that passes a test with Claude Code and one other client (phase 3).
-- Preview deployments per pull request on Workers (phase 3).
-- A reusable workflow in a private repository called from a repository under another account (phase 3).
+- Whether `@modelcontextprotocol/server` alone serves a stateless route on Workers, or Cloudflare's `agents` package is needed. Take the smaller option that passes a test with Claude Code and one other client (phase 3b).
+- Preview deployments per pull request on Workers (phase 3b).
+- A reusable workflow in a private repository called from a repository under another account (phase 3b).
+- Safari for what phase 3a added: the copy buttons, the diagram per theme and the sidebar groups. Chrome and Firefox were tested.
 
 ## Decisions that are yours
 
@@ -224,4 +237,4 @@ Each is checked with a small test at the start of its phase.
 2. **Model key for the sync workflow.** A Claude subscription token (`claude setup-token`) is documented for personal repositories; an API key is recommended for organisation repositories.
 3. **Public or private kit.** Public removes the clone token in each product repository's build and makes the shared workflow callable from any account. I recommend public once phase 2 is done.
 4. **Name and accent colour**, needed by phase 4 only.
-5. **First repository to connect**, needed by phase 3 only.
+5. **First repository to connect**: answered. The vAPI docs come first (their source is already in Git), then the Vertical Studio docs.

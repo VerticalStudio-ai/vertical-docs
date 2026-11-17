@@ -11,14 +11,14 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 
 ## Map
 
-- `content/`: the docs, plain Markdown. Writing rules: `WRITING.md`.
+- `content/`: the docs, plain Markdown, with their images beside the pages. Writing rules: `WRITING.md`. `DOCS_ROOT` points every command at another folder.
 - `src/core/`: all logic, as pure functions. Tests sit beside each file.
-- `src/load.ts`: the only file that reads the content collection.
+- `src/load.ts`: the only file that reads the content folder: the pages, and the URL of each image.
 - `src/pages/`, `src/components/`: the website. They call core and render.
 - `src/styles/global.css`: every style, with the colour and font tokens in one block at the top.
 - `docs.config.json`, `public/`: what a docs site replaces to brand itself: name, repository link, accent colour, logo and favicon.
 - `src/cli.ts`, `src/worker.ts`: the terminal and MCP edges. They call core and do input and output.
-- `scripts/check-dist.ts`: link, anchor, size and dependency checks on the build.
+- `scripts/check-dist.ts`: link, anchor, heading order, size and dependency checks on the build.
 - `lighthouserc.json`: the Lighthouse scores CI enforces on the build.
 - `design/features.md`: what the product does, in a customer's words. Every phase updates it: one line per feature, and a built line carries its proof.
 

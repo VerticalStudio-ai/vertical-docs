@@ -11,13 +11,24 @@ const { items, current } = Astro.props;
 
 <ul>
 	{
-		items.map((item) => (
-			<li>
+		items.map((item) => {
+			const link = (
 				<a href={item.href} aria-current={item.href === current ? "page" : undefined}>
 					{item.title}
 				</a>
-				{item.children.length > 0 && <Astro.self items={item.children} current={current} />}
-			</li>
-		))
+			);
+			return (
+				<li>
+					{item.children.length === 0 ? (
+						link
+					) : (
+						<details open={current.startsWith(item.href)}>
+							<summary>{link}</summary>
+							<Astro.self items={item.children} current={current} />
+						</details>
+					)}
+				</li>
+			);
+		})
 	}
 </ul>
