@@ -46,11 +46,7 @@ const mcp = (env: Env, { origin }: URL) =>
 					new URL("/search.json", origin),
 				);
 				return text(
-					JSON.stringify(
-						search(await sections.json())(query).slice(0, limit),
-						null,
-						2,
-					),
+					JSON.stringify(search(await sections.json())(query).slice(0, limit)),
 				);
 			},
 		);
