@@ -73,10 +73,13 @@ for (const page of pages) {
 	}
 }
 
+// The code a page carries in a tag. Structured data is a script tag that holds no code.
 const inline = (tag: string) =>
 	pages.flatMap((page) =>
 		Array.from(
-			read(page).matchAll(new RegExp(`<${tag}[^>]*>(.+?)</${tag}>`, "gs")),
+			read(page).matchAll(
+				new RegExp(`<${tag}(?![^>]*ld\\+json)[^>]*>(.+?)</${tag}>`, "gs"),
+			),
 			([, code = ""]) => code,
 		),
 	);
@@ -127,6 +130,15 @@ if (isFile("dist/_redirects")) {
 			);
 		}
 	}
+}
+
+if (
+	pages.some((page) => read(page).includes('property="og:image"')) &&
+	!isFile("dist/share.png")
+) {
+	problems.push(
+		"public/share.png is missing: every page names it as its share image. Add a PNG of 1200 by 630 pixels.",
+	);
 }
 
 const withExt = (ext: string) => files.filter((file) => file.endsWith(ext));

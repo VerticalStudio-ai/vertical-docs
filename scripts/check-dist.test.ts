@@ -214,3 +214,25 @@ test("fails for a redirect that points to no page, or that is not permanent", ()
 		'_redirects: "/gone /nope/ 301" points to no file in dist. Point it at a page that exists.\n_redirects: "/moved /guide/" is not a permanent redirect. End the line with 301.\n',
 	);
 });
+
+test("does not count structured data as JavaScript", () => {
+	const data = `<script type="application/ld+json">${randomBytes(3000).toString("base64")}</script>`;
+	const { status, stderr } = run({}, { "index.html": data });
+	assert.equal(stderr, "");
+	assert.equal(status, 0);
+});
+
+test("fails for a page that names a share image the site does not have", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html":
+				'<meta property="og:image" content="https://docs.test/share.png">',
+		},
+	);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		"public/share.png is missing: every page names it as its share image. Add a PNG of 1200 by 630 pixels.\n",
+	);
+});

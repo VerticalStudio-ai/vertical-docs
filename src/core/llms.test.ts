@@ -21,7 +21,7 @@ test("writes a page as Markdown: its title, its description, then the body uncha
 	);
 });
 
-test("writes llms.txt in sidebar order, one section per folder, linking the Markdown copies", () => {
+test("writes llms.txt in sidebar order, one section per folder, linking the Markdown copies by their full address", () => {
 	const pages = [
 		page("reference/markdown", "Markdown", 2),
 		page("reference", "Reference", 3),
@@ -30,21 +30,28 @@ test("writes llms.txt in sidebar order, one section per folder, linking the Mark
 		page("index", "Start", 1),
 	];
 	assert.equal(
-		llmsTxt({ name: "docs-kit", description: "Docs for docs-kit." }, pages),
+		llmsTxt(
+			{
+				name: "docs-kit",
+				description: "Docs for docs-kit.",
+				url: "https://docs.test",
+			},
+			pages,
+		),
 		`# docs-kit
 
 > Docs for docs-kit.
 
 ## Docs
 
-- [Start](/index.md): About start.
-- [Write a page](/write-a-page.md): About write a page.
+- [Start](https://docs.test/index.md): About start.
+- [Write a page](https://docs.test/write-a-page.md): About write a page.
 
 ## Reference
 
-- [Reference](/reference.md): About reference.
-- [Frontmatter](/reference/frontmatter.md): About frontmatter.
-- [Markdown](/reference/markdown.md): About markdown.
+- [Reference](https://docs.test/reference.md): About reference.
+- [Frontmatter](https://docs.test/reference/frontmatter.md): About frontmatter.
+- [Markdown](https://docs.test/reference/markdown.md): About markdown.
 `,
 	);
 });

@@ -45,9 +45,9 @@ export const withImageUrls = (markdown: string, urls: Map<string, string>) => {
 	return lines.join("\n");
 };
 
-/** Returns llms.txt in the llmstxt.org format: the site name, its description, then every page as a link to its Markdown copy. Pages outside a folder come first under "Docs"; each folder is a section named after its index page. Inside a section the pages are in sidebar order. */
+/** Returns llms.txt in the llmstxt.org format: the site name, its description, then every page as a link to the full address of its Markdown copy. Pages outside a folder come first under "Docs"; each folder is a section named after its index page. Inside a section the pages are in sidebar order. */
 export const llmsTxt = (
-	site: { name: string; description: string },
+	site: { name: string; description: string; url: string },
 	pages: Page[],
 ) => {
 	const descriptions = new Map(
@@ -58,7 +58,7 @@ export const llmsTxt = (
 		`## ${title}\n\n${items
 			.map(
 				({ title, href }) =>
-					`- [${title}](${markdownUrl(href)}): ${descriptions.get(href)}\n`,
+					`- [${title}](${new URL(markdownUrl(href), site.url)}): ${descriptions.get(href)}\n`,
 			)
 			.join("")}`;
 	return [
