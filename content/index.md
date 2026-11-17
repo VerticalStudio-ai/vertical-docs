@@ -32,12 +32,12 @@ The local site is at `http://localhost:4321/`. Each Markdown file in `content/` 
 pnpm check
 ```
 
-`pnpm check` checks types, lint and formatting, unused code and tests. `pnpm check` then builds the site into `dist/` and checks every link and anchor in the build, the size of the CSS and JavaScript, and the dependency list in `package.json`.
+`pnpm check` checks types, lint and formatting, unused code and tests. `pnpm check` then builds the site into `dist/` and checks every link, anchor and search result in the build, the size of the CSS and JavaScript, and the dependency list in `package.json`.
 
 A passing run ends with the build summary and exits with code 0:
 
 ```text
-[build] 7 page(s) built in 860ms
+[build] 10 page(s) built in 709ms
 [build] Complete!
 ```
 

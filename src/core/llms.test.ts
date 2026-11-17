@@ -1,0 +1,50 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { llmsTxt, markdownUrl, pageMarkdown } from "./llms.ts";
+
+const page = (id: string, title: string, order: number) => ({
+	id,
+	data: { title, description: `About ${title.toLowerCase()}.`, order },
+	body: "\nBody text.\n\n## A heading\n\nMore text.\n",
+});
+
+test("names the Markdown copy of a page: its id with .md", () => {
+	assert.equal(markdownUrl("/"), "/index.md");
+	assert.equal(markdownUrl("/reference/"), "/reference.md");
+	assert.equal(markdownUrl("/reference/markdown/"), "/reference/markdown.md");
+});
+
+test("writes a page as Markdown: its title, its description, then the body unchanged", () => {
+	assert.equal(
+		pageMarkdown(page("write-a-page", "Write a page", 1)),
+		"# Write a page\n\nAbout write a page.\n\nBody text.\n\n## A heading\n\nMore text.\n",
+	);
+});
+
+test("writes llms.txt in sidebar order, one section per folder, linking the Markdown copies", () => {
+	const pages = [
+		page("reference/markdown", "Markdown", 2),
+		page("reference", "Reference", 3),
+		page("write-a-page", "Write a page", 2),
+		page("reference/frontmatter", "Frontmatter", 1),
+		page("index", "Start", 1),
+	];
+	assert.equal(
+		llmsTxt({ name: "docs-kit", description: "Docs for docs-kit." }, pages),
+		`# docs-kit
+
+> Docs for docs-kit.
+
+## Docs
+
+- [Start](/index.md): About start.
+- [Write a page](/write-a-page.md): About write a page.
+
+## Reference
+
+- [Reference](/reference.md): About reference.
+- [Frontmatter](/reference/frontmatter.md): About frontmatter.
+- [Markdown](/reference/markdown.md): About markdown.
+`,
+	);
+});

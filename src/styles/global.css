@@ -134,6 +134,92 @@
 		}
 	}
 
+	.find :is(span, kbd) {
+		display: none;
+	}
+
+	dialog {
+		width: 40rem;
+		max-height: calc(100dvh - 2rem);
+		margin-top: 1rem;
+		padding: 0;
+		border: 1px solid var(--border);
+		border-radius: 0.75rem;
+		background: var(--bg);
+		color: inherit;
+
+		&[open] {
+			display: flex;
+			flex-direction: column;
+		}
+
+		&::backdrop {
+			background: rgb(0 0 0 / 0.4);
+		}
+
+		& input {
+			padding: 1rem 3.5rem 1rem 1.25rem;
+			border: 0;
+			background: none;
+			color: inherit;
+			font: inherit;
+			/* The text cursor shows the focus; a ring would repeat the edge of the dialog. */
+			outline: 0;
+
+			&::placeholder {
+				color: var(--fg-muted);
+				opacity: 1;
+			}
+		}
+
+		/* Esc and a click outside also close the dialog, but a phone has no Esc and Safari ignores closedby. */
+		& form {
+			position: absolute;
+			top: 0.85rem;
+			right: 0.75rem;
+		}
+
+		& :is(p, ul):empty {
+			display: none;
+		}
+
+		& p {
+			margin: 0;
+			padding: 1rem 1.25rem;
+			border-top: 1px solid var(--border);
+			color: var(--fg-muted);
+		}
+
+		& ul {
+			padding: 0.5rem;
+			border-top: 1px solid var(--border);
+			overflow-y: auto;
+		}
+
+		& a {
+			display: block;
+			padding: 0.5rem 0.75rem;
+			border-radius: 0.375rem;
+			font-size: 0.9375rem;
+			font-weight: 500;
+			line-height: 1.5;
+
+			&:is(:hover, :focus-visible) {
+				background: var(--bg-subtle);
+			}
+		}
+
+		& small {
+			display: block;
+			overflow: hidden;
+			color: var(--fg-muted);
+			font-size: 0.875rem;
+			font-weight: 400;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
 	.frame {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
@@ -199,6 +285,33 @@
 	@media (width >= 56rem) {
 		.menu {
 			display: none;
+		}
+
+		.find {
+			grid-template-columns: auto 1fr auto;
+			justify-items: start;
+			gap: 0.5rem;
+			width: 13rem;
+			padding-inline: 0.625rem 0.375rem;
+			border: 1px solid var(--border);
+			font: inherit;
+			text-align: left;
+
+			& :is(span, kbd) {
+				display: block;
+			}
+
+			& kbd {
+				padding-inline: 0.375rem;
+				border: 1px solid var(--border);
+				border-radius: 0.25rem;
+				font: 0.75rem / 1.5 var(--mono);
+			}
+		}
+
+		dialog {
+			margin-top: 5rem;
+			max-height: calc(100dvh - 10rem);
 		}
 
 		.frame {

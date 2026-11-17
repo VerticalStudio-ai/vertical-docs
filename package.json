@@ -6,11 +6,14 @@
 	"scripts": {
 		"dev": "astro dev",
 		"check": "biome ci --error-on-warnings && knip && node --test && astro check && astro build && node scripts/check-dist.ts",
-		"fix": "biome check --write"
+		"fix": "biome check --write",
+		"search": "node src/cli.ts"
 	},
 	"dependencies": {
 		"@astrojs/markdown-satteri": "^0.4.10",
-		"astro": "^7.4.12"
+		"astro": "^7.4.12",
+		"github-slugger": "^2.0.0",
+		"minisearch": "^7.2.0"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.12",

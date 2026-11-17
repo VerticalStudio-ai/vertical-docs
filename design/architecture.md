@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phases 0 and 1 are built. Phases 2 to 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
+Status: phases 0 to 2 are built. Phases 3 and 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -16,7 +16,7 @@ content/*.md  +  docs.config.json
 src/core/ — pure functions: nav · sections · search · llms
         │
         ├── site (Astro)    HTML pages, /<page>.md, /llms.txt, /search.json
-        ├── src/cli.ts      pnpm search "<query>"
+        ├── src/cli.ts      pnpm run search "<query>"
         └── src/worker.ts   /mcp (search_docs, get_page), Accept: text/markdown
 ```
 
@@ -70,7 +70,7 @@ Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remar
 ```
 docs-kit/
 ├── content/                  the kit's own docs; the only folder a docs agent edits
-├── docs.config.json          name, repo, accent; description and url arrive with their first use
+├── docs.config.json          name, description, repo, accent; url arrives with its first use
 ├── public/                   logo.svg, favicon.svg, fonts/
 ├── src/
 │   ├── core/                 pure: no Astro, Node or browser imports
@@ -92,7 +92,8 @@ docs-kit/
 │   │   ├── Doc.astro         page shell: header, content, previous and next, page actions
 │   │   ├── Sidebar.astro
 │   │   ├── Toc.astro
-│   │   └── Search.astro      <dialog>; loads MiniSearch on first open
+│   │   ├── Search.astro      <dialog>; starts the search worker on first open
+│   │   └── search-worker.ts  Web Worker: loads search.json and MiniSearch, answers queries
 │   ├── styles/global.css     tokens, base, prose
 │   ├── cli.ts                terminal edge
 │   └── worker.ts             MCP and Markdown negotiation (phase 3)
@@ -119,12 +120,12 @@ About 25 files. The brief's `Header`, `PageActions`, `PrevNext` and `ThemeToggle
 
 ### For human readers
 
-Three columns: sidebar, content, table of contents. Client JavaScript is limited to the theme toggle, the search opener, copy buttons, and the search module that loads on first open. Everything else is HTML and CSS:
+Three columns: sidebar, content, table of contents. Client JavaScript is limited to the theme toggle, the search opener, copy buttons, and the search worker that loads on first open. Everything else is HTML and CSS:
 
 | Feature | Built with |
 |---|---|
 | Mobile navigation | Popover API |
-| Search dialog | `<dialog>` |
+| Search dialog | `<dialog>`, with the search in a Web Worker. A lazy `import()` would be the obvious way to load the search on first open, but Vite adds a preload helper of about 0.8 KB gzipped to any page script that has one. A worker loads just as late, needs no helper, and keeps indexing off the page. |
 | Theme | `color-scheme` and `light-dark()`; a few inline lines apply a saved choice before paint |
 | Active section in the table of contents | CSS `scroll-target-group` and `:target-current`, as an enhancement. Tested on 2026-11-17: Chrome 157 marks the section at the top of the window, the first entry above the first heading and the last entry at the end of the page. Safari 26.2 and Firefox 151 do not support it and show a plain list. The brief's JavaScript scroll-spy is not built unless this proves too weak. |
 
@@ -147,7 +148,7 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 | `pnpm dev` | Local site |
 | `pnpm check` | The single definition of done: types, lint, unused code, tests, build, then links, anchors, sizes and the dependency list on the output. Target: under 30 seconds. |
 | `pnpm fix` | Format and apply safe lint fixes |
-| `pnpm search "<query>"` | The site's ranked search. `--json` for machines, `--url <site>` to query a deployed site. |
+| `pnpm run search "<query>"` | The site's ranked search. `--json` for machines, `--url <site>` to query a deployed site. The plan said `pnpm search`, but pnpm 12 has a built-in `search` command that searches the npm registry and wins over a script of the same name. |
 
 Commands print plain text, exit non-zero on failure, and every failure message says what to change. There is no `get` command; `cat` and `curl` already do that.
 
@@ -162,7 +163,7 @@ The research changed how the rules are enforced more than what they are. The one
 | Core imports nothing from Astro, Node or the browser | Biome import restriction on `src/core/` |
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
-| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS and 1 KB of JavaScript, set from the phase 1 build (1.8 KB and 0.3 KB) |
+| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand, set from the phase 2 build (2.1 KB, 0.8 KB and 6.1 KB) |
 | Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |
@@ -205,8 +206,8 @@ Phase 0 is small enough to do directly. Phases 1 to 3 are ticket-sized. Each pha
 |---|---|---|
 | 0. Skeleton | Package, pnpm pin, TypeScript and Biome config, one page, `pnpm check`, CI | `pnpm check` passes locally and in CI in under 30 seconds |
 | 1. Site | `load.ts`, `nav.ts`, layout, sidebar, table of contents, prose, code themes, callouts, theme, mobile navigation, fonts, logo, favicon, accent | Sample content reads well in both themes; size budgets are set from the measured build |
-| 2. Search and reading surfaces | `sections.ts`, `search.ts`, `search.json`, search dialog, `.md` pages, `llms.txt`, `pnpm search` | Searching a word from an `h3` opens that `h3`; the site and the command line return the same ranking |
-| 3. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
+| 2. Search and reading surfaces | `sections.ts`, `search.ts`, `search.json`, search dialog, `.md` pages, `llms.txt`, `pnpm run search` | Searching a word from an `h3` opens that `h3`; the site and the command line return the same ranking |
+| 3. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected. With the site's public URL: canonical URLs, `sitemap.xml`, `robots.txt`, share-image tags, structured data, and absolute URLs in `llms.txt` | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
 | 4. Brand | Final name and wordmark, share image, polish | Your sign-off |
 
 ## Still to verify

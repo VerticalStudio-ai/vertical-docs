@@ -2,8 +2,10 @@
 import type { MarkdownHeading } from "astro";
 import config from "../../docs.config.json";
 import logo from "../../public/logo.svg?raw";
+import { markdownUrl } from "../core/llms.ts";
 import { type NavItem, neighbours } from "../core/nav.ts";
 import "../styles/global.css";
+import Search from "./Search.astro";
 import Sidebar from "./Sidebar.astro";
 import Toc from "./Toc.astro";
 
@@ -26,6 +28,7 @@ const { previous, next } = neighbours(tree, href);
 		<meta name="viewport" content="width=device-width" />
 		<title>{title} · {config.name}</title>
 		<meta name="description" content={description} />
+		<link rel="alternate" type="text/markdown" href={markdownUrl(href)} />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossorigin />
 		<link rel="preload" href="/fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin />
@@ -42,6 +45,7 @@ const { previous, next } = neighbours(tree, href);
 				</svg>
 			</button>
 			<a href="/" class="brand"><Fragment set:html={logo} />{config.name}</a>
+			<Search />
 			<a href={config.repo} class="repo">GitHub</a>
 			<button type="button" id="theme" aria-label="Switch between light and dark theme">
 				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
