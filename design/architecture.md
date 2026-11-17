@@ -204,10 +204,10 @@ Phase 0 is small enough to do directly. Phases 1 to 3 are ticket-sized. Each pha
 | Phase | Builds | Done when |
 |---|---|---|
 | 0. Skeleton | Package, pnpm pin, TypeScript and Biome config, one page, `pnpm check`, CI | `pnpm check` passes locally and in CI in under 30 seconds |
-| 1. Site | `load.ts`, `nav.ts`, layout, sidebar, table of contents, prose, code themes, callouts, theme, mobile navigation | Sample content reads well in both themes; size budgets are set from the measured build |
+| 1. Site | `load.ts`, `nav.ts`, layout, sidebar, table of contents, prose, code themes, callouts, theme, mobile navigation, fonts, logo, favicon, accent | Sample content reads well in both themes; size budgets are set from the measured build |
 | 2. Search and reading surfaces | `sections.ts`, `search.ts`, `search.json`, search dialog, `.md` pages, `llms.txt`, `pnpm search` | Searching a word from an `h3` opens that `h3`; the site and the command line return the same ranking |
 | 3. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
-| 4. Brand | Logo, favicon, share image, accent, polish | Your sign-off |
+| 4. Brand | Final name and wordmark, share image, polish | Your sign-off |
 
 ## Still to verify
 
