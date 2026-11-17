@@ -1,7 +1,7 @@
 ---
 title: Order pages in the sidebar
 description: Set the position of a page with one frontmatter field, and group pages by putting them in a folder.
-order: 3
+order: 4
 ---
 
 The sidebar is built from the files in `content/`. Set `order` in a page's frontmatter to place the page, and put pages in a folder to make a group.
@@ -34,7 +34,15 @@ content/
     └── markdown.md
 ```
 
-The pages in `reference/` appear under the title of `reference/index.md`, sorted by their own `order`.
+The pages in `reference/` appear under the title of `reference/index.md`, sorted by their own `order`. A folder inside a folder is a group inside a group.
+
+## Open and close a group
+
+A group shows its title and an arrow. The title opens the group's own page, and the arrow opens and closes the list of pages in the group.
+
+The site opens the groups that hold the page being read and scrolls the sidebar to that page. Every other group starts closed, so a site with many pages keeps a short sidebar.
+
+## Give every folder an index page
 
 A folder without an `index.md` stops the build. The message says which file to add:
 

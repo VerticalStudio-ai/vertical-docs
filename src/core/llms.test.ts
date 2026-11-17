@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { llmsTxt, markdownUrl, pageMarkdown } from "./llms.ts";
+import { llmsTxt, markdownUrl, pageMarkdown, withImageUrls } from "./llms.ts";
 
 const page = (id: string, title: string, order: number) => ({
 	id,
@@ -46,5 +46,43 @@ test("writes llms.txt in sidebar order, one section per folder, linking the Mark
 - [Frontmatter](/reference/frontmatter.md): About frontmatter.
 - [Markdown](/reference/markdown.md): About markdown.
 `,
+	);
+});
+
+test("points each image outside code at the URL the site serves it at", () => {
+	const urls = new Map([
+		["sign-in.png", "/_astro/sign-in.abc.webp"],
+		["./flow-dark.svg", "/_astro/flow-dark.def.svg"],
+	]);
+	assert.equal(
+		withImageUrls(
+			[
+				"Text ![The sign-in form](sign-in.png) and ![The flow](./flow-dark.svg).",
+				"A link [sign-in.png](sign-in.png) and code `![The sign-in form](sign-in.png)` stay.",
+				"```md",
+				"![The sign-in form](sign-in.png)",
+				"```",
+				"![Not an image of this page](other.png)",
+			].join("\n"),
+			urls,
+		),
+		[
+			"Text ![The sign-in form](/_astro/sign-in.abc.webp) and ![The flow](/_astro/flow-dark.def.svg).",
+			"A link [sign-in.png](sign-in.png) and code `![The sign-in form](sign-in.png)` stay.",
+			"```md",
+			"![The sign-in form](sign-in.png)",
+			"```",
+			"![Not an image of this page](other.png)",
+		].join("\n"),
+	);
+});
+
+test("finds an image whose path is written with encoded spaces", () => {
+	assert.equal(
+		withImageUrls(
+			"![The sign-in form](images/sign%20in.png)",
+			new Map([["images/sign in.png", "/_astro/sign-in.abc.webp"]]),
+		),
+		"![The sign-in form](/_astro/sign-in.abc.webp)",
 	);
 });

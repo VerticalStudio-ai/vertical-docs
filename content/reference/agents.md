@@ -16,7 +16,7 @@ With `pnpm dev` running:
 curl http://localhost:4321/reference.md
 ```
 
-The copy starts with the page title as a `#` heading and the page description. The rest is the Markdown file as written:
+The copy starts with the page title as a `#` heading and the page description. The rest is the Markdown file as written, except that the path of an image becomes the URL of the image file on the site:
 
 ```md
 # Reference
@@ -31,7 +31,7 @@ The reference pages list every option docs-kit reads.
 - [Files for agents](/reference/agents/): the Markdown copy of a page, `llms.txt` and `search.json`.
 ```
 
-Each page links to its copy twice: "View this page as Markdown" at the end of the page, and a `link` element with `rel="alternate"` and `type="text/markdown"` in the HTML head.
+Each page links to its copy twice: "View this page as Markdown" at the end of the page, and a `link` element with `rel="alternate"` and `type="text/markdown"` in the HTML head. The Copy page button beside the page title puts the same Markdown on the clipboard.
 
 ## llms.txt
 
@@ -50,6 +50,7 @@ curl http://localhost:4321/llms.txt
 
 - [Run docs-kit locally](/index.md): Install the dependencies, start the local site, and run the one check that decides whether a change is done.
 - [Write a page](/write-a-page.md): Add a Markdown file to the content folder and read it as a page on the local site.
+- [Add an image to a page](/add-an-image.md): Put an image file beside the page, write one Markdown line with its alt text, and show a diagram that follows the light and the dark theme.
 - [Order pages in the sidebar](/order-the-sidebar.md): Set the position of a page with one frontmatter field, and group pages by putting them in a folder.
 - [Search the site](/search-the-site.md): Open the search with one key, type a word, and go to the section of the page that matches.
 - [Search from the terminal](/search-from-the-terminal.md): Run the search of the site as a command, and get the same ranked sections as plain text or as JSON.

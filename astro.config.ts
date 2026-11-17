@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { satteri } from "@astrojs/markdown-satteri";
 import { defineConfig } from "astro/config";
 import { callout } from "./src/core/callout.ts";
@@ -9,6 +10,12 @@ const check = (node: Parameters<typeof writingProblem>[0]) => {
 };
 
 export default defineConfig({
+	// src/load.ts finds the image files of the content folder under this name. The folder is the one in src/content.config.ts.
+	vite: {
+		resolve: {
+			alias: { "@docs": resolve(process.env.DOCS_ROOT ?? "./content") },
+		},
+	},
 	markdown: {
 		shikiConfig: {
 			themes: {
@@ -19,7 +26,15 @@ export default defineConfig({
 		},
 		processor: satteri({
 			mdastPlugins: [
-				{ name: "writing-rules", heading: check, code: check, html: check },
+				{
+					name: "writing-rules",
+					heading: check,
+					code: check,
+					html: check,
+					image: check,
+					imageReference: check,
+					listItem: check,
+				},
 				{
 					name: "callouts",
 					blockquote(node, ctx) {

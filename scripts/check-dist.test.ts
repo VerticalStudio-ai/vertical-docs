@@ -81,7 +81,7 @@ test("fails when the JavaScript is over its budget, inline scripts included", ()
 	assert.equal(status, 1);
 	assert.match(
 		stderr,
-		/JavaScript is \d+\.\d KB gzipped, over the 1 KB budget/,
+		/JavaScript is \d+\.\d KB gzipped, over the 1\.25 KB budget/,
 	);
 });
 
@@ -126,7 +126,7 @@ test("counts a script file that a page loads against the page budget", () => {
 	assert.equal(status, 1);
 	assert.match(
 		stderr,
-		/^JavaScript is \d+\.\d KB gzipped, over the 1 KB budget/,
+		/^JavaScript is \d+\.\d KB gzipped, over the 1\.25 KB budget/,
 	);
 });
 
@@ -168,7 +168,33 @@ test("counts a file that a page script imports by name against the page budget",
 		assert.equal(status, 1);
 		assert.match(
 			stderr,
-			/^JavaScript is \d+\.\d KB gzipped, over the 1 KB budget/,
+			/^JavaScript is \d+\.\d KB gzipped, over the 1\.25 KB budget/,
 		);
 	}
+});
+
+test("fails for a page whose ### heading has no ## heading above it", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html": '<h1>Home</h1><h2 id="a">A</h2><h3 id="b">B</h3>',
+			"pricing/index.html":
+				'<h1>Pricing</h1><h3 id="b">B</h3><h2 id="a">A</h2>',
+		},
+	);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		"pricing/index.html: a ### heading comes before the first ## heading. Start the section with ##.\n",
+	);
+});
+
+test("allows the 1.2 KB of page JavaScript that the copy buttons need", () => {
+	// 1,500 random characters gzip to about 1.15 KB: over the old 1 KB budget, under 1.25 KB.
+	const { status, stderr } = run(
+		{},
+		{ "index.html": `<script>// ${noise.slice(0, 1500)}</script>` },
+	);
+	assert.equal(stderr, "");
+	assert.equal(status, 0);
 });

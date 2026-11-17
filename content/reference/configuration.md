@@ -4,7 +4,7 @@ description: Set the site name, its description, the repository link and the acc
 order: 3
 ---
 
-A site is branded with one configuration file and two images. Change `docs.config.json` for the name, the description, the repository link and the accent colour, and replace `public/logo.svg` and `public/favicon.svg` for the logo.
+A site is branded with one configuration file and two images, and reads its pages from one folder. Change `docs.config.json` for the name, the description, the repository link and the accent colour, and replace `public/logo.svg` and `public/favicon.svg` for the logo.
 
 ## docs.config.json
 
@@ -23,6 +23,16 @@ A site is branded with one configuration file and two images. Change `docs.confi
 | `description` | The summary under the name in [`/llms.txt`](/reference/agents/#llmstxt). |
 | `repo` | The GitHub link in the header. |
 | `accent` | The colour of links, the current page in the sidebar, the focus ring and the edge of a callout. |
+
+## Content folder
+
+The site reads its pages and their images from `content/` in the project folder. Set the `DOCS_ROOT` environment variable to read another folder, such as the docs folder of a product repository:
+
+```sh
+DOCS_ROOT=../product/docs pnpm check
+```
+
+`DOCS_ROOT` is a path from the project folder, or a full path. Every command reads it: `pnpm dev` shows that folder, and `pnpm check` builds and checks it.
 
 ## Accent colour
 

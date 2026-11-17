@@ -4,7 +4,7 @@ description: The Markdown a page can use, with the source for each element and t
 order: 2
 ---
 
-A page is plain Markdown: headings, paragraphs, lists, links, code, tables, quotes and callouts. Each section shows an element as the site renders it.
+A page is plain Markdown: headings, paragraphs, lists, links, code, tables, images, quotes and callouts. Each section shows an element as the site renders it.
 
 ## Headings
 
@@ -52,6 +52,8 @@ Use `sh` for commands and `text` for output:
 pnpm check
 ```
 
+Each code block has a Copy button in its top right corner.
+
 ## Tables
 
 | Command | Does |
@@ -59,6 +61,20 @@ pnpm check
 | `pnpm dev` | Starts the local site. |
 | `pnpm check` | Checks the code, builds the site and checks the build. |
 | `pnpm fix` | Formats the code and applies safe lint fixes. |
+
+On a small screen, a table that is wider than the screen scrolls sideways.
+
+## Images
+
+Write the alt text between the square brackets and the path from the page's file between the round brackets:
+
+```md
+![The sidebar with the Reference group open and the current page marked](../images/sidebar.png)
+```
+
+![The sidebar with the Reference group open and the current page marked](../images/sidebar.png)
+
+[Add an image to a page](/add-an-image/) shows where the file goes and how a diagram follows the theme.
 
 ## Quotes
 

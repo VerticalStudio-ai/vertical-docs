@@ -29,9 +29,11 @@ With `pnpm dev` running, the page is at `http://localhost:4321/deploy/` and its 
 
 The build stops when a page breaks one of these rules:
 
-- The title comes from frontmatter, so headings in the body are `##` and `###` only.
+- The title comes from frontmatter, so headings in the body are `##` and `###` only. The first heading is a `##`.
 - Every code block names its language after the opening fence.
 - A page is plain Markdown. HTML is not allowed.
+- A list item is not a task. `- [ ]` and `- [x]` are not allowed; say in words what is done.
+- An image has alt text and is a file in `content/`, as shown in [Add an image to a page](/add-an-image/).
 
 The message names the file and says what to change:
 

@@ -59,6 +59,7 @@ const { previous, next } = neighbours(tree, href);
 			</nav>
 			<main>
 				<article class="prose">
+					<button type="button" class="copy" data-page={markdownUrl(href)}>Copy page</button>
 					<h1>{title}</h1>
 					<p class="lead">{description}</p>
 					<slot />
@@ -92,6 +93,33 @@ const { previous, next } = neighbours(tree, href);
 				const theme = (root.dataset.theme || system) === "dark" ? "light" : "dark";
 				root.dataset.theme = theme;
 				localStorage.setItem("theme", theme);
+			});
+
+			// Brings the current page into view in a long sidebar: on load, and when a phone opens the menu.
+			const sidebar = document.getElementById("sidebar");
+			const show = () => sidebar?.querySelector("[aria-current]")?.scrollIntoView({ block: "nearest" });
+			show();
+			sidebar?.addEventListener("toggle", show);
+
+			// One listener copies for every button: the page as Markdown, or the code block under the button.
+			for (const pre of document.querySelectorAll("pre")) {
+				pre.insertAdjacentHTML("beforebegin", '<button type="button" class="copy">Copy</button>');
+			}
+			addEventListener("click", async ({ target }) => {
+				if (!(target instanceof HTMLElement) || !target.matches(".copy")) return;
+				const label = target.textContent;
+				// A second click while the button says "Copied" would keep that word as its label.
+				if (label === "Copied") return;
+				const { page } = target.dataset;
+				// Safari allows a clipboard write only inside the click, so the page text goes in as a promise.
+				const text = page
+					? fetch(page).then((response) => response.text())
+					: (target.nextElementSibling?.textContent ?? "");
+				await navigator.clipboard.write([new ClipboardItem({ "text/plain": text })]);
+				target.textContent = "Copied";
+				setTimeout(() => {
+					target.textContent = label;
+				}, 1500);
 			});
 		</script>
 	</body>

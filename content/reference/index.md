@@ -1,7 +1,7 @@
 ---
 title: Reference
 description: Look up the frontmatter fields, the Markdown a page can use, the site configuration file and the files for agents.
-order: 6
+order: 7
 ---
 
 The reference pages list every option docs-kit reads.

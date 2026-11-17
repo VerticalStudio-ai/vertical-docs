@@ -13,7 +13,7 @@ Readers arrive from search, and agents fetch one section at a time. Every sectio
 
 ## Section
 
-- Use `##` and `###` only. A heading says what the section does, in the words a reader would search for.
+- Use `##` and `###` only, and put a `###` under a `##`. A heading says what the section does, in the words a reader would search for.
 - A section stands alone. Write the noun again instead of "it" or "this" across sections, and link instead of writing "see above".
 - A heading is an anchor that other pages and search results point to. Rename one only when its meaning changes.
 
@@ -32,7 +32,14 @@ Readers arrive from search, and agents fetch one section at a time. Every sectio
 
 - Second person, present tense, active voice. Plain words, no marketing.
 - Callouts are `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]` and `> [!CAUTION]`. Use one only for something the reader would otherwise get wrong.
-- Plain Markdown only: no HTML and no components.
+- Plain Markdown only: no HTML, no components and no task lists (`- [ ]`). Say in words what is done.
+
+## Images
+
+- An image is a file beside the page, written as `![what it shows](file.png)`. No web addresses.
+- The alt text says what the image shows, for a reader who cannot see it and for the search.
+- A diagram that differs per theme is two files, `name-light.svg` and `name-dark.svg`, on two lines with the same alt text.
+- A caption is a line in italics under the image.
 
 ## Done
 

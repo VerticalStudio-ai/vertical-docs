@@ -27,8 +27,8 @@ const plain = (markdown: string): string =>
 
 // What can stand before a block on its line: quote marks and one list marker.
 const lead = String.raw`(?:>\s?)*(?:(?:[-*+]|\d+\.)\s+)?`;
-const opens = new RegExp(String.raw`^\s*${lead}(\`{3,}|~{3,})`);
-const closes = /^[\s>]*(`{3,}|~{3,})\s*$/;
+export const opens = new RegExp(String.raw`^\s*${lead}(\`{3,}|~{3,})`);
+export const closes = /^[\s>]*(`{3,}|~{3,})\s*$/;
 const leads = new RegExp(String.raw`^\s*${lead}`);
 const starts = new RegExp(
 	String.raw`^ {0,3}${lead}#{2,3}[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$`,
