@@ -236,3 +236,16 @@ test("fails for a page that names a share image the site does not have", () => {
 		"public/share.png is missing: every page names it as its share image. Add a PNG of 1200 by 630 pixels.\n",
 	);
 });
+
+test("reads a redirect file with a comment, an empty line and wide spacing", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html": "",
+			"guide/index.html": "",
+			_redirects: "# Moved in 2026\n\n/old    /guide/   301\n",
+		},
+	);
+	assert.equal(stderr, "");
+	assert.equal(status, 0);
+});

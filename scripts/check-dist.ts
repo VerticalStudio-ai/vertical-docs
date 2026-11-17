@@ -116,8 +116,8 @@ if (isFile("dist/search.json")) {
 
 // An old address has to land on a page for good: Cloudflare answers these lines, and a line without a code is a temporary redirect.
 if (isFile("dist/_redirects")) {
-	for (const line of read("_redirects").trim().split("\n")) {
-		const [, to = "", code] = line.split(" ");
+	for (const line of read("_redirects").match(/^[^#\s].*$/gm) ?? []) {
+		const [, to = "", code] = line.split(/\s+/);
 		const { problem } = follow("_redirects", to);
 		if (problem) {
 			problems.push(
