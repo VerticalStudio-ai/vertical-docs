@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { satteri } from "@astrojs/markdown-satteri";
 import { defineConfig } from "astro/config";
 import { callout } from "./src/core/callout.ts";
@@ -9,13 +9,15 @@ const check = (node: Parameters<typeof writingProblem>[0]) => {
 	if (problem) throw new Error(problem);
 };
 
+// The folder is the one in src/content.config.ts.
+const content = resolve(process.env.DOCS_ROOT ?? "./content");
+// A site is one folder: its docs.config.json and public/ sit beside its content folder.
+const site = dirname(content);
+
 export default defineConfig({
-	// src/load.ts finds the image files of the content folder under this name. The folder is the one in src/content.config.ts.
-	vite: {
-		resolve: {
-			alias: { "@docs": resolve(process.env.DOCS_ROOT ?? "./content") },
-		},
-	},
+	publicDir: join(site, "public"),
+	// src/load.ts finds the image files of the content folder as @docs; the pages find the site's own files as @site.
+	vite: { resolve: { alias: { "@docs": content, "@site": site } } },
 	markdown: {
 		shikiConfig: {
 			themes: {

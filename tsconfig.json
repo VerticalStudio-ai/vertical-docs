@@ -1,3 +1,7 @@
 {
-	"extends": "astro/tsconfigs/strictest"
+	"extends": "astro/tsconfigs/strictest",
+	"compilerOptions": {
+		// Types come from the kit's own files; astro.config.ts points @site at the site being built.
+		"paths": { "@site/*": ["./*"] }
+	}
 }

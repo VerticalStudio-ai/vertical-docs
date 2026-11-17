@@ -1,9 +1,11 @@
 ---
+import config from "@site/docs.config.json";
+import logo from "@site/public/logo.svg?raw";
 import type { MarkdownHeading } from "astro";
-import config from "../../docs.config.json";
-import logo from "../../public/logo.svg?raw";
 import { markdownUrl } from "../core/llms.ts";
 import { type NavItem, neighbours } from "../core/nav.ts";
+import mono from "../fonts/geist-mono.woff2?url";
+import sans from "../fonts/geist-sans.woff2?url";
 import "../styles/global.css";
 import Search from "./Search.astro";
 import Sidebar from "./Sidebar.astro";
@@ -30,8 +32,8 @@ const { previous, next } = neighbours(tree, href);
 		<meta name="description" content={description} />
 		<link rel="alternate" type="text/markdown" href={markdownUrl(href)} />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-		<link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossorigin />
-		<link rel="preload" href="/fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={sans} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={mono} as="font" type="font/woff2" crossorigin />
 		{/* Applies a saved theme before the first paint, so the page does not flash. */}
 		<script is:inline>
 			document.documentElement.dataset.theme = localStorage.getItem("theme") ?? "";
