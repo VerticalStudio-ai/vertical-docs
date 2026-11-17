@@ -26,3 +26,9 @@ jobs:
         with:
           configPath: lighthouserc.json
           runs: 3
+      # Publishes the build once a Cloudflare account is set: main to the live site, a pull request to its own preview address.
+      - if: vars.CLOUDFLARE_ACCOUNT_ID != ''
+        run: pnpm dlx wrangler@4.161.0 ${{ github.event_name == 'push' && 'deploy' || format('versions upload --preview-alias pr-{0}', github.event.number) }} --message ${{ github.sha }}
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
