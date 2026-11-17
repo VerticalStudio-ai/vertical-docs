@@ -28,7 +28,7 @@ This is the "functional core, imperative shell" pattern. It is the lightest form
 
 | Concern | Choice | Why |
 |---|---|---|
-| Package manager | **pnpm**, pinned in `packageManager` | Its strict `node_modules` makes an undeclared import fail, which is what enforces the dependency list. It skips dependency install scripts by default (`allowBuilds` lists exceptions; no dependency needs one) and holds back versions published less than a day ago (`minimumReleaseAge`). It is already used in your other repos. |
+| Package manager | **pnpm**, pinned in `packageManager` | Its strict `node_modules` makes an undeclared import fail, which is what enforces the dependency list. It skips dependency install scripts by default (`allowBuilds` lists exceptions; no dependency needs one) and refuses versions published less than three days ago (`minimumReleaseAge` in `pnpm-workspace.yaml`). It is already used in your other repos. |
 | Runtime | Node 22.23 or later | Required by Astro 7. It also runs `.ts` files and `node --test` directly, which removes the test framework and any build step for the command-line tool. |
 | Framework | **Astro 7.4**, static output | Zero client JavaScript by default. Content collections validate frontmatter. A `content/` folder outside `src/` works (tested). |
 | Markdown | Astro's built-in engine | Plain `.md` only. Callouts use GitHub alert syntax through a 15-line plugin of our own (tested). |

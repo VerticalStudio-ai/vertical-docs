@@ -7,7 +7,7 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `pnpm dev`: local site.
 - `pnpm check`: the only definition of done. Run it before you say a change works, and fix what it reports instead of working around it.
 - `pnpm fix`: format and apply safe lint fixes.
-- `pnpm search "<query>"`: the same ranked search the site and the MCP server use.
+- `pnpm search "<query>"`: the same ranked search the site and the MCP server use. Arrives in phase 2.
 
 ## Map
 

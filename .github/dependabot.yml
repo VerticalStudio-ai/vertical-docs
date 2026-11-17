@@ -7,6 +7,9 @@ updates:
     groups:
       all:
         patterns: ["*"]
+    # Matches minimumReleaseAge in pnpm-workspace.yaml, so CI accepts what Dependabot proposes.
+    cooldown:
+      default-days: 3
     ignore:
       # Astro's checker does not accept TypeScript 7 yet.
       - dependency-name: typescript

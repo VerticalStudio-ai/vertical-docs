@@ -1,0 +1,2 @@
+# Three days, in minutes. Setting it makes pnpm refuse a newer version instead of falling back to it.
+minimumReleaseAge: 4320
