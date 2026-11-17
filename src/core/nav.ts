@@ -5,6 +5,9 @@ type Page = {
 
 export type NavItem = { title: string; href: string; children: NavItem[] };
 
+/** Returns the URL of the page with this id: `/` for the home page, otherwise the id between slashes. */
+export const pageUrl = (id: string) => (id === "index" ? "/" : `/${id}/`);
+
 const itemsIn = (pages: Page[], folder: string): NavItem[] =>
 	pages
 		.filter(
@@ -18,7 +21,7 @@ const itemsIn = (pages: Page[], folder: string): NavItem[] =>
 		)
 		.map(({ id, data }) => ({
 			title: data.title,
-			href: id === "index" ? "/" : `/${id}/`,
+			href: pageUrl(id),
 			children: itemsIn(pages, `${id}/`),
 		}));
 
@@ -36,7 +39,8 @@ export const sidebar = (pages: Page[]) => {
 	return itemsIn(pages, "");
 };
 
-const flat = (items: NavItem[]): NavItem[] =>
+/** Returns every item of a tree in reading order: an item, then the items under it. */
+export const flat = (items: NavItem[]): NavItem[] =>
 	items.flatMap((item) => [item, ...flat(item.children)]);
 
 /** Returns the pages before and after `href` in sidebar reading order; either is undefined at the ends. */

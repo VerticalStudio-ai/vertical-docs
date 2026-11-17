@@ -1,5 +1,6 @@
 {
 	"name": "docs-kit",
+	"description": "Markdown files become a website, a Markdown copy of every page and one search index for readers, terminals and agents.",
 	"repo": "https://github.com/ztsrdev/docs-kit",
 	"accent": "#171717"
 }

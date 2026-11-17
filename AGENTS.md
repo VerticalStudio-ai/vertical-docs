@@ -7,7 +7,7 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `pnpm dev`: local site.
 - `pnpm check`: the only definition of done. Run it before you say a change works, and fix what it reports instead of working around it.
 - `pnpm fix`: format and apply safe lint fixes.
-- `pnpm search "<query>"`: the same ranked search the site and the MCP server use. Arrives in phase 2.
+- `pnpm run search "<query>"`: the ranked search the site uses, on the last build. Write `run`: `pnpm search` alone is pnpm's own registry search.
 
 ## Map
 
@@ -20,6 +20,7 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `src/cli.ts`, `src/worker.ts`: the terminal and MCP edges. They call core and do input and output.
 - `scripts/check-dist.ts`: link, anchor, size and dependency checks on the build.
 - `lighthouserc.json`: the Lighthouse scores CI enforces on the build.
+- `design/features.md`: what the product does, in a customer's words. Every phase updates it: one line per feature, and a built line carries its proof.
 
 ## Rules the tools cannot check
 

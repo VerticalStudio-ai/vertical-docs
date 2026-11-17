@@ -94,3 +94,81 @@ test("counts an inline script once when every page repeats it", () => {
 	assert.equal(stderr, "");
 	assert.equal(status, 0);
 });
+
+test("fails for a search result that points to no page or to no heading", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html": '<h2 id="setup">Setup</h2>',
+			"search.json": JSON.stringify([
+				{ url: "/" },
+				{ url: "/#setup" },
+				{ url: "/nope/" },
+				{ url: "/#nope" },
+			]),
+		},
+	);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		'search.json: result "/nope/" points to no file in dist. Write the heading more simply, or make src/core/sections.ts read it the way the site does.\nsearch.json: result "/#nope" points to a heading that does not exist. Write the heading more simply, or make src/core/sections.ts read it the way the site does.\n',
+	);
+});
+
+test("counts a script file that a page loads against the page budget", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html": '<script type="module" src="/_astro/page.js"></script>',
+			"_astro/page.js": `// ${noise}`,
+		},
+	);
+	assert.equal(status, 1);
+	assert.match(
+		stderr,
+		/^JavaScript is \d+\.\d KB gzipped, over the 1 KB budget/,
+	);
+});
+
+test("gives JavaScript that no page loads its own, larger budget", () => {
+	const page = {
+		"index.html": "<script>new Worker(`/_astro/worker.js`)</script>",
+	};
+	const within = run({}, { ...page, "_astro/worker.js": `// ${noise}` });
+	assert.equal(within.stderr, "");
+	assert.equal(within.status, 0);
+	// A repeated block compresses away, so the larger file is new random text.
+	const more = randomBytes(12000).toString("base64");
+	const over = run({}, { ...page, "_astro/worker.js": `// ${more}` });
+	assert.equal(over.status, 1);
+	assert.match(
+		over.stderr,
+		/^JavaScript loaded on demand is \d+\.\d KB gzipped, over the 8 KB budget/,
+	);
+});
+
+test("counts a file that a page script imports by name against the page budget", () => {
+	const files = { "_astro/shared.js": `// ${noise}` };
+	const viaFile = run(
+		{},
+		{
+			...files,
+			"index.html": '<script type="module" src="/_astro/entry.js"></script>',
+			"_astro/entry.js": 'import{a}from"./shared.js";a();',
+		},
+	);
+	const viaInline = run(
+		{},
+		{
+			...files,
+			"index.html": '<script type="module">import"/_astro/shared.js";</script>',
+		},
+	);
+	for (const { status, stderr } of [viaFile, viaInline]) {
+		assert.equal(status, 1);
+		assert.match(
+			stderr,
+			/^JavaScript is \d+\.\d KB gzipped, over the 1 KB budget/,
+		);
+	}
+});

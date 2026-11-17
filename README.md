@@ -2,8 +2,9 @@
 
 A super-light, agent-native docs system: Markdown in a repo, a static site, one search index shared by humans and agents, and an agent that keeps the docs in sync with the code.
 
-Status: phases 0 and 1 of the plan are built: the site with its sidebar, themes and sample pages, and `pnpm check`.
+Status: phases 0 to 2 of the plan are built: the site with its sidebar, themes and sample pages, the search in the site and in the terminal, the files for agents, and `pnpm check`.
 
+- [Features](design/features.md): what the product does today and what is planned, each built line with its proof.
 - [Architecture and stack plan](design/architecture.md): what will be built, with what, in which order.
 - [Research](design/research.md): the evidence behind the plan.
 - [Brief](design/brief.md): the original proposal.

@@ -1,16 +1,17 @@
 ---
 title: Site configuration
-description: Set the site name, the repository link and the accent colour, and replace the logo and the favicon.
+description: Set the site name, its description, the repository link and the accent colour, and replace the logo and the favicon.
 order: 3
 ---
 
-A site is branded with one configuration file and two images. Change `docs.config.json` for the name, the repository link and the accent colour, and replace `public/logo.svg` and `public/favicon.svg` for the logo.
+A site is branded with one configuration file and two images. Change `docs.config.json` for the name, the description, the repository link and the accent colour, and replace `public/logo.svg` and `public/favicon.svg` for the logo.
 
 ## docs.config.json
 
 ```json
 {
 	"name": "docs-kit",
+	"description": "Markdown files become a website, a Markdown copy of every page and one search index for readers, terminals and agents.",
 	"repo": "https://github.com/ztsrdev/docs-kit",
 	"accent": "#171717"
 }
@@ -19,6 +20,7 @@ A site is branded with one configuration file and two images. Change `docs.confi
 | Field | Used for |
 |---|---|
 | `name` | The text next to the logo and the end of the browser tab title. |
+| `description` | The summary under the name in [`/llms.txt`](/reference/agents/#llmstxt). |
 | `repo` | The GitHub link in the header. |
 | `accent` | The colour of links, the current page in the sidebar, the focus ring and the edge of a callout. |
 
