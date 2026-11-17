@@ -1,0 +1,39 @@
+# Writing docs
+
+For anyone, human or agent, writing a page in `content/`.
+
+Readers arrive from search, and agents fetch one section at a time. Every section has to work without the rest of the page.
+
+## Page
+
+- One page answers one question or covers one task. If the title needs "and", split the page.
+- Pick one kind and stay in it: a tutorial (learn by doing), a how-to (finish a task), a reference (look up a fact), or an explanation (understand why).
+- Frontmatter is `title` (70 characters at most, naming the task: "Authenticate a request"), `description` (160 at most, one sentence saying what the reader can do afterwards) and an optional `order`.
+- The first paragraph gives the answer or the result. Background comes after it.
+
+## Section
+
+- Use `##` and `###` only. A heading says what the section does, in the words a reader would search for.
+- A section stands alone. Write the noun again instead of "it" or "this" across sections, and link instead of writing "see above".
+- A heading is an anchor that other pages and search results point to. Rename one only when its meaning changes.
+
+## Examples
+
+- Every task has one complete example that runs as written, followed by the output to expect.
+- Tag each code block with its language.
+
+## Truth
+
+- Document what the code does today. Read the code or run it. If you cannot confirm a behaviour, leave it out and say so in the pull request.
+- Document public behaviour only.
+- When behaviour is removed, delete its docs in the same change.
+
+## Style
+
+- Second person, present tense, active voice. Plain words, no marketing.
+- Callouts are `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]` and `> [!CAUTION]`. Use one only for something the reader would otherwise get wrong.
+- Plain Markdown only: no HTML and no components.
+
+## Done
+
+`pnpm check` passes.

@@ -4,4 +4,8 @@ A super-light, agent-native docs system: Markdown in a repo, a static site, one 
 
 Status: design. Nothing is built yet.
 
-- [Brief](design/brief.md): the proposal under review.
+- [Architecture and stack plan](design/architecture.md): what will be built, with what, in which order.
+- [Research](design/research.md): the evidence behind the plan.
+- [Brief](design/brief.md): the original proposal.
+- [AGENTS.md](AGENTS.md): rules for agents changing the code.
+- [WRITING.md](WRITING.md): rules for writing a docs page.
