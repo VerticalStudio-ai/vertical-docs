@@ -1,0 +1,29 @@
+---
+import { render } from "astro:content";
+import { loadPages } from "../load.ts";
+
+export const getStaticPaths = async () =>
+	(await loadPages()).map((page) => ({
+		params: { slug: page.id === "index" ? undefined : page.id },
+		props: { page },
+	}));
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{page.data.title}</title>
+		<meta name="description" content={page.data.description} />
+	</head>
+	<body>
+		<main>
+			<h1>{page.data.title}</h1>
+			<Content />
+		</main>
+	</body>
+</html>

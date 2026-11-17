@@ -1,0 +1,61 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"markdown": {
+		"formatter": {
+			"enabled": false
+		}
+	},
+	"html": {
+		"experimentalFullSupportEnabled": true
+	},
+	"linter": {
+		"rules": {
+			"style": {
+				"noDefaultExport": "error"
+			},
+			"performance": {
+				"noBarrelFile": "error"
+			}
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["src/core/**", "!**/*.test.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noNodejsModules": "error"
+					},
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"patterns": [
+									{
+										"group": ["astro", "astro:*", "astro/**"],
+										"message": "Core is pure. Read content in src/load.ts and pass data in."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["astro.config.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
+				}
+			}
+		}
+	]
+}

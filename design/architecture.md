@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: proposal for approval. Nothing is built yet. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
+Status: phase 0 is built. Phases 1 to 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -28,7 +28,7 @@ This is the "functional core, imperative shell" pattern. It is the lightest form
 
 | Concern | Choice | Why |
 |---|---|---|
-| Package manager | **pnpm**, pinned in `packageManager` | Its strict `node_modules` makes an undeclared import fail, which is what enforces the dependency list. It skips dependency install scripts by default. It is already used in your other repos. |
+| Package manager | **pnpm**, pinned in `packageManager` | Its strict `node_modules` makes an undeclared import fail, which is what enforces the dependency list. It skips dependency install scripts by default (`allowBuilds` lists exceptions; no dependency needs one) and refuses versions published less than three days ago (`minimumReleaseAge` in `pnpm-workspace.yaml`). It is already used in your other repos. |
 | Runtime | Node 22.23 or later | Required by Astro 7. It also runs `.ts` files and `node --test` directly, which removes the test framework and any build step for the command-line tool. |
 | Framework | **Astro 7.4**, static output | Zero client JavaScript by default. Content collections validate frontmatter. A `content/` folder outside `src/` works (tested). |
 | Markdown | Astro's built-in engine | Plain `.md` only. Callouts use GitHub alert syntax through a 15-line plugin of our own (tested). |
@@ -61,7 +61,7 @@ Runtime, the complete list:
 | `github-slugger` | no, already inside Astro | Core must produce the same heading anchors as Astro. |
 | `@modelcontextprotocol/server` | yes, phase 3 | MCP protocol. Brings `zod`, which Astro already installs. |
 
-Development: `typescript` (6.x, because Astro's checker does not accept 7 yet), `@astrojs/check`, `@biomejs/biome`, `knip`.
+Development: `typescript` (6.x, because Astro's checker does not accept 7 yet), `@types/node` (types for the scripts, the command-line tool and the tests), `@astrojs/check`, `@biomejs/biome`, `knip`.
 
 Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remark-directive`, `vitest` and the lychee link checker.
 
@@ -78,6 +78,7 @@ docs-kit/
 │   │   ├── sections.ts       Markdown → heading-level section records
 │   │   ├── search.ts         records → index; query → ranked hits
 │   │   ├── llms.ts           pages → llms.txt; page → Markdown with title
+│   │   ├── writing.ts        Markdown node → the WRITING.md rule it breaks
 │   │   └── *.test.ts         beside the file they test
 │   ├── load.ts               the only file that reads the content collection
 │   ├── content.config.ts     collection and frontmatter schema
@@ -163,6 +164,8 @@ The research changed how the rules are enforced more than what they are. The one
 | JavaScript and CSS size budgets | `check-dist`, gzip sizes |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |
+| Headings are `##` or `###`, code blocks name a language, no HTML | Markdown plugin at build, registered in `astro.config.ts` |
+| The lint rules and `check-dist` still catch what they should | Tests beside `biome.json` and `scripts/check-dist.ts` |
 | Docs agent edits only `content/` | Path guard in the sync workflow |
 
 Three of the brief's twelve rules change:
@@ -208,10 +211,9 @@ Phase 0 is small enough to do directly. Phases 1 to 3 are ticket-sized. Each pha
 
 Each is checked with a small test at the start of its phase.
 
-- pnpm 12 settings for a release-age delay and the install-script allowlist (phase 0).
-- Exact Biome 2.6 rule names for the four lint rules (phase 0).
 - `DOCS_ROOT` outside the project folder with Astro's loader (phase 1; a sibling folder inside the project is tested).
 - `scroll-target-group` behaviour in current Chrome, Safari and Firefox (phase 1).
+- Which tool runs the Lighthouse gate, and whether it runs in CI or in `pnpm check`. No phase claims the gate yet (phase 1).
 - Whether `@modelcontextprotocol/server` alone serves a stateless route on Workers, or Cloudflare's `agents` package is needed. Take the smaller option that passes a test with Claude Code and one other client (phase 3).
 - Preview deployments per pull request on Workers (phase 3).
 - A reusable workflow in a private repository called from a repository under another account (phase 3).
