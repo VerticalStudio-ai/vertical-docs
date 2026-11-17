@@ -1,29 +1,28 @@
 ---
 import { render } from "astro:content";
+import Doc from "../components/Doc.astro";
+import { sidebar } from "../core/nav.ts";
 import { loadPages } from "../load.ts";
 
-export const getStaticPaths = async () =>
-	(await loadPages()).map((page) => ({
+export const getStaticPaths = async () => {
+	const pages = await loadPages();
+	const tree = sidebar(pages);
+	return pages.map((page) => ({
 		params: { slug: page.id === "index" ? undefined : page.id },
-		props: { page },
+		props: { page, tree },
 	}));
+};
 
-const { page } = Astro.props;
-const { Content } = await render(page);
+const { page, tree } = Astro.props;
+const { Content, headings } = await render(page);
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>{page.data.title}</title>
-		<meta name="description" content={page.data.description} />
-	</head>
-	<body>
-		<main>
-			<h1>{page.data.title}</h1>
-			<Content />
-		</main>
-	</body>
-</html>
+<Doc
+	title={page.data.title}
+	description={page.data.description}
+	href={Astro.url.pathname}
+	tree={tree}
+	headings={headings}
+>
+	<Content />
+</Doc>

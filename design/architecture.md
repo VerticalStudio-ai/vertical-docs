@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phase 0 is built. Phases 1 to 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
+Status: phases 0 and 1 are built. Phases 2 to 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -70,7 +70,7 @@ Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remar
 ```
 docs-kit/
 ├── content/                  the kit's own docs; the only folder a docs agent edits
-├── docs.config.json          name, description, url, repo, accent
+├── docs.config.json          name, repo, accent; description and url arrive with their first use
 ├── public/                   logo.svg, favicon.svg, fonts/
 ├── src/
 │   ├── core/                 pure: no Astro, Node or browser imports
@@ -79,6 +79,7 @@ docs-kit/
 │   │   ├── search.ts         records → index; query → ranked hits
 │   │   ├── llms.ts           pages → llms.txt; page → Markdown with title
 │   │   ├── writing.ts        Markdown node → the WRITING.md rule it breaks
+│   │   ├── callout.ts        blockquote text → callout kind
 │   │   └── *.test.ts         beside the file they test
 │   ├── load.ts               the only file that reads the content collection
 │   ├── content.config.ts     collection and frontmatter schema
@@ -161,7 +162,7 @@ The research changed how the rules are enforced more than what they are. The one
 | Core imports nothing from Astro, Node or the browser | Biome import restriction on `src/core/` |
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
-| JavaScript and CSS size budgets | `check-dist`, gzip sizes |
+| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS and 1 KB of JavaScript, set from the phase 1 build (1.8 KB and 0.3 KB) |
 | Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |

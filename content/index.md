@@ -1,6 +1,7 @@
 ---
 title: Run docs-kit locally
 description: Install the dependencies, start the local site, and run the one check that decides whether a change is done.
+order: 1
 ---
 
 Run `pnpm install` once, `pnpm dev` to read the site while you write, and `pnpm check` before you call a change done. You need Node 22.23 or later and the pnpm version pinned in `package.json`.
@@ -31,12 +32,12 @@ The local site is at `http://localhost:4321/`. Each Markdown file in `content/` 
 pnpm check
 ```
 
-`pnpm check` checks types, lint and formatting, unused code and tests. `pnpm check` then builds the site into `dist/` and checks every link and anchor in the build, and the dependency list in `package.json`.
+`pnpm check` checks types, lint and formatting, unused code and tests. `pnpm check` then builds the site into `dist/` and checks every link and anchor in the build, the size of the CSS and JavaScript, and the dependency list in `package.json`.
 
 A passing run ends with the build summary and exits with code 0:
 
 ```text
-[build] 1 page(s) built in 979ms
+[build] 7 page(s) built in 860ms
 [build] Complete!
 ```
 

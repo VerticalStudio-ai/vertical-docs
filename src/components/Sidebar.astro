@@ -1,0 +1,23 @@
+---
+import type { NavItem } from "../core/nav.ts";
+
+interface Props {
+	items: NavItem[];
+	current: string;
+}
+
+const { items, current } = Astro.props;
+---
+
+<ul>
+	{
+		items.map((item) => (
+			<li>
+				<a href={item.href} aria-current={item.href === current ? "page" : undefined}>
+					{item.title}
+				</a>
+				{item.children.length > 0 && <Astro.self items={item.children} current={current} />}
+			</li>
+		))
+	}
+</ul>

@@ -15,6 +15,8 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `src/core/`: all logic, as pure functions. Tests sit beside each file.
 - `src/load.ts`: the only file that reads the content collection.
 - `src/pages/`, `src/components/`: the website. They call core and render.
+- `src/styles/global.css`: every style, with the colour and font tokens in one block at the top.
+- `docs.config.json`, `public/`: what a docs site replaces to brand itself: name, repository link, accent colour, logo and favicon.
 - `src/cli.ts`, `src/worker.ts`: the terminal and MCP edges. They call core and do input and output.
 - `scripts/check-dist.ts`: link, anchor, size and dependency checks on the build.
 

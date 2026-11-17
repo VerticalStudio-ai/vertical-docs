@@ -1,0 +1,93 @@
+---
+import type { MarkdownHeading } from "astro";
+import config from "../../docs.config.json";
+import logo from "../../public/logo.svg?raw";
+import { type NavItem, neighbours } from "../core/nav.ts";
+import "../styles/global.css";
+import Sidebar from "./Sidebar.astro";
+import Toc from "./Toc.astro";
+
+interface Props {
+	title: string;
+	description: string;
+	href: string;
+	tree: NavItem[];
+	headings: MarkdownHeading[];
+}
+
+const { title, description, href, tree, headings } = Astro.props;
+const { previous, next } = neighbours(tree, href);
+---
+
+<!doctype html>
+<html lang="en" style={`--accent: ${config.accent}`}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{title} · {config.name}</title>
+		<meta name="description" content={description} />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin />
+		{/* Applies a saved theme before the first paint, so the page does not flash. */}
+		<script is:inline>
+			document.documentElement.dataset.theme = localStorage.getItem("theme") ?? "";
+		</script>
+	</head>
+	<body>
+		<header class="top">
+			<button type="button" class="menu" popovertarget="sidebar" aria-label="Open navigation">
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+					<path d="M1 3h14v1.5H1zM1 7.25h14v1.5H1zM1 11.5h14V13H1z"></path>
+				</svg>
+			</button>
+			<a href="/" class="brand"><Fragment set:html={logo} />{config.name}</a>
+			<a href={config.repo} class="repo">GitHub</a>
+			<button type="button" id="theme" aria-label="Switch between light and dark theme">
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+					<path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1m0 1.5v11a5.5 5.5 0 0 1 0-11"></path>
+				</svg>
+			</button>
+		</header>
+		<div class="frame">
+			<nav id="sidebar" class="sidebar" popover aria-label="Pages">
+				<Sidebar items={tree} current={href} />
+			</nav>
+			<main>
+				<article class="prose">
+					<h1>{title}</h1>
+					<p class="lead">{description}</p>
+					<slot />
+				</article>
+				<nav class="pager" aria-label="Previous and next page">
+					{
+						previous && (
+							<a href={previous.href} rel="prev">
+								<small>Previous</small>
+								{previous.title}
+							</a>
+						)
+					}
+					{
+						next && (
+							<a href={next.href} rel="next">
+								<small>Next</small>
+								{next.title}
+							</a>
+						)
+					}
+				</nav>
+			</main>
+			{headings.length > 0 && <Toc headings={headings} />}
+		</div>
+		<script>
+			const root = document.documentElement;
+			document.getElementById("theme")?.addEventListener("click", () => {
+				const system = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+				const theme = (root.dataset.theme || system) === "dark" ? "light" : "dark";
+				root.dataset.theme = theme;
+				localStorage.setItem("theme", theme);
+			});
+		</script>
+	</body>
+</html>
