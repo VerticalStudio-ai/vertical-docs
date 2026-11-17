@@ -113,7 +113,7 @@ if (isFile("dist/search.json")) {
 
 const withExt = (ext: string) => files.filter((file) => file.endsWith(ext));
 
-// Gzipped bytes a reader downloads for all pages together. The phase 3a build measures 2.4 KB of CSS, 1.2 KB of JavaScript that a page loads (the copy buttons took it past the first budget of 1 KB), and 6.1 KB of JavaScript that loads on demand, which is the search.
+// Gzipped bytes a reader downloads for all pages together. The phase 3a build measures 2.5 KB of CSS, 1.2 KB of JavaScript that a page loads (the copy buttons took it past the first budget of 1 KB), and 6.1 KB of JavaScript that loads on demand, which is the search.
 const budgets = [
 	{
 		name: "CSS",

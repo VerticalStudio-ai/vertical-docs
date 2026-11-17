@@ -24,8 +24,9 @@ export const loadImageUrls = async ({
 		await Promise.all(
 			(rendered?.metadata?.imagePaths ?? []).map(async (path) => {
 				const load = files.get(join(dirname(filePath), path));
-				const { src } = await getImage({ src: load?.() ?? path });
-				return [path, src] as const;
+				// A file the list above does not name keeps the path the page writes.
+				const url = load ? (await getImage({ src: load() })).src : path;
+				return [path, url] as const;
 			}),
 		),
 	);

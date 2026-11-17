@@ -86,3 +86,14 @@ test("finds an image whose path is written with encoded spaces", () => {
 		"![The sign-in form](/_astro/sign-in.abc.webp)",
 	);
 });
+
+test("throws for an image of the page that it cannot find in the Markdown", () => {
+	assert.throws(
+		() =>
+			withImageUrls(
+				"![The sign-in form](<sign-in.png>)",
+				new Map([["sign-in.png", "/_astro/sign-in.abc.webp"]]),
+			),
+		/The image sign-in\.png .* Write it as !\[what it shows\]\(file\.png\)/,
+	);
+});

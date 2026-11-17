@@ -554,6 +554,11 @@
 			&[data-page] {
 				margin: 0.375rem 0 0 1rem;
 			}
+
+			/* Without JavaScript the button cannot copy. */
+			@media (scripting: none) {
+				display: none;
+			}
 		}
 
 		& img {

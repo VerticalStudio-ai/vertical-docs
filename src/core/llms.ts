@@ -15,25 +15,34 @@ export const markdownUrl = (href: string) =>
 export const pageMarkdown = ({ data, body = "" }: Page) =>
 	`# ${data.title}\n\n${data.description}\n\n${body.trim()}\n`;
 
-/** Returns the Markdown with each image outside code pointing at the URL that `urls` holds for its path, which the page may write with encoded spaces. An image whose path `urls` lacks stays as written. */
+/** Returns the Markdown with each image outside code pointing at the URL that `urls` holds for its path, which the page may write with encoded spaces. Throws when it cannot find an image of `urls` in the Markdown. */
 export const withImageUrls = (markdown: string, urls: Map<string, string>) => {
+	const found = new Set<string>();
 	let fence = "";
-	return markdown
-		.split("\n")
-		.map((line) => {
-			const [, mark] = opens.exec(line) ?? [];
-			if (fence) {
-				if (closes.exec(line)?.[1]?.startsWith(fence)) fence = "";
-				return line;
-			}
-			fence = mark ?? "";
-			return line.replace(
-				/`[^`]+`|(!\[[^\]]*\]\()([^\s)]+)/g,
-				(all, open?: string, path = "") =>
-					open ? open + (urls.get(decodeURI(path)) ?? path) : all,
+	const lines = markdown.split("\n").map((line) => {
+		const [, mark] = opens.exec(line) ?? [];
+		if (fence) {
+			if (closes.exec(line)?.[1]?.startsWith(fence)) fence = "";
+			return line;
+		}
+		fence = mark ?? "";
+		return line.replace(
+			/`[^`]+`|(!\[[^\]]*\]\()([^\s)]+)/g,
+			(all, open?: string, written = "") => {
+				const path = decodeURI(written);
+				found.add(path);
+				return open ? open + (urls.get(path) ?? written) : all;
+			},
+		);
+	});
+	for (const path of urls.keys()) {
+		if (!found.has(path)) {
+			throw new Error(
+				`The image ${path} is written in a way the Markdown copy of the page cannot follow. Write it as ![what it shows](file.png), with no brackets in the alt text or the file name.`,
 			);
-		})
-		.join("\n");
+		}
+	}
+	return lines.join("\n");
 };
 
 /** Returns llms.txt in the llmstxt.org format: the site name, its description, then every page as a link to its Markdown copy. Pages outside a folder come first under "Docs"; each folder is a section named after its index page. Inside a section the pages are in sidebar order. */

@@ -129,7 +129,7 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 |---|---|
 | Mobile navigation | Popover API |
 | Sidebar groups | `<details>`: a folder is a group that opens and closes, and the build opens the groups that hold the current page. One sidebar holds all sections; header tabs per section were prototyped and dropped. |
-| Diagram per theme | One CSS rule on the file name (`-light.` and `-dark.`), which also follows the manual theme switch. Tested in Chrome only. |
+| Diagram per theme | One CSS rule on the file name (`-light.` and `-dark.`), which also follows the manual theme switch. Tested in Chrome and Firefox. |
 | Wide table on a small screen | CSS: the table scrolls sideways inside itself. |
 | Search dialog | `<dialog>`, with the search in a Web Worker. A lazy `import()` would be the obvious way to load the search on first open, but Vite adds a preload helper of about 0.8 KB gzipped to any page script that has one. A worker loads just as late, needs no helper, and keeps indexing off the page. |
 | Theme | `color-scheme` and `light-dark()`; a few inline lines apply a saved choice before paint |
@@ -169,7 +169,7 @@ The research changed how the rules are enforced more than what they are. The one
 | Core imports nothing from Astro, Node or the browser | Biome import restriction on `src/core/` |
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
-| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1.25 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand. The phase 3a build measures 2.4 KB, 1.2 KB and 6.1 KB; the page budget rose from 1 KB for the copy buttons. |
+| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1.25 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand. The phase 3a build measures 2.5 KB, 1.2 KB and 6.1 KB; the page budget rose from 1 KB for the copy buttons. |
 | Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |
@@ -229,7 +229,7 @@ Each is checked with a small test at the start of its phase.
 - Whether `@modelcontextprotocol/server` alone serves a stateless route on Workers, or Cloudflare's `agents` package is needed. Take the smaller option that passes a test with Claude Code and one other client (phase 3b).
 - Preview deployments per pull request on Workers (phase 3b).
 - A reusable workflow in a private repository called from a repository under another account (phase 3b).
-- Safari and Firefox for what phase 3a added: the copy buttons, the diagram per theme and the sidebar groups. Only Chrome was tested.
+- Safari for what phase 3a added: the copy buttons, the diagram per theme and the sidebar groups. Chrome and Firefox were tested.
 
 ## Decisions that are yours
 
