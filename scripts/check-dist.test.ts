@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -58,4 +59,38 @@ test("fails for a dependency that is not on the list", () => {
 	const { status, stderr } = run({ "left-pad": "1" }, { "index.html": "" });
 	assert.equal(status, 1);
 	assert.match(stderr, /"left-pad" is not on the dependency list/);
+});
+
+// Random text does not compress, so 6,000 bytes of it is over both budgets.
+const noise = randomBytes(6000).toString("base64");
+
+test("fails when the CSS is over its budget", () => {
+	const { status, stderr } = run(
+		{},
+		{ "index.html": "", "_astro/site.css": `/* ${noise} */` },
+	);
+	assert.equal(status, 1);
+	assert.match(stderr, /CSS is \d+\.\d KB gzipped, over the 4 KB budget/);
+});
+
+test("fails when the JavaScript is over its budget, inline scripts included", () => {
+	const { status, stderr } = run(
+		{},
+		{ "index.html": `<script>// ${noise}</script>` },
+	);
+	assert.equal(status, 1);
+	assert.match(
+		stderr,
+		/JavaScript is \d+\.\d KB gzipped, over the 1 KB budget/,
+	);
+});
+
+test("counts an inline script once when every page repeats it", () => {
+	const script = `<script>// ${noise.slice(0, 600)}</script>`;
+	const { status, stderr } = run(
+		{},
+		{ "index.html": script, "a/index.html": script, "b/index.html": script },
+	);
+	assert.equal(stderr, "");
+	assert.equal(status, 0);
 });

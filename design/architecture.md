@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phase 0 is built. Phases 1 to 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
+Status: phases 0 and 1 are built. Phases 2 to 4 are planned. This replaces sections 2 to 10 of the [brief](brief.md); the brief's goals and non-goals stand.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -30,7 +30,7 @@ This is the "functional core, imperative shell" pattern. It is the lightest form
 |---|---|---|
 | Package manager | **pnpm**, pinned in `packageManager` | Its strict `node_modules` makes an undeclared import fail, which is what enforces the dependency list. It skips dependency install scripts by default (`allowBuilds` lists exceptions; no dependency needs one) and refuses versions published less than three days ago (`minimumReleaseAge` in `pnpm-workspace.yaml`). It is already used in your other repos. |
 | Runtime | Node 22.23 or later | Required by Astro 7. It also runs `.ts` files and `node --test` directly, which removes the test framework and any build step for the command-line tool. |
-| Framework | **Astro 7.4**, static output | Zero client JavaScript by default. Content collections validate frontmatter. A `content/` folder outside `src/` works (tested). |
+| Framework | **Astro 7.4**, static output | Zero client JavaScript by default. Content collections validate frontmatter. A `content/` folder outside `src/` works, and so does one outside the project folder (both tested). |
 | Markdown | Astro's built-in engine | Plain `.md` only. Callouts use GitHub alert syntax through a 15-line plugin of our own (tested). |
 | Styling | **Plain CSS**, one token block | Custom properties, nesting, `light-dark()`, `@layer` and `:has()` are all Baseline now. Removes two dependencies. |
 | Code highlighting | Shiki (inside Astro), light and dark themes | One CSS rule with `light-dark()` switches themes. No client JavaScript. |
@@ -70,7 +70,7 @@ Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remar
 ```
 docs-kit/
 ├── content/                  the kit's own docs; the only folder a docs agent edits
-├── docs.config.json          name, description, url, repo, accent
+├── docs.config.json          name, repo, accent; description and url arrive with their first use
 ├── public/                   logo.svg, favicon.svg, fonts/
 ├── src/
 │   ├── core/                 pure: no Astro, Node or browser imports
@@ -79,6 +79,7 @@ docs-kit/
 │   │   ├── search.ts         records → index; query → ranked hits
 │   │   ├── llms.ts           pages → llms.txt; page → Markdown with title
 │   │   ├── writing.ts        Markdown node → the WRITING.md rule it breaks
+│   │   ├── callout.ts        blockquote text → callout kind
 │   │   └── *.test.ts         beside the file they test
 │   ├── load.ts               the only file that reads the content collection
 │   ├── content.config.ts     collection and frontmatter schema
@@ -125,7 +126,7 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 | Mobile navigation | Popover API |
 | Search dialog | `<dialog>` |
 | Theme | `color-scheme` and `light-dark()`; a few inline lines apply a saved choice before paint |
-| Active section in the table of contents | CSS `scroll-target-group`, as an enhancement. Browsers without it show a plain list. The brief's JavaScript scroll-spy is not built unless this proves too weak. |
+| Active section in the table of contents | CSS `scroll-target-group` and `:target-current`, as an enhancement. Tested on 2026-11-17: Chrome 157 marks the section at the top of the window, the first entry above the first heading and the last entry at the end of the page. Safari 26.2 and Firefox 151 do not support it and show a plain list. The brief's JavaScript scroll-spy is not built unless this proves too weak. |
 
 ### For agents reading the docs
 
@@ -161,7 +162,8 @@ The research changed how the rules are enforced more than what they are. The one
 | Core imports nothing from Astro, Node or the browser | Biome import restriction on `src/core/` |
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
-| JavaScript and CSS size budgets | `check-dist`, gzip sizes |
+| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS and 1 KB of JavaScript, set from the phase 1 build (1.8 KB and 0.3 KB) |
+| Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |
 | Headings are `##` or `###`, code blocks name a language, no HTML | Markdown plugin at build, registered in `astro.config.ts` |
@@ -172,7 +174,7 @@ Three of the brief's twelve rules change:
 
 - **Line limits (150 per file, 40 per function) are removed.** No study supports a specific number, and the size research disagrees with itself. Splitting by length produces many shallow files, which costs agents more tokens to navigate. The rule becomes: a module hides one decision behind a small interface, and is split when it holds two responsibilities.
 - **"Comments explain why, never what" is reworded.** Each exported core function gets one line stating what it guarantees, because callers, human or agent, read that instead of the body. Inside functions the rule stays: only why.
-- **The Lighthouse gate of four 100s becomes** 100 for accessibility, best practices and SEO, and 95 or more for performance on the median of three runs. Performance scores vary between runs, so a hard 100 would fail at random.
+- **The Lighthouse gate of four 100s becomes** 100 for accessibility, best practices and SEO, and 95 or more for performance on the median of three runs. Performance scores vary between runs, so a hard 100 would fail at random. The gate runs in CI only, with Lighthouse CI through `treosh/lighthouse-ci-action` pinned by commit: it audits `dist/` three times per page and asserts the category scores, with the median for performance. Nothing is added to `package.json`. It stays out of `pnpm check` because it starts Chrome three times per page, which does not fit the 30-second target. The scores are in `lighthouserc.json` and the audit is the last step of `ci.yml`.
 
 The rule of three, the dependency budget and strict typing are the best-supported rules and stay as written.
 
@@ -193,7 +195,7 @@ Differences from the brief, with reasons:
 - Start with the default `GITHUB_TOKEN`. The check has already run before the pull request opens, and CI on that pull request starts after one "Approve workflows to run" click. A GitHub App token is only needed once docs live in a separate repository.
 - The writing rules are one file, `WRITING.md`, read by the workflow. The brief copied a style guide into every connected repository.
 
-A product repository holds only its `content/` folder, `docs.config.json`, a logo and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that folder. Nothing is published to npm in version 1.
+A product repository holds only its `content/` folder, `docs.config.json`, a logo and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that folder. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`) and is added in phase 3 with the first product repository. Nothing is published to npm in version 1.
 
 ## Build order
 
@@ -202,18 +204,15 @@ Phase 0 is small enough to do directly. Phases 1 to 3 are ticket-sized. Each pha
 | Phase | Builds | Done when |
 |---|---|---|
 | 0. Skeleton | Package, pnpm pin, TypeScript and Biome config, one page, `pnpm check`, CI | `pnpm check` passes locally and in CI in under 30 seconds |
-| 1. Site | `load.ts`, `nav.ts`, layout, sidebar, table of contents, prose, code themes, callouts, theme, mobile navigation | Sample content reads well in both themes; size budgets are set from the measured build |
+| 1. Site | `load.ts`, `nav.ts`, layout, sidebar, table of contents, prose, code themes, callouts, theme, mobile navigation, fonts, logo, favicon, accent | Sample content reads well in both themes; size budgets are set from the measured build |
 | 2. Search and reading surfaces | `sections.ts`, `search.ts`, `search.json`, search dialog, `.md` pages, `llms.txt`, `pnpm search` | Searching a word from an `h3` opens that `h3`; the site and the command line return the same ranking |
 | 3. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
-| 4. Brand | Logo, favicon, share image, accent, polish | Your sign-off |
+| 4. Brand | Final name and wordmark, share image, polish | Your sign-off |
 
 ## Still to verify
 
 Each is checked with a small test at the start of its phase.
 
-- `DOCS_ROOT` outside the project folder with Astro's loader (phase 1; a sibling folder inside the project is tested).
-- `scroll-target-group` behaviour in current Chrome, Safari and Firefox (phase 1).
-- Which tool runs the Lighthouse gate, and whether it runs in CI or in `pnpm check`. No phase claims the gate yet (phase 1).
 - Whether `@modelcontextprotocol/server` alone serves a stateless route on Workers, or Cloudflare's `agents` package is needed. Take the smaller option that passes a test with Claude Code and one other client (phase 3).
 - Preview deployments per pull request on Workers (phase 3).
 - A reusable workflow in a private repository called from a repository under another account (phase 3).
