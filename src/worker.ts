@@ -78,7 +78,10 @@ export default {
 	async fetch(request: Request, env: Env) {
 		const url = new URL(request.url);
 		if (url.pathname === "/mcp") return mcp(env, url).fetch(request);
-		if (request.headers.get("accept")?.includes("text/markdown")) {
+		if (
+			request.method === "GET" &&
+			request.headers.get("accept")?.includes("text/markdown")
+		) {
 			const page = await copy(env, url);
 			if (page.ok) {
 				const response = new Response(page.body, page);

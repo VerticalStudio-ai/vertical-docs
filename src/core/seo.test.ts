@@ -33,6 +33,13 @@ test("lists the full address of every page in sitemap.xml", () => {
 const data = (href: string, all = pages) =>
 	JSON.parse(structuredData(site, sidebar(all), href));
 
+test("writes an address with & as valid XML", () => {
+	assert.match(
+		sitemap(site.url, [page("q&a", "Questions")]),
+		/<loc>https:\/\/docs\.test\/q&amp;a\/<\/loc>/,
+	);
+});
+
 test("describes the home page as the site", () => {
 	assert.deepEqual(data("/"), {
 		"@context": "https://schema.org",

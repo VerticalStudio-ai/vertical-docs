@@ -243,9 +243,26 @@ test("reads a redirect file with a comment, an empty line and wide spacing", () 
 		{
 			"index.html": "",
 			"guide/index.html": "",
-			_redirects: "# Moved in 2026\n\n/old    /guide/   301\n",
+			_redirects:
+				"# Moved in 2026\n\n/old    /guide/   301\n  /older /guide/ 301\n",
 		},
 	);
 	assert.equal(stderr, "");
 	assert.equal(status, 0);
+});
+
+test("checks a redirect line that starts with a space", () => {
+	const { status, stderr } = run(
+		{},
+		{ "index.html": "", _redirects: "  /old /nope/ 301\n" },
+	);
+	assert.equal(status, 1);
+	assert.match(stderr, /points to no file in dist/);
+});
+
+test("counts a script as JavaScript when only another attribute names ld+json", () => {
+	const code = `<script data-label="ld+json">${randomBytes(6000).toString("base64")}</script>`;
+	const { status, stderr } = run({}, { "index.html": code });
+	assert.equal(status, 1);
+	assert.match(stderr, /^JavaScript is /);
 });

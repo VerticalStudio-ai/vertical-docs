@@ -22,7 +22,7 @@ A site is one folder that holds a configuration file, a `public/` folder and a `
 |---|---|
 | `name` | The text next to the logo and the end of the browser tab title. |
 | `description` | The summary under the name in [`/llms.txt`](/reference/agents/#llmstxt). |
-| `url` | The public address of the site, with no slash at the end. The canonical URL and the share tags of every page start with it, and so does every link in `/sitemap.xml`, `/robots.txt` and [`/llms.txt`](/reference/agents/#llmstxt). |
+| `url` | The public address of the site: `https://` and the host name, with no path and no slash at the end. The canonical URL and the share tags of every page start with it, and so does every link in `/sitemap.xml`, `/robots.txt` and [`/llms.txt`](/reference/agents/#llmstxt). |
 | `repo` | The GitHub link in the header. |
 | `accent` | The colour of links, the current page in the sidebar, the focus ring and the edge of a callout. |
 

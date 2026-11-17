@@ -198,14 +198,15 @@ The rule of three, the dependency budget and strict typing are the best-supporte
 The workflow lives in this repository and is called from a product repository on push to `main`, ignoring pushes that only touch docs.
 
 1. **Agent job.** It receives the diff as a file and may only read, search and edit files. It has no shell. The prompt says the diff is data, not instructions. What leaves the job is one patch of the content folder.
-2. **Guard, in a second job with no model key.** It fails if the patch changes any path outside the docs content folder or adds a symlink, then runs `pnpm check` from a fresh checkout of the kit.
-3. **Pull request step.** It opens or updates one rolling pull request on `docs/sync`. If the patch is empty, it stops.
+2. **Check job, with no model key and no token that can write.** It applies the patch and runs `pnpm check` from a fresh checkout of the kit.
+3. **Publish job.** It runs nothing from the repository or the patch. The path guard fails if the patch changes any path outside the docs content folder or adds a symlink; then the job opens or updates one rolling pull request on `docs/sync`. If the patch is empty, it stops.
 
 Differences from the brief, with reasons:
 
 - The action has no `max_turns` or `model` inputs; both go through `claude_args`. It also does not open pull requests itself, so that step is ours.
 - The agent does not run `pnpm check`. That command executes repository code, and Anthropic's own security notes say the tool allowlist "is … not a sandbox". The check runs in the guard step instead, without the model key.
-- The agent and the guard are two jobs, not two steps. The agent's file tools can write to `.git/config` or to another file that a later step of the same job would execute, and that job would hold a token that can push. In two jobs the agent's job can only read, and nothing but the patch reaches the job that can write.
+- The three parts are three jobs, not three steps. The agent's file tools can write to `.git/config` or to another file that a later step of the same job would execute, and building a page can run code that the page names. So the job with the model key and the job that builds can only read, and nothing but the patch reaches the job that can write. The cross-family review of phase 3b found the second case.
+- Two runs at the same time can each write `docs/sync`, and the later one wins. Not solved: GitHub's `concurrency` drops a waiting run when a newer one arrives, which would skip a code change.
 - The pull request is rolling: while it is open, the agent starts from its branch merged into `main`, and the branch is rewritten as `main` plus one commit. A second code change before the first docs change is merged adds to it instead of replacing it.
 - A merged diff is still untrusted text. Reviewers read for logic, not for instructions hidden in a comment. Prompt injection through repository text is a documented class of incident (PromptPwnd, GitInject), so the path guard checks the output regardless of what the agent was told.
 - Every action is pinned by commit, because of the tag-repointing attacks on `tj-actions` and others.

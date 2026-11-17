@@ -106,6 +106,17 @@ test("answers Accept: text/markdown as the files do where a URL has no Markdown 
 	);
 });
 
+test("answers Markdown only to a GET", async () => {
+	const response = await worker.fetch(
+		new Request("https://docs.test/guide/", {
+			method: "POST",
+			headers: { accept: "text/markdown" },
+		}),
+		env,
+	);
+	assert.equal(await response.text(), "<h1>Guide</h1>");
+});
+
 test("lists the two MCP tools", async () => {
 	const { tools } = await mcp("tools/list");
 	assert.deepEqual(
