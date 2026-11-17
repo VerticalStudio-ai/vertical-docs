@@ -111,6 +111,24 @@ if (isFile("dist/search.json")) {
 	}
 }
 
+// An old address has to land on a page for good: Cloudflare answers these lines, and a line without a code is a temporary redirect.
+if (isFile("dist/_redirects")) {
+	for (const line of read("_redirects").trim().split("\n")) {
+		const [, to = "", code] = line.split(" ");
+		const { problem } = follow("_redirects", to);
+		if (problem) {
+			problems.push(
+				`_redirects: "${line}" ${problem}. Point it at a page that exists.`,
+			);
+		}
+		if (code !== "301") {
+			problems.push(
+				`_redirects: "${line}" is not a permanent redirect. End the line with 301.`,
+			);
+		}
+	}
+}
+
 const withExt = (ext: string) => files.filter((file) => file.endsWith(ext));
 
 // Gzipped bytes a reader downloads for all pages together. The phase 3a build measures 2.5 KB of CSS, 1.2 KB of JavaScript that a page loads (the copy buttons took it past the first budget of 1 KB), and 6.1 KB of JavaScript that loads on demand, which is the search.

@@ -48,7 +48,7 @@
 			}
 		},
 		{
-			"includes": ["astro.config.ts"],
+			"includes": ["astro.config.ts", "src/worker.ts"],
 			"linter": {
 				"rules": {
 					"style": {

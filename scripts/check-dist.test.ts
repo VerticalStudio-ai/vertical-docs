@@ -198,3 +198,19 @@ test("allows the 1.2 KB of page JavaScript that the copy buttons need", () => {
 	assert.equal(stderr, "");
 	assert.equal(status, 0);
 });
+
+test("fails for a redirect that points to no page, or that is not permanent", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html": "",
+			"guide/index.html": "",
+			_redirects: "/old /guide/ 301\n/gone /nope/ 301\n/moved /guide/\n",
+		},
+	);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		'_redirects: "/gone /nope/ 301" points to no file in dist. Point it at a page that exists.\n_redirects: "/moved /guide/" is not a permanent redirect. End the line with 301.\n',
+	);
+});

@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@astrojs/markdown-satteri": "^0.4.10",
+		"@modelcontextprotocol/server": "^2.4.0",
 		"astro": "^7.4.12",
 		"github-slugger": "^2.0.0",
 		"minisearch": "^7.2.0"
