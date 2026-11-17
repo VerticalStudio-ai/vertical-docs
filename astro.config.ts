@@ -11,7 +11,10 @@ const check = (node: Parameters<typeof writingProblem>[0]) => {
 export default defineConfig({
 	markdown: {
 		shikiConfig: {
-			themes: { light: "github-light", dark: "github-dark" },
+			themes: {
+				light: "github-light-high-contrast",
+				dark: "github-dark-default",
+			},
 			defaultColor: false,
 		},
 		processor: satteri({

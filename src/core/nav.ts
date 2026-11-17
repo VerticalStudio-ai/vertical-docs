@@ -14,7 +14,7 @@ const itemsIn = (pages: Page[], folder: string): NavItem[] =>
 		.sort(
 			(a, b) =>
 				(a.data.order ?? Infinity) - (b.data.order ?? Infinity) ||
-				a.data.title.localeCompare(b.data.title),
+				a.data.title.localeCompare(b.data.title, "en"),
 		)
 		.map(({ id, data }) => ({
 			title: data.title,

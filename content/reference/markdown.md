@@ -41,9 +41,9 @@ type Page = { title: string; description: string; order?: number };
 
 // Sorts pages by order, then by title.
 export const sorted = (pages: Page[]) =>
-	pages.toSorted(
-		(a, b) => (a.order ?? Infinity) - (b.order ?? Infinity) || a.title.localeCompare(b.title),
-	);
+	pages.toSorted((a, b) => rank(a) - rank(b) || a.title.localeCompare(b.title));
+
+const rank = (page: Page) => page.order ?? Number.MAX_VALUE;
 ```
 
 Use `sh` for commands and `text` for output:

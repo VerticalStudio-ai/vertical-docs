@@ -50,7 +50,9 @@
 
 	html {
 		scroll-padding-top: calc(var(--header) + 1.5rem);
-		text-size-adjust: none;
+		/* Stops iOS Safari enlarging text in landscape; it reads only the prefixed name. */
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
 	}
 
 	body {
@@ -105,7 +107,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		height: var(--header);
-		padding-inline: 1.5rem;
+		padding-inline: max(1.5rem, 50% - 43.5rem);
 		border-bottom: 1px solid var(--border);
 		background: var(--bg);
 		font-size: 0.875rem;
@@ -212,7 +214,7 @@
 			display: block;
 			width: auto;
 			height: calc(100dvh - var(--header));
-			padding: 2rem 1rem 2rem 1.5rem;
+			padding: 2rem 1rem 2rem 0.75rem;
 			border: 0;
 		}
 
@@ -375,6 +377,7 @@
 			background: var(--bg-subtle);
 			font-size: 0.9375rem;
 			line-height: 1.6;
+			tab-size: 2;
 
 			& span {
 				color: light-dark(var(--shiki-light), var(--shiki-dark));
