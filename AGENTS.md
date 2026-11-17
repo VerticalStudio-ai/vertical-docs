@@ -19,6 +19,7 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `docs.config.json`, `public/`: what a docs site replaces to brand itself: name, repository link, accent colour, logo and favicon.
 - `src/cli.ts`, `src/worker.ts`: the terminal and MCP edges. They call core and do input and output.
 - `scripts/check-dist.ts`: link, anchor, size and dependency checks on the build.
+- `lighthouserc.json`: the Lighthouse scores CI enforces on the build.
 
 ## Rules the tools cannot check
 
