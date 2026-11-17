@@ -100,7 +100,7 @@ if (isFile("dist/search.json")) {
 		const { problem } = follow("search.json", url);
 		if (problem) {
 			problems.push(
-				`search.json: result "${url}" ${problem}. src/core/sections.ts must make the URLs the site makes.`,
+				`search.json: result "${url}" ${problem}. Write the heading more simply, or make src/core/sections.ts read it the way the site does.`,
 			);
 		}
 	}
@@ -108,7 +108,7 @@ if (isFile("dist/search.json")) {
 
 const withExt = (ext: string) => files.filter((file) => file.endsWith(ext));
 
-// Gzipped bytes a reader downloads for all pages together. Set from the phase 2 build: 2.1 KB of CSS, 0.8 KB of JavaScript that a page loads, and 6.1 KB of JavaScript that loads on demand, which is the search.
+// Gzipped bytes a reader downloads for all pages together. Set from the phase 2 build: 2.2 KB of CSS, 0.9 KB of JavaScript that a page loads, and 6.1 KB of JavaScript that loads on demand, which is the search.
 const budgets = [
 	{
 		name: "CSS",

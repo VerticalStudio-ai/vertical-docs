@@ -190,6 +190,16 @@
 			color: var(--fg-muted);
 		}
 
+		& p:has(+ ul:not(:empty)) {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			border: 0;
+			overflow: hidden;
+			clip-path: inset(50%);
+		}
+
 		& ul {
 			padding: 0.5rem;
 			border-top: 1px solid var(--border);
@@ -424,6 +434,11 @@
 			margin: 2rem 0 0;
 			font-size: 1.25rem;
 			letter-spacing: -0.02em;
+		}
+
+		& .source {
+			margin-top: 3rem;
+			font-size: 0.875rem;
 		}
 
 		& .lead {

@@ -28,19 +28,26 @@ const snippet = (text: string, terms: string[]) => {
 	return `${start > 0 ? "… " : ""}${text.slice(start, end)}${end < text.length ? " …" : ""}`;
 };
 
-/** Returns the search over `sections`: a function from a query to its ten best sections, best first. A match in the title counts more than one in the heading, which counts more than one in the text; the first letters of a word and a small typing mistake also match. */
+/** Returns the search over `sections`: a function from a query to its ten best sections, best first. A word in the title of a page counts most for the page itself, then a word in a heading, then a word in the text; the title of its page counts least for a section. The first letters of a word and a small typing mistake also match. */
 export const search = (sections: Section[]) => {
-	const index = new MiniSearch<Section>({
+	const index = new MiniSearch({
 		idField: "url",
-		fields: ["title", "heading", "text"],
+		fields: ["own", "heading", "text", "page"],
 		storeFields: ["title", "heading", "text"],
 		searchOptions: {
-			boost: { title: 3, heading: 2 },
+			boost: { own: 3, heading: 2, page: 0.5 },
 			prefix: true,
 			fuzzy: 0.2,
 		},
 	});
-	index.addAll(sections);
+	// The title is indexed as `own` on the record of the page and as `page` on its sections, so that a title alone does not lift every section of the page above real matches elsewhere.
+	index.addAll(
+		sections.map((section) => ({
+			...section,
+			own: section.heading ? "" : section.title,
+			page: section.heading ? section.title : "",
+		})),
+	);
 	return (query: string): Hit[] =>
 		index
 			.search(query)

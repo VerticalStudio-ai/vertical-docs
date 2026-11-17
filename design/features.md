@@ -7,11 +7,13 @@ Every phase updates this list. Write nothing here that a tool result has not sho
 ## For readers
 
 - **Fast pages** (built). Lighthouse scores 100 for performance, accessibility, best practices and SEO, and CI fails a change that drops below 100, or below 95 for performance. Proof: five pages scored 100 in all four categories in each of three runs (local run on the phase 2 build, 2026-11-17); the scores CI enforces are in `lighthouserc.json`.
-- **Tiny downloads** (built). A page loads 2.1 KB of CSS and 0.8 KB of JavaScript, gzipped. A build over the budget of 4 KB and 1 KB fails. Proof: `scripts/check-dist.ts` and its tests; measured on the phase 2 build, 2026-11-17.
+- **Tiny downloads** (built). A page loads 2.2 KB of CSS and 0.9 KB of JavaScript, gzipped. A build over the budget of 4 KB and 1 KB fails. Proof: `scripts/check-dist.ts` and its tests; measured on the phase 2 build, 2026-11-17.
 - **Search that opens the right section** (built). Press `/`, `⌘K` or `Ctrl+K`, type a word, and the result opens the page at the heading that matched, also for a word that appears only under a small heading. Proof: the test "a word that appears only in an h3 section finds that section first" in `src/core/search.test.ts`; in Chrome, typing `indented` gave one result and opened `/reference/markdown/#a-part-of-a-section` (2026-11-17).
 - **Search forgives typing** (built). The first letters of a word are enough, and a small typing mistake still finds the word. Proof: the test "finds a word from its first letters and through a typing mistake".
 - **Search costs nothing until it is used** (built). A page downloads no search code. The first time search opens, the browser fetches 6.1 KB of search code, gzipped, and the index. Proof: the request log of the built site shows the search worker and `search.json` only after the first open (2026-11-17); a build with more than 8 KB of on-demand JavaScript fails.
-- **Search works from the keyboard** (built). Results are links: `Tab` moves, `Enter` opens, `Esc` closes, and a Close button serves phones. Proof: driven with key presses in Chrome, 2026-11-17.
+- **Search works from the keyboard** (built). `Enter` opens the first result, `Tab` moves through the others, `Esc` closes, and a Close button serves phones. Proof: driven with key presses in Chrome, 2026-11-17.
+- **Search speaks to screen readers** (built). The input is labelled and the number of results is a status message. Proof: the status element holds "9 results" after a query in Chrome (2026-11-17); not tested with a screen reader.
+- **The best page first** (built). A page with the word in its title leads, and one page cannot fill the list on its title alone. Proof: the test "a section does not outrank other pages on the title of its page alone".
 - **Works without JavaScript** (built). Every page is complete static HTML. JavaScript only switches the theme and opens the search. Proof: the page text is in the files in `dist/`; the only scripts are the three inline ones `check-dist` measures.
 - **Light and dark theme** (built). The theme follows the system and remembers a choice, with no flash on load. Proof: phase 1 screenshots in both themes; the saved choice is applied by an inline script before the first paint.
 - **Readable code blocks** (built). Every code colour passes the 4.5:1 contrast minimum in both themes. Proof: measured in phase 1.
@@ -27,9 +29,9 @@ Every phase updates this list. Write nothing here that a tool result has not sho
 
 ## For agents
 
-- **A Markdown copy of every page** (built). `/<page>.md` returns the page as Markdown with its title, and each HTML page names its copy in a `link rel="alternate"` element. Proof: `curl http://localhost:4321/reference.md`, quoted in `content/reference/agents.md`.
+- **A Markdown copy of every page** (built). `/<page>.md` returns the page as Markdown with its title. Each page links to its copy at the end of the page and in a `link rel="alternate"` element. Proof: `curl http://localhost:4321/reference.md`, quoted in `content/reference/agents.md`.
 - **`llms.txt`** (built). One file lists every page with its description, grouped like the sidebar, linking the Markdown copies. Proof: `curl http://localhost:4321/llms.txt`, and the test "writes llms.txt in sidebar order" in `src/core/llms.test.ts`.
-- **`search.json`** (built). Every section of every page as `{ url, title, heading, text }` in one static file, usable with `curl` and `jq`. Every URL in it is checked on each build. Proof: 43 records for 10 pages, 5.8 KB gzipped (2026-11-17); the test "fails for a search result that points to no page or to no heading".
+- **`search.json`** (built). Every section of every page as `{ url, title, heading, text }` in one static file, usable with `curl` and `jq`. Every URL in it is checked on each build. Proof: 43 records for 10 pages, 5.9 KB gzipped (2026-11-17); the test "fails for a search result that points to no page or to no heading".
 - **The same search in a terminal** (built). `pnpm run search "<query>"` prints the sections the site shows, in the same order, as plain text or JSON, for the last build or for a deployed site. Proof: the query `sidebar` gave the same nine URLs in the same order in the dialog and in the terminal (2026-11-17); the tests in `src/cli.test.ts`.
 - **An MCP server** with `search_docs` and `get_page` (planned, phase 3).
 - **Markdown for `Accept: text/markdown`** on any page URL (planned, phase 3).

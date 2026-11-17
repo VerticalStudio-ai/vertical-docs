@@ -111,7 +111,7 @@ test("fails for a search result that points to no page or to no heading", () => 
 	assert.equal(status, 1);
 	assert.equal(
 		stderr,
-		'search.json: result "/nope/" points to no file in dist. src/core/sections.ts must make the URLs the site makes.\nsearch.json: result "/#nope" points to a heading that does not exist. src/core/sections.ts must make the URLs the site makes.\n',
+		'search.json: result "/nope/" points to no file in dist. Write the heading more simply, or make src/core/sections.ts read it the way the site does.\nsearch.json: result "/#nope" points to a heading that does not exist. Write the heading more simply, or make src/core/sections.ts read it the way the site does.\n',
 	);
 });
 

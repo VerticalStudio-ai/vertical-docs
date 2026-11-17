@@ -41,13 +41,54 @@ test("a word that appears only in an h3 section finds that section first", () =>
 	});
 });
 
-test("ranks a match in the title over one in the heading over one in the text", () => {
+test("ranks a page with the word in its title over a heading match over a text match", () => {
 	const records = [
 		record("/text/", "Write a page", "Create the file", "Set the theme here"),
 		record("/heading/", "Write a page", "Set the theme", "Create the file"),
-		record("/title/", "Set the theme", "Create the file", "Write a page"),
+		record("/title/", "Set the theme", "", "Write a page"),
 	];
 	assert.deepEqual(urls(records, "theme"), ["/title/", "/heading/", "/text/"]);
+});
+
+test("a section does not outrank other pages on the title of its page alone", () => {
+	const records = [
+		record("/md/", "Markdown in a page", "", "What a page can use."),
+		record("/md/#lists", "Markdown in a page", "Lists", "A list of items."),
+		record("/md/#tables", "Markdown in a page", "Tables", "Rows and columns."),
+		record(
+			"/agents/#copy",
+			"Files for agents",
+			"Markdown copy",
+			"Fetch a page.",
+		),
+		record(
+			"/write/#file",
+			"Write a page",
+			"Create the file",
+			"Save a Markdown file.",
+		),
+	];
+	assert.deepEqual(urls(records, "markdown"), [
+		"/md/",
+		"/agents/#copy",
+		"/write/#file",
+		"/md/#lists",
+		"/md/#tables",
+	]);
+});
+
+test("still finds a section by a word of its page title together with a word of its heading", () => {
+	const records = [
+		record("/fm/", "Frontmatter fields", "", "The three fields of a page."),
+		record(
+			"/fm/#example",
+			"Frontmatter fields",
+			"Example",
+			"A title and a description.",
+		),
+		record("/md/#example", "Markdown in a page", "Example", "A list of items."),
+	];
+	assert.equal(urls(records, "frontmatter example")[0], "/fm/#example");
 });
 
 test("finds a word from its first letters and through a typing mistake", () => {

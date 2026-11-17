@@ -38,8 +38,10 @@
 				return item;
 			}),
 		);
+		// A screen reader speaks this line; the styles hide it from view while results are listed.
 		if (status) {
-			status.textContent = data.length > 0 || !input?.value.trim() ? "" : "No results.";
+			const count = `${data.length} result${data.length === 1 ? "" : "s"}`;
+			status.textContent = input?.value.trim() ? (data.length > 0 ? count : "No results.") : "";
 		}
 	};
 
@@ -62,6 +64,9 @@
 		}
 	});
 	input?.addEventListener("input", () => worker?.postMessage(input.value));
+	input?.addEventListener("keydown", (event) => {
+		if (event.key === "Enter" && !event.isComposing) list?.querySelector("a")?.click();
+	});
 	// A result on the page that is already open does not reload the page, so the dialog closes itself.
 	list?.addEventListener("click", () => dialog?.close());
 </script>

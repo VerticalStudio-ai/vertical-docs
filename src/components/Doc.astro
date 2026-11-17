@@ -62,6 +62,7 @@ const { previous, next } = neighbours(tree, href);
 					<h1>{title}</h1>
 					<p class="lead">{description}</p>
 					<slot />
+					<p class="source"><a href={markdownUrl(href)}>View this page as Markdown</a></p>
 				</article>
 				<nav class="pager" aria-label="Previous and next page">
 					{

@@ -163,7 +163,7 @@ The research changed how the rules are enforced more than what they are. The one
 | Core imports nothing from Astro, Node or the browser | Biome import restriction on `src/core/` |
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
-| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand, set from the phase 2 build (2.1 KB, 0.8 KB and 6.1 KB) |
+| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand, set from the phase 2 build (2.2 KB, 0.9 KB and 6.1 KB) |
 | Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |

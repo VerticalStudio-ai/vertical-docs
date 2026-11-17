@@ -31,7 +31,7 @@ The reference pages list every option docs-kit reads.
 - [Files for agents](/reference/agents/): the Markdown copy of a page, `llms.txt` and `search.json`.
 ```
 
-Each page names its copy in the HTML head, in a `link` element with `rel="alternate"` and `type="text/markdown"`.
+Each page links to its copy twice: "View this page as Markdown" at the end of the page, and a `link` element with `rel="alternate"` and `type="text/markdown"` in the HTML head.
 
 ## llms.txt
 

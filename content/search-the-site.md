@@ -14,7 +14,7 @@ Press `/`. `⌘K` on a Mac and `Ctrl+K` on other keyboards open the search too, 
 
 Type `callouts`. The first result is "Markdown in a page › Callouts": the page title, then the heading of the section. The line under it is the text around the first word that matched.
 
-Press `Tab` to move to a result and `Enter` to open it. The page opens at the Callouts heading.
+Press `Enter` to open the first result, or `Tab` to move to another result and `Enter` to open that one. The page opens at the Callouts heading.
 
 The search shows the ten best sections for a query, and "No results." when nothing matches.
 
@@ -22,7 +22,7 @@ The search shows the ten best sections for a query, and "No results." when nothi
 
 Each section of a page is one result: the text before the first heading, then every `##` and `###` heading with its text.
 
-- A word in the page title counts more than a word in the section heading, and a word in the heading counts more than a word in the text.
+- A page with the word in its title comes first. A word in a section heading counts more than a word in the text, and the title of its page counts least for a section.
 - The first letters of a word are enough: `callo` finds the Callouts section.
 - A small typing mistake still matches: `calouts` finds the Callouts section too.
 
