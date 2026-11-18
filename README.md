@@ -2,7 +2,7 @@
 
 A super-light, agent-native docs system: Markdown in a repo, a static site, one search index shared by humans and agents, and an agent that keeps the docs in sync with the code.
 
-Vertical Docs is a product of Vertical Labs; its short name is `vdocs`. The repository keeps the working name `docs-kit` until it is renamed.
+Vertical Docs is a product of Vertical Labs; its short name is `vdocs`.
 
 Status: version 1 is built and nothing is deployed. Built: the site with its sidebar, themes and search, the search in the terminal, the files for agents, images, a content folder outside the project, the Cloudflare Worker with the MCP server, redirects, the search-engine files and `pnpm check`. Next: the first deploy and the first two docs sites.
 

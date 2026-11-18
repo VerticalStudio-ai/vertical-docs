@@ -13,7 +13,7 @@ A site is one folder that holds a configuration file, a `public/` folder and a `
 	"name": "Vertical Docs",
 	"description": "Markdown files become a website, a Markdown copy of every page and one search index for readers, terminals and agents.",
 	"url": "https://vdocs.example",
-	"repo": "https://github.com/ztsrdev/docs-kit",
+	"repo": "https://github.com/VerticalStudio-ai/vertical-docs",
 	"accent": "#171717"
 }
 ```

@@ -69,7 +69,7 @@ Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remar
 ## File tree
 
 ```
-docs-kit/
+vertical-docs/
 ├── content/                  the kit's own docs and their images; the only folder a docs agent edits
 ├── docs.config.json          name, description, url, repo, accent
 ├── public/                   what a site replaces: logo.svg, favicon.svg, share.png, and _redirects when it has old addresses
@@ -136,7 +136,7 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 | Mobile navigation | Popover API |
 | Sidebar groups | `<details>`: a folder is a group that opens and closes, and the build opens the groups that hold the current page. One sidebar holds all sections; header tabs per section were prototyped and dropped. |
 | Diagram per theme | One CSS rule on the file name (`-light.` and `-dark.`), which also follows the manual theme switch. Tested in Chrome and Firefox. |
-| Wide table | The build puts every table in a `div` that scrolls sideways, at every width. The first version turned the table itself into a scrolling block on a small screen, which left wide tables pushing a desktop window sideways and takes the table role away in some screen readers. |
+| Wide table | The build puts every table in a `div` that scrolls sideways, at every width. The first version turned the table itself into a scrolling block on a small screen, which left wide tables pushing a desktop window sideways and takes the table role away in some screen readers. The `div` has `tabindex="0"`: Safari gives a scrolling box no place in the tab order, so without it the keyboard cannot reach the hidden columns. |
 | Address with no page | `src/pages/404.astro` builds `dist/404.html`: the page shell with the sidebar and the search, without a canonical URL or a Markdown copy. The Worker's static files answer it with status 404 (`not_found_handling` in `wrangler.jsonc`). |
 | Search dialog | `<dialog>`, with the search in a Web Worker. A lazy `import()` would be the obvious way to load the search on first open, but Vite adds a preload helper of about 0.8 KB gzipped to any page script that has one. A worker loads just as late, needs no helper, and keeps indexing off the page. |
 | Theme | `color-scheme` and `light-dark()`; a few inline lines apply a saved choice before paint |
@@ -249,12 +249,12 @@ Still open:
 - CPU time on the free plan. Building the search index for the 703 sections of the vAPI docs takes about 35 ms on a laptop, and the free plan allows 10 ms of CPU for a request. Measure `search_docs` on the first deploy; the paid plan allows 30 seconds.
 - `job.workflow_sha` in `docs-sync.yml`, which pins the kit to the commit of the called workflow. It is in GitHub's documentation; `actionlint` 1.7.12 does not know it. Check it in the first run.
 - The concurrency group of `docs-sync.yml`. `queue: max` is in GitHub's documentation, and `actionlint` 1.7.12 does not know it. The documentation does not say that a group set at the top of a called workflow holds the whole run; if the first two runs overlap, the group moves to the job that calls the workflow.
-- Safari for what phase 3a added: the copy buttons, the diagram per theme and the sidebar groups. Chrome and Firefox were tested.
+- Safari itself, and a screen reader, for the copy buttons, the diagram per theme, the sidebar groups and the table box. Chrome, Firefox and WebKit 26.6 were tested; WebKit is the engine of Safari, driven through Playwright.
 
 ## Decisions that are yours
 
 1. **Cloudflare account.** The plan needs one for hosting. Vercel also works but puts the MCP route in a separate function.
 2. **Model key for the sync workflow.** A Claude subscription token (`claude setup-token`) is documented for personal repositories; an API key is recommended for organisation repositories.
 3. **Public or private kit.** Public removes the clone token in each product repository's build and makes the shared workflow callable from any account. I recommend public once phase 2 is done.
-4. **Name and accent colour**: answered on 2026-11-18. The product is Vertical Docs, a product of Vertical Labs, with the short name `vdocs` for the package and the Worker. The kit's own site stays black and white. The repository is still named `docs-kit`; renaming it is the owner's step, and `docs-sync.yml` names the repository.
+4. **Name and accent colour**: answered on 2026-11-18. The product is Vertical Docs, a product of Vertical Labs, with the short name `vdocs` for the package and the Worker. The kit's own site stays black and white. The repository is `VerticalStudio-ai/vertical-docs`, and `docs-sync.yml` names it.
 5. **First repository to connect**: answered. The vAPI docs come first (their source is already in Git), then the Vertical Studio docs.
