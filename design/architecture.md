@@ -73,6 +73,7 @@ vertical-docs/
 ├── content/                  the kit's own docs and their images; the only folder a docs agent edits
 ├── docs.config.json          name, description, url, repo, accent
 ├── public/                   what a site replaces: logo.svg, favicon.svg, share.png, and _redirects when it has old addresses
+├── template/                 what `vertical-docs init` writes into a product: docs/ with a first page, the config, placeholder images and the ignore file, and two workflows
 ├── src/
 │   ├── core/                 pure: no Astro, Node or browser imports
 │   │   ├── nav.ts            pages → sidebar tree, previous and next
@@ -170,6 +171,7 @@ From a product's repository the same file is the installed command, `vertical-do
 
 | Command | Does |
 |---|---|
+| `vertical-docs init [folder]` | Writes the docs folder, `docs` unless named: a first page, `docs.config.json`, a placeholder logo, favicon and share image, and a `.gitignore` for `dist/`. Writes `docs.yml` and `docs-sync.yml` to `.github/workflows/` of the current folder. Leaves a file that exists as it is, and prints what it wrote and the next command |
 | `vertical-docs dev [folder]` | Live site of the docs folder, `docs` unless named |
 | `vertical-docs build [folder]` | Writes the site to `<folder>/dist` |
 | `vertical-docs check [folder]` | Builds, then checks `<folder>/dist`: links, anchors, heading order, search results, redirects, share image and sizes. Exit code 1 on a problem, with one line for each that says what to change |
@@ -177,10 +179,11 @@ From a product's repository the same file is the installed command, `vertical-do
 
 A site's `check` holds only what checks a site. Biome, knip, the unit tests, `astro check` and the dependency list check the kit's own code and stay in `pnpm check`. In the kit the docs folder is the repository root, so the `search` script passes `.` as the folder after the query.
 
-The kit stays the one Astro project, also inside `node_modules`: the command starts Astro with the kit as its current folder and passes the product's content folder as `DOCS_ROOT`. Three facts shape it:
+The kit stays the one Astro project, also inside `node_modules`: the command starts Astro with the kit as its current folder and passes the product's content folder as `DOCS_ROOT`. Four facts shape it:
 
 - `DOCS_ROOT` is absolute. `astro.config.ts` resolves it from the current folder and Astro's content loader from the Astro root, so a relative path gives a site with no pages when the two differ. That was the cause of the 404 answers in the first trial with `astro dev --root`.
 - Node does not run TypeScript from `node_modules`, so `pnpm pack` first writes `src/cli.ts` and the files it imports (`src/check.ts`, the core search) as JavaScript into `lib/`, which is what the two command names point at. The files in `lib/` sit one folder deep, like their sources in `src/`, so the folder above is the kit from both. Astro reads the `.ts` and `.astro` sources as they are.
+- The files `init` writes are the files in `template/`, copied as they are with two exceptions. The docs folder is `docs/` there and takes the name given to `init`, which also replaces `<folder>` in the first page and the two workflows. The ignore file is `gitignore` there and is written as `.gitignore`, because npm leaves a file named `.gitignore` out of a package, also when `files` names it, and pnpm does unless `files` names it (tried 2026-11-18).
 - Astro writes its generated files to `.astro/` in its root, which is the installed kit; `cacheDir` moves only the build cache. Two docs folders can be built in turn from one install (tested: 48 and 110 pages), but two previews at once would share those files. For the same reason `dev` passes `--ignore-lock`: Astro's lock file and its `astro dev stop` belong to that folder, and when an agent starts `astro dev` Astro moves the server to the background, where a product has no command to stop it. The preview stays in the terminal and stops with the command.
 
 ## How it stays clean

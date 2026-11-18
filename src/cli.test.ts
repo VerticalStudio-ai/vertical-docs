@@ -3,8 +3,10 @@ import { execFile } from "node:child_process";
 import {
 	mkdirSync,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	realpathSync,
+	statSync,
 	writeFileSync,
 } from "node:fs";
 import { createServer } from "node:http";
@@ -171,6 +173,110 @@ test("check fails without a build when the folder holds no docs", async () => {
 		stderr,
 		`Cannot read ${join(cwd, "docs/docs.config.json")}. Name the folder that holds the docs: vertical-docs check <folder>\n`,
 	);
+});
+
+// What init writes in a product folder, in the order it prints the files.
+const starter = (folder: string) => [
+	".github/workflows/docs-sync.yml",
+	".github/workflows/docs.yml",
+	`${folder}/content/index.md`,
+	`${folder}/docs.config.json`,
+	`${folder}/.gitignore`,
+	`${folder}/public/favicon.svg`,
+	`${folder}/public/logo.svg`,
+	`${folder}/public/share.png`,
+];
+
+// Every file under a folder with its bytes, to compare a folder before and after a command.
+const snapshot = (cwd: string) =>
+	readdirSync(cwd, { recursive: true, encoding: "utf8" })
+		.filter((file) => statSync(join(cwd, file)).isFile())
+		.sort()
+		.map((file) => [file, readFileSync(join(cwd, file), "base64")]);
+
+test("init writes the docs folder with its ignore file and the two workflows, and prints them with the next command", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	const { status, stdout, stderr } = await command(cwd, ["init"]);
+	assert.equal(status, 0, stderr);
+	assert.deepEqual(
+		snapshot(cwd).map(([file]) => file),
+		starter("docs").toSorted(),
+	);
+	assert.equal(
+		stdout,
+		`${starter("docs")
+			.map((file) => `Wrote ${file}`)
+			.join("\n")}\nNext: npx vertical-docs dev docs\n`,
+	);
+	assert.equal(readFileSync(join(cwd, "docs/.gitignore"), "utf8"), "dist/\n");
+});
+
+test("init takes the docs folder as an argument and names it in the workflows, the first page and the next command", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	const { status, stdout, stderr } = await command(cwd, ["init", "website"]);
+	assert.equal(status, 0, stderr);
+	assert.deepEqual(
+		snapshot(cwd).map(([file]) => file),
+		starter("website").toSorted(),
+	);
+	assert.match(stdout, /^Next: npx vertical-docs dev website$/m);
+	const read = (file: string) => readFileSync(join(cwd, file), "utf8");
+	assert.match(
+		read(".github/workflows/docs.yml"),
+		/vertical-docs check website$/m,
+	);
+	assert.match(read(".github/workflows/docs-sync.yml"), /site: website$/m);
+	assert.match(read("website/content/index.md"), /vertical-docs dev website$/m);
+	for (const file of starter("website")) {
+		assert.doesNotMatch(read(file), /<folder>/, file);
+	}
+});
+
+test("init leaves a file that exists as it is", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	mkdirSync(join(cwd, "docs/content"), { recursive: true });
+	writeFileSync(join(cwd, "docs/content/index.md"), "My own page.");
+	const { status, stdout, stderr } = await command(cwd, ["init"]);
+	assert.equal(status, 0, stderr);
+	assert.equal(
+		readFileSync(join(cwd, "docs/content/index.md"), "utf8"),
+		"My own page.",
+	);
+	assert.equal(
+		stdout,
+		`${starter("docs")
+			.filter((file) => file !== "docs/content/index.md")
+			.map((file) => `Wrote ${file}`)
+			.join("\n")}\nNext: npx vertical-docs dev docs\n`,
+	);
+});
+
+test("a second init changes no file", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(cwd, ["init"]);
+	const before = snapshot(cwd);
+	assert.equal(before.length, starter("docs").length);
+	const { status, stdout } = await command(cwd, ["init"]);
+	assert.equal(status, 0);
+	assert.equal(stdout, "Next: npx vertical-docs dev docs\n");
+	assert.deepEqual(snapshot(cwd), before);
+});
+
+test("a folder written by init passes check as it is", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(cwd, ["init"]);
+	const { status, stderr } = await command(cwd, ["check"]);
+	assert.equal(status, 0, stderr);
+	assert.match(
+		readFileSync(join(cwd, "docs/dist/index.html"), "utf8"),
+		/<title>[^<]*Docs/,
+	);
+});
+
+test("shows init in the usage", async () => {
+	const { status, stderr } = await command(tmpdir(), []);
+	assert.equal(status, 1);
+	assert.match(stderr, /^ {2}vertical-docs init \[folder\]$/m);
 });
 
 test("prints the ranked sections of dist/search.json as plain text", async () => {
