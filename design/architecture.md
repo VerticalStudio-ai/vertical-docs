@@ -256,5 +256,5 @@ Still open:
 1. **Cloudflare account.** The plan needs one for hosting. Vercel also works but puts the MCP route in a separate function.
 2. **Model key for the sync workflow.** A Claude subscription token (`claude setup-token`) is documented for personal repositories; an API key is recommended for organisation repositories.
 3. **Public or private kit.** Public removes the clone token in each product repository's build and makes the shared workflow callable from any account. I recommend public once phase 2 is done.
-4. **Name and accent colour**, needed by phase 4 only.
+4. **Name and accent colour**: answered on 2026-11-18. The product is Vertical Docs, a product of Vertical Labs, with the short name `vdocs` for the package and the Worker. The kit's own site stays black and white. The repository is still named `docs-kit`; renaming it is the owner's step, and `docs-sync.yml` names the repository.
 5. **First repository to connect**: answered. The vAPI docs come first (their source is already in Git), then the Vertical Studio docs.

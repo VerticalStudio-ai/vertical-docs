@@ -4,7 +4,7 @@ description: Look up the frontmatter fields, the Markdown a page can use, the si
 order: 7
 ---
 
-The reference pages list every option docs-kit reads.
+The reference pages list every option Vertical Docs reads.
 
 - [Frontmatter fields](/reference/frontmatter/): the three fields at the top of a page.
 - [Markdown in a page](/reference/markdown/): headings, lists, code blocks, tables and callouts.

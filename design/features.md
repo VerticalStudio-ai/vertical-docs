@@ -1,6 +1,6 @@
 # Features
 
-What docs-kit does, in the words of someone who uses it. One line per feature, grouped by who benefits. A built line ends with its proof: a number, a test or a command. A planned line names its phase in the [plan](architecture.md).
+What Vertical Docs does, in the words of someone who uses it. One line per feature, grouped by who benefits. A built line ends with its proof: a number, a test or a command. A planned line names its phase in the [plan](architecture.md).
 
 Every phase updates this list. Write nothing here that a tool result has not shown.
 

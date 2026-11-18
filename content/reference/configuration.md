@@ -10,9 +10,9 @@ A site is one folder that holds a configuration file, a `public/` folder and a `
 
 ```json
 {
-	"name": "docs-kit",
+	"name": "Vertical Docs",
 	"description": "Markdown files become a website, a Markdown copy of every page and one search index for readers, terminals and agents.",
-	"url": "https://docs-kit.example",
+	"url": "https://vdocs.example",
 	"repo": "https://github.com/ztsrdev/docs-kit",
 	"accent": "#171717"
 }

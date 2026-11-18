@@ -1,4 +1,4 @@
-# docs-kit
+# Vertical Docs
 
 A static docs site generator. Markdown in `content/` becomes a website, per-page Markdown, one search index, a command-line search and an MCP server. The design and its reasons are in `design/architecture.md`.
 
