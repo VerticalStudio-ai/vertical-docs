@@ -82,3 +82,41 @@ test("rejects an image written with a reference, which the build cannot size or 
 		/reference/,
 	);
 });
+
+test("rejects an image whose file the build cannot size: not an image, an upper-case ending, or a path with a query or a fragment", () => {
+	for (const url of [
+		"guide.pdf",
+		"chart.js",
+		"sign-in",
+		"sign-in.PNG",
+		"chart.js?a=.png",
+		"flow.svg#arrows",
+	]) {
+		assert.match(
+			writingProblem({ type: "image", alt: "The sign-in form", url }) ?? "",
+			/is not an image file/,
+		);
+	}
+});
+
+test("allows every image type the build converts or copies", () => {
+	for (const type of [
+		"avif",
+		"gif",
+		"jpeg",
+		"jpg",
+		"png",
+		"svg",
+		"tiff",
+		"webp",
+	]) {
+		assert.equal(
+			writingProblem({
+				type: "image",
+				alt: "The sign-in form",
+				url: `sign-in.${type}`,
+			}),
+			undefined,
+		);
+	}
+});

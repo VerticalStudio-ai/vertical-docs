@@ -24,6 +24,13 @@ export const writingProblem = (node: Node) => {
 	) {
 		return `The image ${node.url} is not a file beside the page. Keep the file in the page's folder and write its path from there.`;
 	}
+	// The endings are the ones src/load.ts finds. Any other file passes the build as an image that shows nothing.
+	if (
+		node.type === "image" &&
+		!/^[^?#]+\.(avif|gif|jpeg|jpg|png|svg|tiff|webp)$/.test(node.url ?? "")
+	) {
+		return `The image ${node.url} is not an image file the build can size. Save it as .png, .jpg, .jpeg, .webp, .avif, .gif, .svg or .tiff, with the ending in lower case and nothing after it.`;
+	}
 	if (node.type === "image" && !node.alt?.trim()) {
 		return `The image ${node.url} has no alt text. Write what it shows between the square brackets.`;
 	}
