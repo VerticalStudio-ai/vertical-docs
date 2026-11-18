@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	realpathSync,
+	writeFileSync,
+} from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -99,12 +105,13 @@ test("build takes the docs folder as an argument", async () => {
 });
 
 test("fails and names the folder when it holds no docs", async () => {
+	const cwd = realpathSync(mkdtempSync(join(tmpdir(), "cli-")));
 	for (const args of [["build"], ["dev", "website"]]) {
-		const { status, stderr } = await command(tmpdir(), args);
+		const { status, stderr } = await command(cwd, args);
 		assert.equal(status, 1);
-		assert.match(
+		assert.equal(
 			stderr,
-			/Cannot read .*(docs|website)\/docs\.config\.json\. Name the folder that holds the docs: vertical-docs (build|dev) <folder>/,
+			`Cannot read ${join(cwd, args[1] ?? "docs", "docs.config.json")}. Name the folder that holds the docs: vertical-docs ${args[0]} <folder>\n`,
 		);
 	}
 });
