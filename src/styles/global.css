@@ -466,12 +466,10 @@
 		}
 
 		& .source {
-			margin-top: 3rem;
 			font-size: 0.875rem;
 		}
 
 		& .lead {
-			margin: 0.75rem 0 2.5rem;
 			color: var(--fg-muted);
 			font-size: 1.125rem;
 			line-height: 1.6;

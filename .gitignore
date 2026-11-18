@@ -4,6 +4,4 @@ dist/
 .DS_Store
 .context/
 .lighthouseci/
-research_notes/
-reports/
 .wrangler/
