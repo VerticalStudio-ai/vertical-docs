@@ -14,6 +14,11 @@ on:
 
 permissions: {}
 
+# One run at a time, in the order of the pushes: a run starts from the docs/sync that the run before it left.
+concurrency:
+  group: docs-sync
+  queue: max
+
 env:
   SITE: ${{ inputs.site }}
 
