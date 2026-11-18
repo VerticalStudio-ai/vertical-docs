@@ -16,10 +16,10 @@ import { siteProblems } from "./check.ts";
 import { search } from "./core/search.ts";
 
 const usage = `Usage:
+  vertical-docs init [folder]
   vertical-docs dev [folder]
   vertical-docs build [folder]
   vertical-docs check [folder]
-  vertical-docs init [folder]
   vertical-docs search "<query>" [folder] [--json] [--url <site>]
 The folder holds the docs: docs unless named.`;
 

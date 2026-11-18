@@ -101,7 +101,7 @@ vertical-docs/
 │   │   └── search-worker.ts  Web Worker: loads search.json and MiniSearch, answers queries
 │   ├── styles/global.css     tokens, base, prose
 │   ├── fonts/                the two font files, which the build names by their content
-│   ├── check.ts              the checks on a built site: links, anchors, heading order, search results, redirects, share image, sizes
+│   ├── check.ts              the checks on a built site: links, anchors, heading order, search results, redirects, favicon, share image, sizes
 │   ├── cli.ts                terminal edge; `pnpm pack` writes it and what it imports to lib/ as JavaScript for the installed command
 │   └── worker.ts             Cloudflare edge: Markdown negotiation and MCP
 ├── scripts/check-dist.ts     last step of `pnpm check`: the site checks of src/check.ts on dist/, and the dependency list
@@ -174,7 +174,7 @@ From a product's repository the same file is the installed command, `vertical-do
 | `vertical-docs init [folder]` | Writes the docs folder, `docs` unless named: a first page, `docs.config.json`, a placeholder logo, favicon and share image, and a `.gitignore` for `dist/`. Writes `docs.yml` and `docs-sync.yml` to `.github/workflows/` of the current folder. Leaves a file that exists as it is, and prints what it wrote and the next command |
 | `vertical-docs dev [folder]` | Live site of the docs folder, `docs` unless named |
 | `vertical-docs build [folder]` | Writes the site to `<folder>/dist` |
-| `vertical-docs check [folder]` | Builds, then checks `<folder>/dist`: links, anchors, heading order, search results, redirects, share image and sizes. Exit code 1 on a problem, with one line for each that says what to change |
+| `vertical-docs check [folder]` | Builds, then checks `<folder>/dist`: links, anchors, heading order, search results, redirects, favicon, share image and sizes. Exit code 1 on a problem, with one line for each that says what to change |
 | `vertical-docs search "<query>" [folder]` | The site's ranked search on `<folder>/dist/search.json`, with `--json` and `--url <site>` as above |
 
 A site's `check` holds only what checks a site. Biome, knip, the unit tests, `astro check` and the dependency list check the kit's own code and stay in `pnpm check`. In the kit the docs folder is the repository root, so the `search` script passes `.` as the folder after the query.

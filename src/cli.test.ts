@@ -124,7 +124,7 @@ test("fails and shows the commands without one or with an unknown one", async ()
 		assert.equal(status, 1);
 		assert.match(
 			stderr,
-			/Usage:\n {2}vertical-docs dev \[folder\]\n {2}vertical-docs build \[folder\]\n {2}vertical-docs check \[folder\]\n/,
+			/Usage:\n {2}vertical-docs init \[folder\]\n {2}vertical-docs dev \[folder\]\n {2}vertical-docs build \[folder\]\n {2}vertical-docs check \[folder\]\n/,
 		);
 	}
 });
@@ -271,12 +271,6 @@ test("a folder written by init passes check as it is", async () => {
 		readFileSync(join(cwd, "docs/dist/index.html"), "utf8"),
 		/<title>[^<]*Docs/,
 	);
-});
-
-test("shows init in the usage", async () => {
-	const { status, stderr } = await command(tmpdir(), []);
-	assert.equal(status, 1);
-	assert.match(stderr, /^ {2}vertical-docs init \[folder\]$/m);
 });
 
 test("prints the ranked sections of dist/search.json as plain text", async () => {

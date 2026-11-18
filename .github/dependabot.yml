@@ -24,3 +24,11 @@ updates:
     groups:
       all:
         patterns: ["*"]
+  # The workflows `vertical-docs init` writes into a product. Outside the root, Dependabot reads the workflow files that sit directly in the folder.
+  - package-ecosystem: github-actions
+    directory: /template/.github/workflows
+    schedule:
+      interval: weekly
+    groups:
+      all:
+        patterns: ["*"]
