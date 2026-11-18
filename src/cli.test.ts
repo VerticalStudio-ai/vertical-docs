@@ -46,12 +46,12 @@ const command = (cwd: string, args: string[]) =>
 		);
 	});
 
-// Runs the search in a throwaway folder, with or without a built dist/search.json.
+// Runs the search in a throwaway product folder, with or without a built docs/dist/search.json.
 const run = (args: string[], built = true) => {
 	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
 	if (built) {
-		mkdirSync(join(cwd, "dist"));
-		writeFileSync(join(cwd, "dist/search.json"), JSON.stringify(sections));
+		mkdirSync(join(cwd, "docs/dist"), { recursive: true });
+		writeFileSync(join(cwd, "docs/dist/search.json"), JSON.stringify(sections));
 	}
 	return command(cwd, ["search", ...args]);
 };
@@ -120,8 +120,57 @@ test("fails and shows the commands without one or with an unknown one", async ()
 	for (const args of [[], ["deploy"]]) {
 		const { status, stderr } = await command(tmpdir(), args);
 		assert.equal(status, 1);
-		assert.match(stderr, /Usage: vertical-docs <dev\|build> \[folder\]/);
+		assert.match(
+			stderr,
+			/Usage:\n {2}vertical-docs dev \[folder\]\n {2}vertical-docs build \[folder\]\n {2}vertical-docs check \[folder\]\n/,
+		);
 	}
+});
+
+// Every page names a favicon and a share image, so a site that passes the check has both.
+const checked = (page: string) => {
+	const cwd = product();
+	for (const file of ["favicon.svg", "share.png"]) {
+		writeFileSync(join(cwd, "docs/public", file), "");
+	}
+	writeFileSync(
+		join(cwd, "docs/content/index.md"),
+		`---\ntitle: Start here\ndescription: The first page of the product's docs.\n---\n\n${page}\n`,
+	);
+	return cwd;
+};
+
+test("check builds the product's docs folder and passes when nothing is wrong", async () => {
+	const cwd = checked("Hello from the product.");
+	const { status, stderr } = await command(cwd, ["check"]);
+	assert.equal(status, 0, stderr);
+	assert.match(
+		readFileSync(join(cwd, "docs/dist/index.html"), "utf8"),
+		/Hello from the product\./,
+	);
+});
+
+test("check fails and names a link to a page that does not exist", async () => {
+	const cwd = checked("Read [the guide](/guide/).");
+	const { status, stderr } = await command(tmpdir(), [
+		"check",
+		join(cwd, "docs"),
+	]);
+	assert.equal(status, 1);
+	assert.match(
+		stderr,
+		/^index\.html: link "\/guide\/" points to no file in dist\. Fix the link or add the page\.$/m,
+	);
+});
+
+test("check fails without a build when the folder holds no docs", async () => {
+	const cwd = realpathSync(mkdtempSync(join(tmpdir(), "cli-")));
+	const { status, stderr } = await command(cwd, ["check"]);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		`Cannot read ${join(cwd, "docs/docs.config.json")}. Name the folder that holds the docs: vertical-docs check <folder>\n`,
+	);
 });
 
 test("prints the ranked sections of dist/search.json as plain text", async () => {
@@ -145,6 +194,23 @@ test("says so when nothing matches, and exits with 0", async () => {
 	assert.equal(stdout, 'No results for "zebra".\n');
 });
 
+test("search takes the docs folder after the query", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	mkdirSync(join(cwd, "website/dist"), { recursive: true });
+	writeFileSync(
+		join(cwd, "website/dist/search.json"),
+		JSON.stringify(sections),
+	);
+	const { status, stdout } = await command(cwd, [
+		"search",
+		"callout",
+		"website",
+		"--json",
+	]);
+	assert.equal(status, 0);
+	assert.deepEqual(JSON.parse(stdout), search(sections)("callout"));
+});
+
 test("searches a deployed site with --url", async () => {
 	const server = createServer((request, response) => {
 		response.statusCode = request.url === "/search.json" ? 200 : 404;
@@ -161,7 +227,10 @@ test("searches a deployed site with --url", async () => {
 test("fails and says to build first when dist/search.json is missing", async () => {
 	const { status, stderr } = await run(["callout"], false);
 	assert.equal(status, 1);
-	assert.match(stderr, /dist\/search\.json.*Run pnpm check first/);
+	assert.match(
+		stderr,
+		/docs\/dist\/search\.json\. Run vertical-docs build first, or name the folder that holds the docs: vertical-docs search "<query>" <folder>/,
+	);
 });
 
 test("fails and names the address when the site does not answer", async () => {
@@ -183,7 +252,7 @@ test("fails and shows the usage without a query or with an unknown option", asyn
 		assert.equal(status, 1);
 		assert.match(
 			stderr,
-			/Usage: pnpm run search "<query>" \[--json\] \[--url <site>\]/,
+			/Usage:\n(?: {2}.+\n)+ {2}vertical-docs search "<query>" \[folder\] \[--json\] \[--url <site>\]\n/,
 		);
 	}
 });

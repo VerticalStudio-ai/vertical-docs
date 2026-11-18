@@ -100,9 +100,10 @@ vertical-docs/
 │   │   └── search-worker.ts  Web Worker: loads search.json and MiniSearch, answers queries
 │   ├── styles/global.css     tokens, base, prose
 │   ├── fonts/                the two font files, which the build names by their content
-│   ├── cli.ts                terminal edge; `pnpm pack` writes it to lib/ as JavaScript for the installed command
+│   ├── check.ts              the checks on a built site: links, anchors, heading order, search results, redirects, share image, sizes
+│   ├── cli.ts                terminal edge; `pnpm pack` writes it and what it imports to lib/ as JavaScript for the installed command
 │   └── worker.ts             Cloudflare edge: Markdown negotiation and MCP
-├── scripts/check-dist.ts     links, anchors, heading order, redirects, share image, sizes, dependency list
+├── scripts/check-dist.ts     last step of `pnpm check`: the site checks of src/check.ts on dist/, and the dependency list
 ├── wrangler.jsonc            the Worker and the folder of static files it serves
 ├── AGENTS.md                 rules for agents changing the code
 ├── WRITING.md                rules for anyone writing a page
@@ -171,11 +172,15 @@ From a product's repository the same file is the installed command, `vertical-do
 |---|---|
 | `vertical-docs dev [folder]` | Live site of the docs folder, `docs` unless named |
 | `vertical-docs build [folder]` | Writes the site to `<folder>/dist` |
+| `vertical-docs check [folder]` | Builds, then checks `<folder>/dist`: links, anchors, heading order, search results, redirects, share image and sizes. Exit code 1 on a problem, with one line for each that says what to change |
+| `vertical-docs search "<query>" [folder]` | The site's ranked search on `<folder>/dist/search.json`, with `--json` and `--url <site>` as above |
+
+A site's `check` holds only what checks a site. Biome, knip, the unit tests, `astro check` and the dependency list check the kit's own code and stay in `pnpm check`. In the kit the docs folder is the repository root, so the `search` script passes `.` as the folder after the query.
 
 The kit stays the one Astro project, also inside `node_modules`: the command starts Astro with the kit as its current folder and passes the product's content folder as `DOCS_ROOT`. Three facts shape it:
 
 - `DOCS_ROOT` is absolute. `astro.config.ts` resolves it from the current folder and Astro's content loader from the Astro root, so a relative path gives a site with no pages when the two differ. That was the cause of the 404 answers in the first trial with `astro dev --root`.
-- Node does not run TypeScript from `node_modules`, so `pnpm pack` first writes `src/cli.ts` as JavaScript into `lib/`, which is what the two command names point at. Astro reads the `.ts` and `.astro` sources as they are.
+- Node does not run TypeScript from `node_modules`, so `pnpm pack` first writes `src/cli.ts` and the files it imports (`src/check.ts`, the core search) as JavaScript into `lib/`, which is what the two command names point at. The files in `lib/` sit one folder deep, like their sources in `src/`, so the folder above is the kit from both. Astro reads the `.ts` and `.astro` sources as they are.
 - Astro writes its generated files to `.astro/` in its root, which is the installed kit; `cacheDir` moves only the build cache. Two docs folders can be built in turn from one install (tested: 48 and 110 pages), but two previews at once would share those files. For the same reason `dev` passes `--ignore-lock`: Astro's lock file and its `astro dev stop` belong to that folder, and when an agent starts `astro dev` Astro moves the server to the background, where a product has no command to stop it. The preview stays in the terminal and stops with the command.
 
 ## How it stays clean
@@ -189,7 +194,7 @@ The research changed how the rules are enforced more than what they are. The one
 | Core imports nothing from Astro, Node or the browser | Biome import restriction on `src/core/` |
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
-| JavaScript and CSS size budgets | `check-dist`, gzip sizes: 4 KB of CSS, 1.25 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand. The phase 3a build measures 2.5 KB, 1.2 KB and 6.1 KB; the page budget rose from 1 KB for the copy buttons. |
+| JavaScript and CSS size budgets | `check-dist` through `src/check.ts`, gzip sizes: 4 KB of CSS, 1.25 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand. The phase 3a build measures 2.5 KB, 1.2 KB and 6.1 KB; the page budget rose from 1 KB for the copy buttons. |
 | Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |
 | Frontmatter shape | Content schema at build |
