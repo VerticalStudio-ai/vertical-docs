@@ -60,13 +60,14 @@ export default defineConfig({
 				{
 					name: "tables",
 					// A table wider than the text scrolls inside this box. The table itself stays a table for a screen reader.
+					// The box takes a place in the tab order, because Safari gives a scrolling box none and the arrow keys reach the hidden columns only from inside it.
 					element: {
 						filter: ["table"],
 						visit(node, ctx) {
 							ctx.wrapNode(node, {
 								type: "element",
 								tagName: "div",
-								properties: { class: "table" },
+								properties: { class: "table", tabindex: "0" },
 								children: [],
 							});
 						},

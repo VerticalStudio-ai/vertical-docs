@@ -62,7 +62,7 @@ Each code block has a Copy button in its top right corner.
 | `pnpm check` | Checks the code, builds the site and checks the build. |
 | `pnpm fix` | Formats the code and applies safe lint fixes. |
 
-A table that is wider than the text scrolls sideways inside itself, on every screen size. The page stays as wide as the window.
+A table that is wider than the text scrolls sideways inside itself, on every screen size. The page stays as wide as the window. Press Tab to reach the table, then scroll it with the arrow keys.
 
 ## Images
 
