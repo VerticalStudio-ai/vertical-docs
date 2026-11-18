@@ -103,7 +103,8 @@ for (const file of [...loaded].filter((file) => file.endsWith(".js"))) {
 	importsOf(file, read(file));
 }
 // Astro writes the paths in an inline script from the site root, so any page works as the base.
-for (const code of inline("script")) importsOf("index.html", code);
+const scripts = inline("script");
+for (const code of scripts) importsOf("index.html", code);
 
 // Every search result has to open: the dialog, the command line and agents all follow these URLs.
 if (isFile("dist/search.json")) {
@@ -160,7 +161,7 @@ const budgets = [
 			...withExt(".js")
 				.filter((file) => loaded.has(file))
 				.map(read),
-			...inline("script"),
+			...scripts,
 		],
 	},
 	{

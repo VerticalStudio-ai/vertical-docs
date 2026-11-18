@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phases 0 to 3a are built. Phase 3b is built up to what needs an account, a key or a product repository: the deploy, a run of the sync workflow and the first site going live. Phase 4 is planned. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
+Status: phases 0 to 3a are built. Phase 3b is built up to what needs an account, a key or a product repository: the deploy, a run of the sync workflow and the first site going live. Phase 4 is built: a 404 page, tables that scroll at every width, and the name, mark and share image. Versions are left out until a site needs them. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -227,7 +227,7 @@ Phase 0 is small enough to do directly. Phases 1 to 3b are ticket-sized. Each ph
 | 2. Search and reading surfaces | `sections.ts`, `search.ts`, `search.json`, search dialog, `.md` pages, `llms.txt`, `pnpm run search` | Searching a word from an `h3` opens that `h3`; the site and the command line return the same ranking |
 | 3a. Real content | `DOCS_ROOT`, images, diagrams per theme, a sidebar with groups that open and close, copy buttons, tables on a small screen, and build rules for images, task lists and heading order | Both sites, imported into throwaway folders, pass `pnpm check` and the Lighthouse scores |
 | 3b. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected, old GitBook paths redirected. With the site's public URL: canonical URLs, `sitemap.xml`, `robots.txt`, share-image tags, structured data, and absolute URLs in `llms.txt` | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
-| 4. Brand | Final name and wordmark, share image, polish | Your sign-off |
+| 4. Finish version 1 | A 404 page, wide tables, the image file rule, sync runs one at a time; the name Vertical Docs, its mark, favicon and share image | Your sign-off |
 
 ## Versions, when a site needs them
 
@@ -256,5 +256,5 @@ Still open:
 1. **Cloudflare account.** The plan needs one for hosting. Vercel also works but puts the MCP route in a separate function.
 2. **Model key for the sync workflow.** A Claude subscription token (`claude setup-token`) is documented for personal repositories; an API key is recommended for organisation repositories.
 3. **Public or private kit.** Public removes the clone token in each product repository's build and makes the shared workflow callable from any account. I recommend public once phase 2 is done.
-4. **Name and accent colour**, needed by phase 4 only.
+4. **Name and accent colour**: answered on 2026-11-18. The product is Vertical Docs, a product of Vertical Labs, with the short name `vdocs` for the package and the Worker. The kit's own site stays black and white. The repository is still named `docs-kit`; renaming it is the owner's step, and `docs-sync.yml` names the repository.
 5. **First repository to connect**: answered. The vAPI docs come first (their source is already in Git), then the Vertical Studio docs.

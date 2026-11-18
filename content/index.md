@@ -1,5 +1,5 @@
 ---
-title: Run docs-kit locally
+title: Run Vertical Docs locally
 description: Install the dependencies, start the local site, and run the one check that decides whether a change is done.
 order: 1
 ---
