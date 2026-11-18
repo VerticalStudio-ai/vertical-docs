@@ -15,14 +15,14 @@ import Toc from "./Toc.astro";
 interface Props {
 	title: string;
 	description: string;
-	href: string;
+	// The address of a docs page. The 404 page has none: no address of its own, no Markdown copy and no place in the reading order.
+	href?: string;
 	tree: NavItem[];
 	headings: MarkdownHeading[];
 }
 
 const { title, description, href, tree, headings } = Astro.props;
-const { previous, next } = neighbours(tree, href);
-const address = new URL(href, config.url).href;
+const { previous, next } = href ? neighbours(tree, href) : {};
 ---
 
 <!doctype html>
@@ -32,14 +32,20 @@ const address = new URL(href, config.url).href;
 		<meta name="viewport" content="width=device-width" />
 		<title>{title} · {config.name}</title>
 		<meta name="description" content={description} />
-		<link rel="canonical" href={address} />
 		<meta property="og:title" content={`${title} · ${config.name}`} />
 		<meta property="og:description" content={description} />
-		<meta property="og:url" content={address} />
 		<meta property="og:image" content={new URL("/share.png", config.url).href} />
 		<meta name="twitter:card" content="summary_large_image" />
-		<script type="application/ld+json" set:html={structuredData(config, tree, href)} />
-		<link rel="alternate" type="text/markdown" href={markdownUrl(href)} />
+		{
+			href && (
+				<>
+					<link rel="canonical" href={new URL(href, config.url).href} />
+					<meta property="og:url" content={new URL(href, config.url).href} />
+					<script type="application/ld+json" set:html={structuredData(config, tree, href)} />
+					<link rel="alternate" type="text/markdown" href={markdownUrl(href)} />
+				</>
+			)
+		}
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 		<link rel="preload" href={sans} as="font" type="font/woff2" crossorigin />
 		<link rel="preload" href={mono} as="font" type="font/woff2" crossorigin />
@@ -66,34 +72,38 @@ const address = new URL(href, config.url).href;
 		</header>
 		<div class="frame">
 			<nav id="sidebar" class="sidebar" popover aria-label="Pages">
-				<Sidebar items={tree} current={href} />
+				<Sidebar items={tree} current={href ?? ""} />
 			</nav>
 			<main>
 				<article class="prose">
-					<button type="button" class="copy" data-page={markdownUrl(href)}>Copy page</button>
+					{href && <button type="button" class="copy" data-page={markdownUrl(href)}>Copy page</button>}
 					<h1>{title}</h1>
 					<p class="lead">{description}</p>
 					<slot />
-					<p class="source"><a href={markdownUrl(href)}>View this page as Markdown</a></p>
+					{href && <p class="source"><a href={markdownUrl(href)}>View this page as Markdown</a></p>}
 				</article>
-				<nav class="pager" aria-label="Previous and next page">
-					{
-						previous && (
-							<a href={previous.href} rel="prev">
-								<small>Previous</small>
-								{previous.title}
-							</a>
-						)
-					}
-					{
-						next && (
-							<a href={next.href} rel="next">
-								<small>Next</small>
-								{next.title}
-							</a>
-						)
-					}
-				</nav>
+				{
+					href && (
+						<nav class="pager" aria-label="Previous and next page">
+							{
+								previous && (
+									<a href={previous.href} rel="prev">
+										<small>Previous</small>
+										{previous.title}
+									</a>
+								)
+							}
+							{
+								next && (
+									<a href={next.href} rel="next">
+										<small>Next</small>
+										{next.title}
+									</a>
+								)
+							}
+						</nav>
+					)
+				}
 			</main>
 			{headings.length > 0 && <Toc headings={headings} />}
 		</div>

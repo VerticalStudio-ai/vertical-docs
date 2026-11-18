@@ -1,0 +1,16 @@
+---
+import Doc from "../components/Doc.astro";
+import { sidebar } from "../core/nav.ts";
+import { loadPages } from "../load.ts";
+
+const tree = sidebar(await loadPages());
+---
+
+<Doc
+	title="Page not found"
+	description="This address has no page. The page may have moved or the link may be wrong."
+	tree={tree}
+	headings={[]}
+>
+	<p>Search for the page, pick it from the list of pages, or start at the <a href="/">home page</a>.</p>
+</Doc>

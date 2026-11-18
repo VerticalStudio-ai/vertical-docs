@@ -14,6 +14,11 @@ on:
 
 permissions: {}
 
+# One run at a time: a run starts from the docs/sync that the run before it left.
+concurrency:
+  group: docs-sync
+  queue: max
+
 env:
   SITE: ${{ inputs.site }}
 
@@ -30,9 +35,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      # Docs changes that wait in the open pull request stay in it: the agent starts from them.
+      # Docs changes that wait in the open pull request stay in it: the agent starts from them. A lookup that fails stops the run, which would otherwise overwrite them.
       - run: |
-          if gh pr view docs/sync --json state --jq .state | grep -q OPEN; then
+          open=$(gh pr list --head docs/sync --state open --json number --jq length)
+          if [ "$open" != 0 ]; then
             git -c user.name=docs-sync -c user.email=docs-sync@users.noreply.github.com merge --no-edit origin/docs/sync
           fi
         env:

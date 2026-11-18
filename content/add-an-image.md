@@ -63,6 +63,7 @@ The build stops when an image breaks one of these rules:
 
 - An image has alt text. The alt text is what a screen reader, the search and an agent read in place of the image.
 - An image is a file in `content/`. A web address or a path that starts with `/` is not allowed.
+- The file name ends in `.png`, `.jpg`, `.jpeg`, `.webp`, `.avif`, `.gif`, `.svg` or `.tiff`, in lower case.
 - The path is written in the image itself. An image that names a reference, such as `![The sidebar][sidebar]`, is not allowed.
 - The alt text and the file name have no brackets, so that the Markdown copy of the page can point at the file.
 

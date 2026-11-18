@@ -56,6 +56,23 @@ export default defineConfig({
 					},
 				},
 			],
+			hastPlugins: [
+				{
+					name: "tables",
+					// A table wider than the text scrolls inside this box. The table itself stays a table for a screen reader.
+					element: {
+						filter: ["table"],
+						visit(node, ctx) {
+							ctx.wrapNode(node, {
+								type: "element",
+								tagName: "div",
+								properties: { class: "table" },
+								children: [],
+							});
+						},
+					},
+				},
+			],
 		}),
 	},
 });
