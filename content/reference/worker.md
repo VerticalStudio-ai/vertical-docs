@@ -33,6 +33,20 @@ Look up the frontmatter fields, the Markdown a page can use, the site configurat
 
 The answer holds the same bytes as `/reference.md`. A request without that header gets the HTML page.
 
+## An address with no page
+
+An address with no page answers with status `404` and the "Page not found" page. That page keeps the header, the search and the list of pages, so a reader can find the page that moved:
+
+```sh
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8787/no/such/page/
+```
+
+```txt
+404
+```
+
+The build writes the page to `dist/404.html`. To send an old address to its new page, add a line to [`public/_redirects`](/reference/configuration/#old-addresses).
+
 ## MCP server
 
 `/mcp` is an MCP server over HTTP. The server keeps nothing between two calls, so a client needs no session.
