@@ -11,7 +11,7 @@
 		"dev": "astro dev",
 		"check": "biome ci --error-on-warnings && knip && node --test && astro check && astro build && node scripts/check-dist.ts",
 		"fix": "biome check --write",
-		"search": "node src/cli.ts search",
+		"search": "sh -c 'node src/cli.ts search \"$@\" .' --",
 		"prepack": "tsc src/cli.ts --ignoreConfig --outDir lib --rootDir src --module nodenext --types node --rewriteRelativeImportExtensions"
 	},
 	"dependencies": {
