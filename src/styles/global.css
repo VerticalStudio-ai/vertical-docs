@@ -477,7 +477,7 @@
 			line-height: 1.6;
 		}
 
-		& :is(p, ul, ol, pre, table, blockquote, .callout) {
+		& :is(p, ul, ol, pre, .table, blockquote, .callout) {
 			margin: 1.25rem 0 0;
 		}
 
@@ -589,16 +589,15 @@
 			display: none;
 		}
 
+		/* A table wider than the column scrolls sideways inside its box instead of pushing the page. */
+		& .table {
+			overflow-x: auto;
+		}
+
 		& table {
 			width: 100%;
 			border-collapse: collapse;
 			font-size: 0.9375rem;
-
-			/* On a small screen a table wider than the column scrolls sideways inside itself instead of pushing the page. */
-			@media (width < 56rem) {
-				display: block;
-				overflow-x: auto;
-			}
 		}
 
 		& :is(th, td) {

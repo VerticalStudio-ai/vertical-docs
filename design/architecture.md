@@ -136,7 +136,8 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 | Mobile navigation | Popover API |
 | Sidebar groups | `<details>`: a folder is a group that opens and closes, and the build opens the groups that hold the current page. One sidebar holds all sections; header tabs per section were prototyped and dropped. |
 | Diagram per theme | One CSS rule on the file name (`-light.` and `-dark.`), which also follows the manual theme switch. Tested in Chrome and Firefox. |
-| Wide table on a small screen | CSS: the table scrolls sideways inside itself. |
+| Wide table | The build puts every table in a `div` that scrolls sideways, at every width. The first version turned the table itself into a scrolling block on a small screen, which left wide tables pushing a desktop window sideways and takes the table role away in some screen readers. |
+| Address with no page | `src/pages/404.astro` builds `dist/404.html`: the page shell with the sidebar and the search, without a canonical URL or a Markdown copy. The Worker's static files answer it with status 404 (`not_found_handling` in `wrangler.jsonc`). |
 | Search dialog | `<dialog>`, with the search in a Web Worker. A lazy `import()` would be the obvious way to load the search on first open, but Vite adds a preload helper of about 0.8 KB gzipped to any page script that has one. A worker loads just as late, needs no helper, and keeps indexing off the page. |
 | Theme | `color-scheme` and `light-dark()`; a few inline lines apply a saved choice before paint |
 | Active section in the table of contents | CSS `scroll-target-group` and `:target-current`, as an enhancement. Tested on 2026-11-17: Chrome 157 marks the section at the top of the window, the first entry above the first heading and the last entry at the end of the page. Safari 26.2 and Firefox 151 do not support it and show a plain list. The brief's JavaScript scroll-spy is not built unless this proves too weak. |
@@ -206,7 +207,7 @@ Differences from the brief, with reasons:
 - The action has no `max_turns` or `model` inputs; both go through `claude_args`. It also does not open pull requests itself, so that step is ours.
 - The agent does not run `pnpm check`. That command executes repository code, and Anthropic's own security notes say the tool allowlist "is … not a sandbox". The check runs in the guard step instead, without the model key.
 - The three parts are three jobs, not three steps. The agent's file tools can write to `.git/config` or to another file that a later step of the same job would execute, and building a page can run code that the page names. So the job with the model key and the job that builds can only read, and nothing but the patch reaches the job that can write. The cross-family review of phase 3b found the second case.
-- Two runs at the same time can each write `docs/sync`, and the later one wins. Not solved: GitHub's `concurrency` drops a waiting run when a newer one arrives, which would skip a code change.
+- Runs go one at a time, in the order of the pushes: the workflow is one concurrency group with `queue: max`. Two runs at once could each write `docs/sync`, and the later one would win. A group without `queue` drops a waiting run when a newer one arrives, which would skip a code change.
 - The pull request is rolling: while it is open, the agent starts from its branch merged into `main`, and the branch is rewritten as `main` plus one commit. A second code change before the first docs change is merged adds to it instead of replacing it.
 - A merged diff is still untrusted text. Reviewers read for logic, not for instructions hidden in a comment. Prompt injection through repository text is a documented class of incident (PromptPwnd, GitInject), so the path guard checks the output regardless of what the agent was told.
 - Every action is pinned by commit, because of the tag-repointing attacks on `tj-actions` and others.
@@ -247,6 +248,7 @@ Still open:
 - A deploy. On the local Workers runtime the redirects in `_redirects` are also answered when the Worker runs first and hands the request to the static files; Cloudflare's documentation does not say so, so check it on the first deploy.
 - CPU time on the free plan. Building the search index for the 703 sections of the vAPI docs takes about 35 ms on a laptop, and the free plan allows 10 ms of CPU for a request. Measure `search_docs` on the first deploy; the paid plan allows 30 seconds.
 - `job.workflow_sha` in `docs-sync.yml`, which pins the kit to the commit of the called workflow. It is in GitHub's documentation; `actionlint` 1.7.12 does not know it. Check it in the first run.
+- The concurrency group of `docs-sync.yml`. `queue: max` is in GitHub's documentation, and `actionlint` 1.7.12 does not know it. The documentation does not say that a group set at the top of a called workflow holds the whole run; if the first two runs overlap, the group moves to the job that calls the workflow.
 - Safari for what phase 3a added: the copy buttons, the diagram per theme and the sidebar groups. Chrome and Firefox were tested.
 
 ## Decisions that are yours
