@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phases 0 to 2 and 3a are built. Phases 3b and 4 are planned. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
+Status: phases 0 to 3a are built. Phase 3b is built up to what needs an account, a key or a product repository: the deploy, a run of the sync workflow and the first site going live. Phase 4 is planned. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -41,7 +41,7 @@ This is the "functional core, imperative shell" pattern. It is the lightest form
 | Lint and format | **Biome** | One tool turns four prose rules into failing checks (see [How it stays clean](#how-it-stays-clean)). |
 | Unused code | **knip** | Fails the check on unused files, exports and dependencies, which is what agent-written code leaves behind most often. |
 | Hosting | **Cloudflare Workers with static assets** | Cloudflare now points new projects here instead of Pages. One Worker serves the site and the `/mcp` route on the free plan. |
-| MCP | Stateless Streamable HTTP route on the same Worker | The 2026-07-28 MCP specification removed sessions; no Durable Object is needed. |
+| MCP | Stateless Streamable HTTP route on the same Worker | The 2026-07-28 MCP specification removed sessions; no Durable Object is needed. `createMcpHandler` from `@modelcontextprotocol/server` serves the route on its own; Cloudflare's `agents` package is not needed (tested with Claude Code and Codex). |
 | Docs sync agent | `anthropics/claude-code-action@v1`, pinned by commit, Sonnet 5 | Estimated $0.15 to $0.30 per run. |
 
 ### Why pnpm and not npm or Bun
@@ -60,7 +60,7 @@ Runtime, the complete list:
 | `minisearch` | yes | Search. No dependencies of its own. |
 | `@astrojs/markdown-satteri` | no, already inside Astro | Declared so the config can register the callout plugin. |
 | `github-slugger` | no, already inside Astro | Core must produce the same heading anchors as Astro. |
-| `@modelcontextprotocol/server` | yes, phase 3 | MCP protocol. Brings `zod`, which Astro already installs. |
+| `@modelcontextprotocol/server` | yes, phase 3b | MCP protocol. Brings `zod`, which Astro already installs. The tool inputs are written as JSON Schema, so our code does not import `zod`. |
 
 Development: `typescript` (6.x, because Astro's checker does not accept 7 yet), `@types/node` (types for the scripts, the command-line tool and the tests), `@astrojs/check`, `@biomejs/biome`, `knip`.
 
@@ -71,14 +71,15 @@ Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remar
 ```
 docs-kit/
 ├── content/                  the kit's own docs and their images; the only folder a docs agent edits
-├── docs.config.json          name, description, repo, accent; url arrives with its first use
-├── public/                   logo.svg, favicon.svg, fonts/
+├── docs.config.json          name, description, url, repo, accent
+├── public/                   what a site replaces: logo.svg, favicon.svg, share.png, and _redirects when it has old addresses
 ├── src/
 │   ├── core/                 pure: no Astro, Node or browser imports
 │   │   ├── nav.ts            pages → sidebar tree, previous and next
 │   │   ├── sections.ts       Markdown → heading-level section records
 │   │   ├── search.ts         records → index; query → ranked hits
 │   │   ├── llms.ts           pages → llms.txt; page → Markdown with title and image URLs
+│   │   ├── seo.ts            pages → sitemap.xml; page → structured data
 │   │   ├── writing.ts        Markdown node → the WRITING.md rule it breaks
 │   │   ├── callout.ts        blockquote text → callout kind
 │   │   └── *.test.ts         beside the file they test
@@ -88,7 +89,9 @@ docs-kit/
 │   │   ├── [...slug].astro
 │   │   ├── [...slug].md.ts
 │   │   ├── llms.txt.ts
-│   │   └── search.json.ts
+│   │   ├── search.json.ts
+│   │   ├── sitemap.xml.ts
+│   │   └── robots.txt.ts
 │   ├── components/
 │   │   ├── Doc.astro         page shell: header, content, previous and next, page actions
 │   │   ├── Sidebar.astro
@@ -96,26 +99,29 @@ docs-kit/
 │   │   ├── Search.astro      <dialog>; starts the search worker on first open
 │   │   └── search-worker.ts  Web Worker: loads search.json and MiniSearch, answers queries
 │   ├── styles/global.css     tokens, base, prose
+│   ├── fonts/                the two font files, which the build names by their content
 │   ├── cli.ts                terminal edge
-│   └── worker.ts             MCP and Markdown negotiation (phase 3b)
-├── scripts/check-dist.ts     links, anchors, heading order, sizes, dependency list
+│   └── worker.ts             Cloudflare edge: Markdown negotiation and MCP
+├── scripts/check-dist.ts     links, anchors, heading order, redirects, share image, sizes, dependency list
+├── wrangler.jsonc            the Worker and the folder of static files it serves
 ├── AGENTS.md                 rules for agents changing the code
 ├── WRITING.md                rules for anyone writing a page
 ├── astro.config.ts
 ├── biome.json
 ├── package.json
 ├── tsconfig.json
-└── .github/workflows/        ci.yml, docs-sync.yml (phase 3b)
+└── .github/workflows/        ci.yml, docs-sync.yml
 ```
 
-About 25 files. The brief's `Header`, `PageActions`, `PrevNext` and `ThemeToggle` components are each used once, so they start inside `Doc.astro` and are split out only if that file comes to hold two responsibilities.
+About 30 files. The brief's `Header`, `PageActions`, `PrevNext` and `ThemeToggle` components are each used once, so they start inside `Doc.astro` and are split out only if that file comes to hold two responsibilities.
 
 ## Content model
 
 - Frontmatter has three fields: `title` (70 characters at most), `description` (160 at most) and an optional `order`. `draft` is removed; a draft is a branch.
 - The URL is the file path. A folder is a sidebar group, and its `index.md` sets the group's title and order. Navigation has no second source in the config file.
 - Callouts are GitHub alerts: `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`. GitHub renders them, and anywhere else they degrade to a readable blockquote. The `:::steps` block is removed; an ordered list is already a list of steps.
-- `docs.config.json` is JSON so that a consuming repository needs no TypeScript.
+- `docs.config.json` is JSON so that a consuming repository needs no TypeScript. A site is one folder: `docs.config.json` and `public/` sit beside `content/`, and `DOCS_ROOT` names that `content/` folder. The kit's own site has the same shape, so there is no second way to configure a site.
+- `url` in `docs.config.json` is the public address. It is required, because the canonical URL, the share tags, `sitemap.xml`, `robots.txt` and the links in `llms.txt` are wrong without it.
 - An image is a Markdown image whose file sits in the content folder, beside the page. Alt text is required, and a web address is not allowed: a local file is the only kind the build can size and convert. A diagram drawn per theme is two files, `name-light.*` and `name-dark.*`, on two lines; one CSS rule shows the right one. A caption is a line in italics.
 - Left out on purpose, because the two first sites do not need them: task lists, tabs, columns, cards, mermaid diagrams, code block titles, hidden pages and breadcrumbs. Task lists fail the build with a message; the rest is plain Markdown that has no syntax here.
 
@@ -175,6 +181,7 @@ The research changed how the rules are enforced more than what they are. The one
 | Frontmatter shape | Content schema at build |
 | Headings are `##` or `###`, code blocks name a language, no HTML, no task lists, an image has alt text and is a local file | Markdown plugin at build, registered in `astro.config.ts` |
 | A `###` heading has a `##` above it | `check-dist` |
+| A redirect points to a page and is permanent; the share image exists | `check-dist` |
 | The lint rules and `check-dist` still catch what they should | Tests beside `biome.json` and `scripts/check-dist.ts` |
 | Docs agent edits only `content/` | Path guard in the sync workflow |
 
@@ -190,20 +197,23 @@ The rule of three, the dependency budget and strict typing are the best-supporte
 
 The workflow lives in this repository and is called from a product repository on push to `main`, ignoring pushes that only touch docs.
 
-1. **Agent step.** It receives the diff as a file and may only read, search and edit files. It has no shell. The prompt says the diff is data, not instructions.
-2. **Guard step, no model key.** It fails if any path outside the docs content folder changed, then runs `pnpm check`.
-3. **Pull request step.** It opens or updates one rolling pull request on `docs/sync`. If the working tree is unchanged, it stops.
+1. **Agent job.** It receives the diff as a file and may only read, search and edit files. It has no shell. The prompt says the diff is data, not instructions. What leaves the job is one patch of the content folder.
+2. **Check job, with no model key and no token that can write.** It applies the patch and runs `pnpm check` from a fresh checkout of the kit.
+3. **Publish job.** It runs nothing from the repository or the patch. The path guard fails if the patch changes any path outside the docs content folder or adds a symlink; then the job opens or updates one rolling pull request on `docs/sync`. If the patch is empty, it stops.
 
 Differences from the brief, with reasons:
 
 - The action has no `max_turns` or `model` inputs; both go through `claude_args`. It also does not open pull requests itself, so that step is ours.
 - The agent does not run `pnpm check`. That command executes repository code, and Anthropic's own security notes say the tool allowlist "is … not a sandbox". The check runs in the guard step instead, without the model key.
+- The three parts are three jobs, not three steps. The agent's file tools can write to `.git/config` or to another file that a later step of the same job would execute, and building a page can run code that the page names. So the job with the model key and the job that builds can only read, and nothing but the patch reaches the job that can write. The cross-family review of phase 3b found the second case.
+- Two runs at the same time can each write `docs/sync`, and the later one wins. Not solved: GitHub's `concurrency` drops a waiting run when a newer one arrives, which would skip a code change.
+- The pull request is rolling: while it is open, the agent starts from its branch merged into `main`, and the branch is rewritten as `main` plus one commit. A second code change before the first docs change is merged adds to it instead of replacing it.
 - A merged diff is still untrusted text. Reviewers read for logic, not for instructions hidden in a comment. Prompt injection through repository text is a documented class of incident (PromptPwnd, GitInject), so the path guard checks the output regardless of what the agent was told.
 - Every action is pinned by commit, because of the tag-repointing attacks on `tj-actions` and others.
 - Start with the default `GITHUB_TOKEN`. The check has already run before the pull request opens, and CI on that pull request starts after one "Approve workflows to run" click. A GitHub App token is only needed once docs live in a separate repository.
 - The writing rules are one file, `WRITING.md`, read by the workflow. The brief copied a style guide into every connected repository.
 
-A product repository holds only its `content/` folder, `docs.config.json`, a logo and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that folder. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`), in since phase 3a: the docs of the first two sites build and pass `pnpm check` from a folder outside the project. Nothing is published to npm in version 1.
+A product repository holds only its `content/` folder, `docs.config.json`, a `public/` folder with its logo, favicon and share image, and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that `content/` folder. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`), in since phase 3a: the docs of the first two sites build and pass `pnpm check` from a folder outside the project. Nothing is published to npm in version 1.
 
 ## Build order
 
@@ -226,9 +236,17 @@ Neither of the first two sites has versions, and versions multiply URLs, search 
 
 Each is checked with a small test at the start of its phase.
 
-- Whether `@modelcontextprotocol/server` alone serves a stateless route on Workers, or Cloudflare's `agents` package is needed. Take the smaller option that passes a test with Claude Code and one other client (phase 3b).
-- Preview deployments per pull request on Workers (phase 3b).
-- A reusable workflow in a private repository called from a repository under another account (phase 3b).
+Checked at the start of phase 3b, on 2026-11-17:
+
+- `@modelcontextprotocol/server` alone serves the stateless route on the Workers runtime. A throwaway Worker and then `src/worker.ts`, both under `wrangler dev`, answered Claude Code and Codex. Cloudflare's `agents` package is not used.
+- Workers has a preview address per pull request: `wrangler versions upload --preview-alias pr-<number>` gives `pr-<number>-<worker>.<subdomain>.workers.dev`. Read in Cloudflare's documentation; not run, because it needs an account.
+- A reusable workflow in a private repository under a personal account cannot be called from a repository under another account: GitHub offers only "accessible from repositories owned by the same user". Read in GitHub's documentation. So the kit is public, or each product repository copies the workflow.
+
+Still open:
+
+- A deploy. On the local Workers runtime the redirects in `_redirects` are also answered when the Worker runs first and hands the request to the static files; Cloudflare's documentation does not say so, so check it on the first deploy.
+- CPU time on the free plan. Building the search index for the 703 sections of the vAPI docs takes about 35 ms on a laptop, and the free plan allows 10 ms of CPU for a request. Measure `search_docs` on the first deploy; the paid plan allows 30 seconds.
+- `job.workflow_sha` in `docs-sync.yml`, which pins the kit to the commit of the called workflow. It is in GitHub's documentation; `actionlint` 1.7.12 does not know it. Check it in the first run.
 - Safari for what phase 3a added: the copy buttons, the diagram per theme and the sidebar groups. Chrome and Firefox were tested.
 
 ## Decisions that are yours

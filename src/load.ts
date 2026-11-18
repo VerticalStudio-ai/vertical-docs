@@ -1,6 +1,7 @@
 import { getImage } from "astro:assets";
 import { type CollectionEntry, getCollection } from "astro:content";
 import { dirname, join } from "node:path";
+import config from "@site/docs.config.json";
 import type { ImageMetadata } from "astro";
 
 /** Returns every page in `content/`, already validated by the content schema. */
@@ -15,7 +16,7 @@ const files = new Map(
 	).map(([path, load]) => [path.replace(/^\//, ""), load]),
 );
 
-/** Returns the URL the site serves each image of a page at, by the path the page writes: the same file the page shows. */
+/** Returns the full address the site serves each image of a page at, by the path the page writes: the same file the page shows. */
 export const loadImageUrls = async ({
 	filePath = "",
 	rendered,
@@ -25,7 +26,9 @@ export const loadImageUrls = async ({
 			(rendered?.metadata?.imagePaths ?? []).map(async (path) => {
 				const load = files.get(join(dirname(filePath), path));
 				// A file the list above does not name keeps the path the page writes.
-				const url = load ? (await getImage({ src: load() })).src : path;
+				const url = load
+					? new URL((await getImage({ src: load() })).src, config.url).href
+					: path;
 				return [path, url] as const;
 			}),
 		),

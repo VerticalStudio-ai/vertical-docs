@@ -19,7 +19,7 @@ The command prints up to ten results with an empty line between them. Each resul
 ```text
 Site configuration › Logo and favicon
 /reference/configuration/#logo-and-favicon
-… pixels high, next to the name. public/favicon.svg In the browser tab. The logo is placed in the page as inline SVG. Draw it with fill="currentColor" and the …
+… pixels high, next to the name. public/favicon.svg In the browser tab. public/share.png In the preview of a link to the site, in a chat or on a social network. …
 ```
 
 > [!WARNING]
@@ -38,7 +38,7 @@ pnpm run search "favicon" --json | jq '.[0]'
   "url": "/reference/configuration/#logo-and-favicon",
   "title": "Site configuration",
   "heading": "Logo and favicon",
-  "snippet": "… pixels high, next to the name. public/favicon.svg In the browser tab. The logo is placed in the page as inline SVG. Draw it with fill=\"currentColor\" and the …"
+  "snippet": "… pixels high, next to the name. public/favicon.svg In the browser tab. public/share.png In the preview of a link to the site, in a chat or on a social network. …"
 }
 ```
 

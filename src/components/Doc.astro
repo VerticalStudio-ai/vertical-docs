@@ -1,9 +1,12 @@
 ---
+import config from "@site/docs.config.json";
+import logo from "@site/public/logo.svg?raw";
 import type { MarkdownHeading } from "astro";
-import config from "../../docs.config.json";
-import logo from "../../public/logo.svg?raw";
 import { markdownUrl } from "../core/llms.ts";
 import { type NavItem, neighbours } from "../core/nav.ts";
+import { structuredData } from "../core/seo.ts";
+import mono from "../fonts/geist-mono.woff2?url";
+import sans from "../fonts/geist-sans.woff2?url";
 import "../styles/global.css";
 import Search from "./Search.astro";
 import Sidebar from "./Sidebar.astro";
@@ -19,6 +22,7 @@ interface Props {
 
 const { title, description, href, tree, headings } = Astro.props;
 const { previous, next } = neighbours(tree, href);
+const address = new URL(href, config.url).href;
 ---
 
 <!doctype html>
@@ -28,10 +32,17 @@ const { previous, next } = neighbours(tree, href);
 		<meta name="viewport" content="width=device-width" />
 		<title>{title} · {config.name}</title>
 		<meta name="description" content={description} />
+		<link rel="canonical" href={address} />
+		<meta property="og:title" content={`${title} · ${config.name}`} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={address} />
+		<meta property="og:image" content={new URL("/share.png", config.url).href} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<script type="application/ld+json" set:html={structuredData(config, tree, href)} />
 		<link rel="alternate" type="text/markdown" href={markdownUrl(href)} />
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-		<link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossorigin />
-		<link rel="preload" href="/fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={sans} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={mono} as="font" type="font/woff2" crossorigin />
 		{/* Applies a saved theme before the first paint, so the page does not flash. */}
 		<script is:inline>
 			document.documentElement.dataset.theme = localStorage.getItem("theme") ?? "";

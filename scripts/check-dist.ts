@@ -73,10 +73,16 @@ for (const page of pages) {
 	}
 }
 
+// The code a page carries in a tag. Structured data is a script tag that holds no code.
 const inline = (tag: string) =>
 	pages.flatMap((page) =>
 		Array.from(
-			read(page).matchAll(new RegExp(`<${tag}[^>]*>(.+?)</${tag}>`, "gs")),
+			read(page).matchAll(
+				new RegExp(
+					`<${tag}(?![^>]*type="application/ld\\+json")[^>]*>(.+?)</${tag}>`,
+					"gs",
+				),
+			),
 			([, code = ""]) => code,
 		),
 	);
@@ -109,6 +115,33 @@ if (isFile("dist/search.json")) {
 			);
 		}
 	}
+}
+
+// An old address has to land on a page for good: Cloudflare answers these lines, and a line without a code is a temporary redirect.
+if (isFile("dist/_redirects")) {
+	for (const line of read("_redirects").match(/^\s*[^#\s].*$/gm) ?? []) {
+		const [, to = "", code] = line.trim().split(/\s+/);
+		const { problem } = follow("_redirects", to);
+		if (problem) {
+			problems.push(
+				`_redirects: "${line}" ${problem}. Point it at a page that exists.`,
+			);
+		}
+		if (code !== "301") {
+			problems.push(
+				`_redirects: "${line}" is not a permanent redirect. End the line with 301.`,
+			);
+		}
+	}
+}
+
+if (
+	pages.some((page) => read(page).includes('property="og:image"')) &&
+	!isFile("dist/share.png")
+) {
+	problems.push(
+		"public/share.png is missing: every page names it as its share image. Add a PNG of 1200 by 630 pixels.",
+	);
 }
 
 const withExt = (ext: string) => files.filter((file) => file.endsWith(ext));

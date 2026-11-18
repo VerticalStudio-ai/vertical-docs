@@ -6,3 +6,4 @@ dist/
 .lighthouseci/
 research_notes/
 reports/
+.wrangler/

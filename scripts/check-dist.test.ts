@@ -198,3 +198,71 @@ test("allows the 1.2 KB of page JavaScript that the copy buttons need", () => {
 	assert.equal(stderr, "");
 	assert.equal(status, 0);
 });
+
+test("fails for a redirect that points to no page, or that is not permanent", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html": "",
+			"guide/index.html": "",
+			_redirects: "/old /guide/ 301\n/gone /nope/ 301\n/moved /guide/\n",
+		},
+	);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		'_redirects: "/gone /nope/ 301" points to no file in dist. Point it at a page that exists.\n_redirects: "/moved /guide/" is not a permanent redirect. End the line with 301.\n',
+	);
+});
+
+test("does not count structured data as JavaScript", () => {
+	const data = `<script type="application/ld+json">${randomBytes(3000).toString("base64")}</script>`;
+	const { status, stderr } = run({}, { "index.html": data });
+	assert.equal(stderr, "");
+	assert.equal(status, 0);
+});
+
+test("fails for a page that names a share image the site does not have", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html":
+				'<meta property="og:image" content="https://docs.test/share.png">',
+		},
+	);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		"public/share.png is missing: every page names it as its share image. Add a PNG of 1200 by 630 pixels.\n",
+	);
+});
+
+test("reads a redirect file with a comment, an empty line and wide spacing", () => {
+	const { status, stderr } = run(
+		{},
+		{
+			"index.html": "",
+			"guide/index.html": "",
+			_redirects:
+				"# Moved in 2026\n\n/old    /guide/   301\n  /older /guide/ 301\n",
+		},
+	);
+	assert.equal(stderr, "");
+	assert.equal(status, 0);
+});
+
+test("checks a redirect line that starts with a space", () => {
+	const { status, stderr } = run(
+		{},
+		{ "index.html": "", _redirects: "  /old /nope/ 301\n" },
+	);
+	assert.equal(status, 1);
+	assert.match(stderr, /points to no file in dist/);
+});
+
+test("counts a script as JavaScript when only another attribute names ld+json", () => {
+	const code = `<script data-label="ld+json">${randomBytes(6000).toString("base64")}</script>`;
+	const { status, stderr } = run({}, { "index.html": code });
+	assert.equal(status, 1);
+	assert.match(stderr, /^JavaScript is /);
+});
