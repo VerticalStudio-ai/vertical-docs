@@ -100,7 +100,7 @@ vertical-docs/
 │   │   └── search-worker.ts  Web Worker: loads search.json and MiniSearch, answers queries
 │   ├── styles/global.css     tokens, base, prose
 │   ├── fonts/                the two font files, which the build names by their content
-│   ├── cli.ts                terminal edge
+│   ├── cli.ts                terminal edge; `pnpm pack` writes it to lib/ as JavaScript for the installed command
 │   └── worker.ts             Cloudflare edge: Markdown negotiation and MCP
 ├── scripts/check-dist.ts     links, anchors, heading order, redirects, share image, sizes, dependency list
 ├── wrangler.jsonc            the Worker and the folder of static files it serves
@@ -164,6 +164,19 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 | `pnpm run search "<query>"` | The site's ranked search. `--json` for machines, `--url <site>` to query a deployed site. The plan said `pnpm search`, but pnpm 12 has a built-in `search` command that searches the npm registry and wins over a script of the same name. |
 
 Commands print plain text, exit non-zero on failure, and every failure message says what to change. There is no `get` command; `cat` and `curl` already do that.
+
+From a product's repository the same file is the installed command, `vertical-docs` or `vdocs` for short:
+
+| Command | Does |
+|---|---|
+| `vertical-docs dev [folder]` | Live site of the docs folder, `docs` unless named |
+| `vertical-docs build [folder]` | Writes the site to `<folder>/dist` |
+
+The kit stays the one Astro project, also inside `node_modules`: the command starts Astro with the kit as its current folder and passes the product's content folder as `DOCS_ROOT`. Three facts shape it:
+
+- `DOCS_ROOT` is absolute. `astro.config.ts` resolves it from the current folder and Astro's content loader from the Astro root, so a relative path gives a site with no pages when the two differ. That was the cause of the 404 answers in the first trial with `astro dev --root`.
+- Node does not run TypeScript from `node_modules`, so `pnpm pack` first writes `src/cli.ts` as JavaScript into `lib/`, which is what the two command names point at. Astro reads the `.ts` and `.astro` sources as they are.
+- Astro writes its generated files to `.astro/` in its root, which is the installed kit; `cacheDir` moves only the build cache. Two docs folders can be built in turn from one install (tested: 48 and 110 pages), but two previews at once would share those files. For the same reason `dev` passes `--ignore-lock`: Astro's lock file and its `astro dev stop` belong to that folder, and when an agent starts `astro dev` Astro moves the server to the background, where a product has no command to stop it. The preview stays in the terminal and stops with the command.
 
 ## How it stays clean
 
