@@ -22,8 +22,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-      # Puts the package in node_modules/, where <folder>/wrangler.jsonc finds the Worker. A repository that has vertical-docs in its own devDependencies runs its own install here instead.
-      - run: npm install --no-save vertical-docs
+      # Puts the package in node_modules/, where <folder>/wrangler.jsonc finds the Worker, at the version that wrote this file. No dependency runs an install script: none needs one. A repository that has vertical-docs in its own devDependencies runs its own install here instead.
+      - run: npm install --no-save --ignore-scripts vertical-docs@<version>
       - run: npx vertical-docs check <folder>
       - if: vars.CLOUDFLARE_ACCOUNT_ID != ''
         run: npx wrangler@4.161.0 ${{ github.event_name == 'push' && 'deploy' || format('versions upload --preview-alias pr-{0}', github.event.number) }} --config <folder>/wrangler.jsonc --message ${{ github.sha }}

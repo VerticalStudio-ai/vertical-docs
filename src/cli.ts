@@ -96,6 +96,9 @@ const sections = async (folder: string, url: string | undefined) => {
 if (command === "init") {
 	const folder = args({}).positionals[0] ?? "docs";
 	const template = join(import.meta.dirname, "../template");
+	const { version } = JSON.parse(
+		readFileSync(join(import.meta.dirname, "../package.json"), "utf8"),
+	);
 	for (const file of readdirSync(template, {
 		recursive: true,
 		encoding: "utf8",
@@ -111,7 +114,10 @@ if (command === "init") {
 		writeFileSync(
 			to,
 			/\.(md|yml)$/.test(file)
-				? bytes.toString().replaceAll("<folder>", folder)
+				? bytes
+						.toString()
+						.replaceAll("<folder>", folder)
+						.replaceAll("<version>", version)
 				: bytes,
 		);
 		console.log(`Wrote ${to}`);
