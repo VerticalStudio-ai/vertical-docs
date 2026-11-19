@@ -108,7 +108,8 @@ test("build takes the docs folder as an argument", async () => {
 });
 
 test("build prints no warning from Vite, which builds only the kit's own styles and script", async () => {
-	const { stdout, stderr } = await command(product(), ["build"]);
+	const { status, stdout, stderr } = await command(product(), ["build"]);
+	assert.equal(status, 0, stderr);
 	assert.doesNotMatch(stdout + stderr, /warn.*vite/i);
 });
 
