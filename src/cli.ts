@@ -155,8 +155,12 @@ if (command === "dev" || command === "build" || command === "check") {
 	process.exit();
 }
 if (command === "rules") {
-	process.stdout.write(
-		readFileSync(join(import.meta.dirname, "../WRITING.md"), "utf8"),
+	// Waits for the write: an exit right after it drops the text on a pipe that is full.
+	await new Promise((written) =>
+		process.stdout.write(
+			readFileSync(join(import.meta.dirname, "../WRITING.md"), "utf8"),
+			written,
+		),
 	);
 	process.exit();
 }

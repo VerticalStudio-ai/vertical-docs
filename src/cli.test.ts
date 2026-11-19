@@ -421,6 +421,26 @@ test("rules prints the writing rules of the package", async () => {
 	);
 });
 
+test("rules prints all of the rules to a pipe that is full and read late", async () => {
+	// A pipe holds 65,536 bytes: the zeros fill it, so the rules wait until the reader starts a second later.
+	const stdout = await new Promise<string>((resolve) =>
+		execFile(
+			"sh",
+			[
+				"-c",
+				'(head -c 65536 /dev/zero; "$0" "$1" rules) | (sleep 1; wc -c)',
+				process.execPath,
+				join(import.meta.dirname, "cli.ts"),
+			],
+			(_, stdout) => resolve(stdout),
+		),
+	);
+	assert.equal(
+		Number(stdout),
+		65536 + statSync(join(import.meta.dirname, "../WRITING.md")).size,
+	);
+});
+
 test("a folder written by init passes check as it is", async () => {
 	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
 	await command(cwd, ["init"]);
