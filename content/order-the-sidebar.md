@@ -1,7 +1,7 @@
 ---
 title: Order pages in the sidebar
 description: Set the position of a page with one frontmatter field, and group pages by putting them in a folder.
-order: 4
+order: 5
 ---
 
 The sidebar is built from the files in `content/`. Set `order` in a page's frontmatter to place the page, and put pages in a folder to make a group.

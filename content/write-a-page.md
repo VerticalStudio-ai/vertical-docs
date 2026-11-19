@@ -1,7 +1,7 @@
 ---
 title: Write a page
 description: Add a Markdown file to the content folder and read it as a page on the local site.
-order: 2
+order: 3
 ---
 
 A page is one Markdown file in `content/`. The file path becomes the URL, and the frontmatter gives the page its title and description.

@@ -1,7 +1,7 @@
 ---
 title: Search from the terminal
 description: Run the search of the site as a command, and get the same ranked sections as plain text or as JSON.
-order: 6
+order: 7
 ---
 
 `pnpm run search "<query>"` prints the sections that match a query, best first. The command reads the search index of the last build, so the order is the order the site shows.
@@ -54,10 +54,12 @@ The output is the same as for the last build when the local site shows the same 
 
 ## When the command fails
 
-The command exits with code 1 and says what to change. Before the first build there is no index:
+The command exits with code 1 and says what to change. Before the first build there is no index, and the message names the file with its full path:
 
 ```text
-Cannot read dist/search.json. Run pnpm check first: it builds the site and the search index.
+Cannot read /home/you/vertical-docs/dist/search.json. Run vertical-docs build first, or name the folder that holds the docs: vertical-docs search "<query>" <folder>
 ```
+
+In the repository of Vertical Docs, `pnpm check` is the command that builds the site and the index.
 
 A query that matches nothing is not a failure. The command prints `No results for` with the query and exits with code 0.

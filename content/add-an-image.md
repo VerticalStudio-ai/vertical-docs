@@ -1,7 +1,7 @@
 ---
 title: Add an image to a page
 description: Put an image file beside the page, write one Markdown line with its alt text, and show a diagram that follows the light and the dark theme.
-order: 3
+order: 4
 ---
 
 An image is a file in `content/`, beside the page that shows it. Write one Markdown line with the path of the file and a text that says what the image shows.
