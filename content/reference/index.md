@@ -11,4 +11,4 @@ The reference pages list every option Vertical Docs reads.
 - [Site configuration](/reference/configuration/): the name, the description, the public address, the accent colour, the logo, the favicon and old addresses.
 - [Files for agents](/reference/agents/): the Markdown copy of a page, `llms.txt` and `search.json`.
 - [Worker routes](/reference/worker/): Markdown from a page URL and the MCP server.
-- [Commands](/reference/commands/): the five commands of `vertical-docs`, and the files `init` writes.
+- [Commands](/reference/commands/): the six commands of `vertical-docs`, and the files `init` writes.

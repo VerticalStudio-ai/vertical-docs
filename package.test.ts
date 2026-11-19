@@ -30,6 +30,7 @@ test("the package holds the command, the site's sources, the fonts with their li
 		"src/fonts/geist-sans.woff2",
 		"src/fonts/geist-mono.woff2",
 		"src/fonts/LICENSE.txt",
+		"template/AGENTS.md",
 		"template/docs/content/index.md",
 		// Without its dot: npm leaves a file named .gitignore out of a package.
 		"template/docs/gitignore",

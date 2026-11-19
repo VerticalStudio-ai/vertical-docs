@@ -18,7 +18,7 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `src/styles/global.css`: every style, with the colour and font tokens in one block at the top. The font files are in `src/fonts/`.
 - `docs.config.json`, `public/`: what a docs site brings, beside its `content/` folder: name, public address, repository link, accent colour, header tabs, logo, favicon, share image and old addresses.
 - `package.json`: also what the published package is: its name, version, `files` list and the two command names. `package.test.ts` holds the list and the version the sync workflow names.
-- `template/`: the files `vertical-docs init` writes into a product's repository, as real files: the docs folder as `docs/`, and the two workflows.
+- `template/`: the files `vertical-docs init` writes into a product's repository, as real files: the docs folder as `docs/`, the two workflows, and the section for the product's `AGENTS.md`.
 - `src/cli.ts`, `src/worker.ts`: the terminal and Cloudflare edges. They call core and do input and output. `wrangler.jsonc` names the Worker and the build it serves.
 - `src/check.ts`: the checks on a built site: links, anchors, heading order, search results, redirects, favicon, share image and sizes. `vertical-docs check` runs them on a product's docs.
 - `scripts/check-dist.ts`: the last step of `pnpm check`: the same site checks on `dist/`, and the dependency list, which is a rule of the kit and not of a site.

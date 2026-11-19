@@ -190,6 +190,7 @@ test("check fails without a build when the folder holds no docs", async () => {
 const starter = (folder: string) => [
 	".github/workflows/docs-sync.yml",
 	".github/workflows/docs.yml",
+	"AGENTS.md",
 	`${folder}/content/index.md`,
 	`${folder}/docs.config.json`,
 	`${folder}/.gitignore`,
@@ -349,6 +350,74 @@ test("a second init changes no file", async () => {
 	assert.equal(status, 0);
 	assert.equal(stdout, "Next: npx vertical-docs dev docs\n");
 	assert.deepEqual(snapshot(cwd), before);
+});
+
+test("init writes an AGENTS.md that tells a coding agent to edit the page with the code, where the rules are and which check to run", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(cwd, ["init", "website"]);
+	assert.equal(
+		readFileSync(join(cwd, "AGENTS.md"), "utf8"),
+		`## Keep the docs in step with the code
+
+The docs of this repository are the Markdown pages in \`website/content/\`. When a change to the code changes behaviour that a page describes, edit that page in the same change.
+
+- Follow the writing rules, \`WRITING.md\` of the \`vertical-docs\` package: \`npx vertical-docs rules\` prints them.
+- Run \`npx vertical-docs check website\` before you say the docs are done.
+`,
+	);
+	const pnpm = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(
+		pnpm,
+		["init"],
+		"pnpm/10.27.0 npm/? node/v22.23.4 darwin arm64",
+	);
+	assert.deepEqual(
+		readFileSync(join(pnpm, "AGENTS.md"), "utf8").match(
+			/`[^`]* vertical-docs [^`]*`/g,
+		),
+		["`pnpm exec vertical-docs rules`", "`pnpm exec vertical-docs check docs`"],
+	);
+});
+
+test("init adds its section to the end of an AGENTS.md that exists, once", async () => {
+	for (const [own, gap] of [
+		["# Repository guide\n\nRun the tests.\n", "\n"],
+		["# Repository guide\n\nRun the tests.", "\n\n"],
+	] as const) {
+		const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+		writeFileSync(join(cwd, "AGENTS.md"), own);
+		const { status, stdout, stderr } = await command(cwd, ["init"]);
+		assert.equal(status, 0, stderr);
+		const fresh = mkdtempSync(join(tmpdir(), "cli-"));
+		await command(fresh, ["init"]);
+		assert.equal(
+			readFileSync(join(cwd, "AGENTS.md"), "utf8"),
+			own + gap + readFileSync(join(fresh, "AGENTS.md"), "utf8"),
+		);
+		assert.equal(
+			stdout,
+			`${starter("docs")
+				.map((file) =>
+					file === "AGENTS.md"
+						? "Added the docs section to AGENTS.md"
+						: `Wrote ${file}`,
+				)
+				.join("\n")}\nNext: npx vertical-docs dev docs\n`,
+		);
+		const before = snapshot(cwd);
+		const second = await command(cwd, ["init"]);
+		assert.equal(second.stdout, "Next: npx vertical-docs dev docs\n");
+		assert.deepEqual(snapshot(cwd), before);
+	}
+});
+
+test("rules prints the writing rules of the package", async () => {
+	const { status, stdout, stderr } = await command(tmpdir(), ["rules"]);
+	assert.equal(status, 0, stderr);
+	assert.equal(
+		stdout,
+		readFileSync(join(import.meta.dirname, "../WRITING.md"), "utf8"),
+	);
 });
 
 test("a folder written by init passes check as it is", async () => {

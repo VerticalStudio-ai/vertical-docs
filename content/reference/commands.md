@@ -1,10 +1,10 @@
 ---
 title: Commands
-description: The five commands of vertical-docs, with the docs folder each one reads, the files it writes and the way it fails.
+description: The six commands of vertical-docs, with the docs folder each one reads, the files it writes and the way it fails.
 order: 6
 ---
 
-`vertical-docs` has five commands. Each takes the docs folder as an argument and uses `docs` when you name none. A command that fails says what to change and exits with a code other than 0.
+`vertical-docs` has six commands. Each one except `rules` takes the docs folder as an argument and uses `docs` when you name none. A command that fails says what to change and exits with a code other than 0.
 
 ```text
 vertical-docs init [folder]
@@ -12,6 +12,7 @@ vertical-docs dev [folder]
 vertical-docs build [folder]
 vertical-docs check [folder]
 vertical-docs search "<query>" [folder] [--json] [--url <site>]
+vertical-docs rules
 ```
 
 ## Run a command
@@ -44,7 +45,7 @@ pnpm exec vertical-docs check
 
 ## init
 
-`vertical-docs init [folder]` writes the docs folder and two workflows, and prints each file it writes. Run it in the root of the repository: the workflows go to `.github/workflows/` of the current folder.
+`vertical-docs init [folder]` writes the docs folder, two workflows and the lines for coding agents in `AGENTS.md`, and prints each file it writes. Run it in the root of the repository: the workflows go to `.github/workflows/` of the current folder, and `AGENTS.md` goes beside them.
 
 | File | What it is |
 |---|---|
@@ -54,13 +55,14 @@ pnpm exec vertical-docs check
 | `docs/.gitignore` | Keeps `dist/` and `.wrangler/` out of Git. |
 | `docs/wrangler.jsonc` | The settings that deploy the site as a [Cloudflare Worker](/reference/worker/). Replace `name` with your own before the first deploy. |
 | `.github/workflows/docs.yml` | Runs `check` on every pull request and every push to `main`. With the repository variable `CLOUDFLARE_ACCOUNT_ID` and the secret `CLOUDFLARE_API_TOKEN`, the workflow then deploys `main` to the live site and a pull request to its own preview address. |
-| `.github/workflows/docs-sync.yml` | After a code change on `main`, an agent edits the docs to match and opens one pull request. The agent needs the repository secret `ANTHROPIC_API_KEY`: without that secret a run does nothing. |
+| `.github/workflows/docs-sync.yml` | Optional. After a code change on `main`, an agent on GitHub edits the docs to match and opens one pull request. The agent needs the repository secret `ANTHROPIC_API_KEY`: without that secret a run does nothing. |
+| `AGENTS.md` | Tells a coding agent that works in the repository, such as Claude Code or Codex, to edit the page when a change to the code changes behaviour the page describes, to follow the writing rules that [`rules`](#rules) prints, and to run `check`. It needs no key. |
 
-`init` leaves a file that exists as it is, so a second run writes only the files that are missing.
+`init` leaves a file that exists as it is, so a second run writes only the files that are missing. The one exception is an `AGENTS.md` that exists: `init` adds its lines at the end of that file, prints `Added the docs section to AGENTS.md`, and changes nothing else in it. A second run adds nothing: `init` leaves an `AGENTS.md` that names `vertical-docs check` as it is.
 
 In a repository with a formatter such as Prettier, name the docs folder in `.prettierignore`, or format the folder and name only `docs/dist/` there: Prettier does not read `docs/.gitignore`.
 
-`vertical-docs init website` names the folder `website`, in the workflows too. For a folder deeper than one level, add one `../` for each further level to `main` in its `wrangler.jsonc`, so that the path reaches `node_modules/` in the root of the repository. For `packages/docs`:
+`vertical-docs init website` names the folder `website`, in the workflows and in `AGENTS.md` too. For a folder deeper than one level, add one `../` for each further level to `main` in its `wrangler.jsonc`, so that the path reaches `node_modules/` in the root of the repository. For `packages/docs`:
 
 ```jsonc
 "main": "../../node_modules/vertical-docs/src/worker.ts",
@@ -95,6 +97,20 @@ index.html: link "/guide/" points to no file in dist. Fix the link or add the pa
 ## search
 
 `vertical-docs search "<query>" [folder]` prints the sections of the last build that match a query, best first, so run `build` or `check` before it. `--json` prints the results as JSON, and `--url <site>` searches a deployed site and needs no build. [Search from the terminal](/search-from-the-terminal/) shows the output of each.
+
+## rules
+
+`vertical-docs rules` prints the writing rules for a page: the file `WRITING.md` of the package, in the version that runs. The lines `init` writes to `AGENTS.md` send a coding agent to this command.
+
+```sh
+npx vertical-docs rules
+```
+
+The output starts with the title of the rules:
+
+```text
+# Writing docs
+```
 
 ## Update to a new version
 
