@@ -55,8 +55,8 @@ jobs:
           ${{ matrix.install }} ../vertical-docs-*.tgz
           npx vertical-docs init
           npx vertical-docs check
-          # The preview answers with the first page.
-          npx vertical-docs dev &
+          # The preview answers with the first page. It starts without npx, which on Linux runs the command through a shell that passes no signal on.
+          node node_modules/vertical-docs/lib/cli.js dev &
           curl --fail --silent --retry 30 --retry-delay 1 --retry-connrefused http://localhost:4321/ | grep -q "<title>Start your docs"
           kill $!
           # The preview stops with the command: within ten seconds the address no longer answers.
