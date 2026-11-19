@@ -55,11 +55,11 @@ The default, `#171717`, is a neutral colour: the site is black on white in the l
 
 With this line the header has three tabs. The first tab is always "Overview": it opens the home page and holds every page outside the listed folders. The other two take their names from the titles of `content/guides/index.md` and `content/reference/index.md`, and each opens that page.
 
-In the sidebar of a folder's tab, the folder's index page comes first and the folder's pages and groups follow. The previous and next links at the end of a page stay inside the tab. On a small screen the tabs are in the menu, above the pages.
+In the sidebar of a folder's tab, the folder's index page comes first and the folder's pages and groups follow. The previous and next links at the end of a page stay inside the tab. On a small screen the tabs are in the menu, above the pages. On a wide screen the tabs are one row that does not wrap, so keep the list short.
 
 Tabs change the header and the sidebar only. The address of every page, the search and `/llms.txt` stay as they are without tabs.
 
-The build stops for a name that is not a folder with an index page:
+The build stops for a name that matches nothing directly under `content/`:
 
 ```txt
 docs.config.json lists the tab "guides", but content/guides/index.md does not exist. A tab is a folder directly under content/, and its index page names the tab.

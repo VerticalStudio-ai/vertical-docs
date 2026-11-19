@@ -1,3 +1,5 @@
+import { slug } from "github-slugger";
+
 type Page = {
 	id: string;
 	data: { title: string; order?: number | undefined };
@@ -53,7 +55,8 @@ export const neighbours = (tree: NavItem[], href: string) => {
 /** Returns what the page at `href` shows around it: the header tabs, and the sidebar items of the tab the page is in. The first tab is "Overview", with every page outside `folders`; each folder is a tab in the order given, named after its index page, which is also its first item. A site with no folders has the one tab, which holds the whole tree. Throws when a name is not a folder directly under `content/`. */
 export const navigation = (tree: NavItem[], folders: string[], href = "/") => {
 	const picked = folders.map((folder) => {
-		const item = tree.find((item) => item.href === `/${folder}/`);
+		// The address of a folder is its name the way Astro writes a page id.
+		const item = tree.find((item) => item.href === `/${slug(folder)}/`);
 		if (!item) {
 			throw new Error(
 				`docs.config.json lists the tab "${folder}", but content/${folder}/index.md does not exist. A tab is a folder directly under content/, and its index page names the tab.`,

@@ -148,7 +148,26 @@ test("previous and next stop at the edges of a tab", () => {
 	assert.deepEqual(neighbours(overview, "/glossary/").next, legal);
 });
 
-test("says what a tab is when the site lists one that is no folder", () => {
+test("finds a folder by its name on disk, which the address writes in lower case and with dashes", () => {
+	const tree = sidebar([
+		page("index", "Start", 1),
+		page("api-reference", "API", 2),
+		page("api-reference/auth", "Auth", 1),
+	]);
+	const { tabs, items } = navigation(
+		tree,
+		["API Reference"],
+		"/api-reference/auth/",
+	);
+	assert.deepEqual(tabs[1], {
+		title: "API",
+		href: "/api-reference/",
+		current: true,
+	});
+	assert.equal(items[1]?.href, "/api-reference/auth/");
+});
+
+test("says what a tab is when the site lists a name that has no page", () => {
 	assert.throws(
 		() => navigation(site, ["call", "router"], "/"),
 		/docs\.config\.json lists the tab "router", but content\/router\/index\.md does not exist/,
