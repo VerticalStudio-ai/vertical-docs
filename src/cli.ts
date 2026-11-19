@@ -2,6 +2,7 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import {
+	appendFileSync,
 	existsSync,
 	mkdirSync,
 	readdirSync,
@@ -21,6 +22,7 @@ const usage = `Usage:
   vertical-docs build [folder]
   vertical-docs check [folder]
   vertical-docs search "<query>" [folder] [--json] [--url <site>]
+  vertical-docs rules
 The folder holds the docs: docs unless named.`;
 
 const stop: (message: string) => never = (message) => {
@@ -112,20 +114,27 @@ if (command === "init") {
 		const to = file
 			.replace(/^docs(?=\/)/, folder)
 			.replace(/gitignore$/, ".gitignore");
-		if (!statSync(from).isFile() || existsSync(to)) continue;
-		mkdirSync(dirname(to), { recursive: true });
+		if (!statSync(from).isFile()) continue;
 		const bytes = readFileSync(from);
-		writeFileSync(
-			to,
-			/\.(md|yml)$/.test(file)
-				? bytes
-						.toString()
-						.replaceAll("<folder>", folder)
-						.replaceAll("<version>", version)
-						.replaceAll("<run>", run)
-				: bytes,
-		);
-		console.log(`Wrote ${to}`);
+		const content = /\.(md|yml)$/.test(file)
+			? bytes
+					.toString()
+					.replaceAll("<folder>", folder)
+					.replaceAll("<version>", version)
+					.replaceAll("<run>", run)
+			: bytes;
+		if (!existsSync(to)) {
+			mkdirSync(dirname(to), { recursive: true });
+			writeFileSync(to, content);
+			console.log(`Wrote ${to}`);
+			continue;
+		}
+		// The one file init adds to: most repositories have an AGENTS.md, and an agent that changes code reads only the one in the root. A file that names the check already has the section, or the repository's own words for it.
+		if (file !== "AGENTS.md") continue;
+		const own = readFileSync(to, "utf8");
+		if (own.includes("vertical-docs check")) continue;
+		appendFileSync(to, `${own.endsWith("\n") ? "" : "\n"}\n${content}`);
+		console.log(`Added the docs section to ${to}`);
 	}
 	console.log(`Next: ${run} vertical-docs dev ${folder}`);
 	process.exit();
@@ -143,6 +152,16 @@ if (command === "dev" || command === "build" || command === "check") {
 	if (command !== "check" || status !== 0) process.exit(status);
 	const problems = siteProblems(join(site, "dist"));
 	if (problems.length > 0) stop(problems.join("\n"));
+	process.exit();
+}
+if (command === "rules") {
+	// Waits for the write: an exit right after it drops the text on a pipe that is full.
+	await new Promise((written) =>
+		process.stdout.write(
+			readFileSync(join(import.meta.dirname, "../WRITING.md"), "utf8"),
+			written,
+		),
+	);
 	process.exit();
 }
 if (command !== "search") stop(usage);
