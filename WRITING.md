@@ -1,6 +1,6 @@
 # Writing docs
 
-For anyone, human or agent, writing a page in `content/`.
+For anyone, human or agent, writing a page for a site built with Vertical Docs. The pages are the Markdown files in the `content/` folder of the docs folder: `docs/content/` in a repository where `vertical-docs init` wrote the docs, and `content/` in the repository of Vertical Docs itself.
 
 Readers arrive from search, and agents fetch one section at a time. Every section has to work without the rest of the page.
 
@@ -43,4 +43,4 @@ Readers arrive from search, and agents fetch one section at a time. Every sectio
 
 ## Done
 
-`pnpm check` passes.
+`vertical-docs check` passes. In a product's repository that is `npx vertical-docs check`, or `pnpm exec vertical-docs check` where the repository uses pnpm, with the docs folder after it when the folder is not `docs`. In the repository of Vertical Docs itself it is `pnpm check`.

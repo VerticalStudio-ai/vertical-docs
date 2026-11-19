@@ -1,7 +1,11 @@
 {
 	"name": "vertical-docs",
 	"version": "0.1.0",
-	"private": true,
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/VerticalStudio-ai/vertical-docs.git"
+	},
 	"type": "module",
 	"packageManager": "pnpm@12.21.0",
 	"files": [

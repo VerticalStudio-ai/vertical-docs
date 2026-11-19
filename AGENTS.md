@@ -22,7 +22,7 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `src/cli.ts`, `src/worker.ts`: the terminal and Cloudflare edges. They call core and do input and output. `wrangler.jsonc` names the Worker and the build it serves.
 - `src/check.ts`: the checks on a built site: links, anchors, heading order, search results, redirects, favicon, share image and sizes. `vertical-docs check` runs them on a product's docs.
 - `scripts/check-dist.ts`: the last step of `pnpm check`: the same site checks on `dist/`, and the dependency list, which is a rule of the kit and not of a site.
-- `.github/workflows/`: `ci.yml` runs the check and tries the packed package in an empty folder, and `docs-sync.yml` is what a product repository calls to keep its docs in step with its code.
+- `.github/workflows/`: `ci.yml` runs the check and tries the packed package in an empty folder, `docs-sync.yml` is what a product repository calls to keep its docs in step with its code, and `publish.yml`, started by hand, puts the version in `package.json` on npm.
 - `lighthouserc.json`: the Lighthouse scores CI enforces on the build.
 - `design/features.md`: what the product does, in a customer's words. Every phase updates it: one line per feature, and a built line carries its proof.
 

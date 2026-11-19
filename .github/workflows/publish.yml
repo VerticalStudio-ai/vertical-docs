@@ -1,0 +1,48 @@
+name: publish
+
+# Publishes the package to npm at the version in package.json. Started by hand, on main.
+# No token is stored: npm trusts this workflow in this repository by its file name, which is the package's trusted publisher on npmjs.com. A new name for this file needs the same change there.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # npm takes the identity token of this run in place of a stored token.
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Refuses before anything is built: a branch other than main, and a version npm already has. npm's registry answers 404 for a version it does not have, and any other answer stops the run.
+      - run: |
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo "::error::Run this workflow on main, not on $GITHUB_REF."
+            exit 1
+          fi
+          name=$(node -p 'require("./package.json").name')
+          version=$(node -p 'require("./package.json").version')
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' "https://registry.npmjs.org/$name/$version")
+          if [ "$status" = 200 ]; then
+            echo "::error::$name@$version is already on npm. Raise the version first, in the places package.test.ts names."
+            exit 1
+          fi
+          if [ "$status" != 404 ]; then
+            echo "::error::npm answered $status for $name@$version, where 404 says that the version is free. Run the workflow again."
+            exit 1
+          fi
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      # npm packs the `files` list after `prepack` has written lib/. From a public repository npm adds the provenance statement by itself.
+      - run: npm publish
