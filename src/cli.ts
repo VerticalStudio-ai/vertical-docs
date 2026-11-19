@@ -99,6 +99,10 @@ if (command === "init") {
 	const { version } = JSON.parse(
 		readFileSync(join(import.meta.dirname, "../package.json"), "utf8"),
 	);
+	// The runner that started init is the one the first page and the last line name. pnpm sets this user agent; any other start is taken as npx.
+	const run = process.env.npm_config_user_agent?.startsWith("pnpm/")
+		? "pnpm exec"
+		: "npx";
 	for (const file of readdirSync(template, {
 		recursive: true,
 		encoding: "utf8",
@@ -118,11 +122,12 @@ if (command === "init") {
 						.toString()
 						.replaceAll("<folder>", folder)
 						.replaceAll("<version>", version)
+						.replaceAll("<run>", run)
 				: bytes,
 		);
 		console.log(`Wrote ${to}`);
 	}
-	console.log(`Next: npx vertical-docs dev ${folder}`);
+	console.log(`Next: ${run} vertical-docs dev ${folder}`);
 	process.exit();
 }
 

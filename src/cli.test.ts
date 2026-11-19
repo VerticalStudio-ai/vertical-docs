@@ -37,13 +37,17 @@ const sections = [
 	},
 ];
 
-// Runs the real command with a folder as the current one.
-const command = (cwd: string, args: string[]) =>
+// Runs the real command with a folder as the current one, as npx starts it unless another runner's user agent is given. These tests run under pnpm, whose own user agent would otherwise reach the command.
+const command = (
+	cwd: string,
+	args: string[],
+	agent = "npm/10.9.9 node/v22.23.4 darwin arm64 workspaces/false",
+) =>
 	new Promise<{ status: number; stdout: string; stderr: string }>((resolve) => {
 		const child = execFile(
 			process.execPath,
 			[join(import.meta.dirname, "cli.ts"), ...args],
-			{ cwd },
+			{ cwd, env: { ...process.env, npm_config_user_agent: agent } },
 			(_, stdout, stderr) =>
 				resolve({ status: child.exitCode ?? 1, stdout, stderr }),
 		);
@@ -240,6 +244,36 @@ test("init takes the docs folder as an argument and names it in the workflows, t
 	assert.match(read("website/content/index.md"), /vertical-docs dev website$/m);
 	for (const file of starter("website")) {
 		assert.doesNotMatch(read(file), /<folder>/, file);
+	}
+});
+
+test("init started by pnpm names pnpm exec in the next command and in the first page, and leaves the workflows as they are", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	const { stdout } = await command(
+		cwd,
+		["init"],
+		"pnpm/10.27.0 npm/? node/v22.23.4 darwin arm64",
+	);
+	assert.match(stdout, /^Next: pnpm exec vertical-docs dev docs$/m);
+	assert.deepEqual(
+		readFileSync(join(cwd, "docs/content/index.md"), "utf8").match(
+			/^.* vertical-docs .*$/gm,
+		),
+		["pnpm exec vertical-docs dev docs", "pnpm exec vertical-docs check docs"],
+	);
+	const npx = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(npx, ["init"]);
+	assert.deepEqual(
+		readFileSync(join(npx, "docs/content/index.md"), "utf8").match(
+			/^.* vertical-docs .*$/gm,
+		),
+		["npx vertical-docs dev docs", "npx vertical-docs check docs"],
+	);
+	for (const file of ["docs.yml", "docs-sync.yml"]) {
+		assert.equal(
+			readFileSync(join(cwd, ".github/workflows", file), "utf8"),
+			readFileSync(join(npx, ".github/workflows", file), "utf8"),
+		);
 	}
 });
 

@@ -10,7 +10,7 @@ This page is the file `<folder>/content/index.md`. Replace its text with your ow
 Start the live preview:
 
 ```sh
-npx vertical-docs dev <folder>
+<run> vertical-docs dev <folder>
 ```
 
 The preview is at `http://localhost:4321/`. Change a line in `<folder>/content/index.md` and save the file: the preview shows the change.
@@ -37,7 +37,7 @@ The file path is the address of a page: the new page is at `http://localhost:432
 ## Check the docs
 
 ```sh
-npx vertical-docs check <folder>
+<run> vertical-docs check <folder>
 ```
 
 The check builds the site into `<folder>/dist/` and fails for a broken link, a broken anchor or a search result that opens nothing. A passing check ends with the build summary and exits with code 0:

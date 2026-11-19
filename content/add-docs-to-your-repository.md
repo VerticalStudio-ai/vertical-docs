@@ -31,6 +31,15 @@ Next: npx vertical-docs dev docs
 
 The pages are the Markdown files in `docs/content/`. What every other file is for is listed under [`init`](/reference/commands/#init).
 
+In a repository that uses pnpm, add the package first, and write `pnpm exec` in place of `npx` in every command of this tutorial. In the root of a workspace, `pnpm add` needs `-w` as well.
+
+```sh
+pnpm add -D vertical-docs
+pnpm exec vertical-docs init
+```
+
+`init` then names `pnpm exec` in its last line and in the starter page, and nothing asks before a command runs. `pnpm add` changes `package.json` and `pnpm-lock.yaml`: add both to the commit in the last step.
+
 ## Preview the docs
 
 In the root of your repository, start the live preview:
@@ -75,4 +84,4 @@ Git reports nine changed files: the files `init` wrote. `docs/.gitignore` keeps 
 
 The starter page, `docs/content/index.md`, continues from here: it has you change the page, add a second page and set the name and the logo of the site.
 
-The other pages of these docs are written from the repository of Vertical Docs itself. Where a page says `content/`, use `docs/content/` in your repository. Where a page runs `pnpm dev`, `pnpm check` or `pnpm run search`, run `npx vertical-docs dev`, `npx vertical-docs check` or `npx vertical-docs search`. [Commands](/reference/commands/) lists all five commands.
+[Write a page](/write-a-page/) lists the rules the build checks for every page, and [Commands](/reference/commands/) lists all five commands.

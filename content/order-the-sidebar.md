@@ -4,7 +4,7 @@ description: Set the position of a page with one frontmatter field, and group pa
 order: 5
 ---
 
-The sidebar is built from the files in `content/`. Set `order` in a page's frontmatter to place the page, and put pages in a folder to make a group.
+The sidebar is built from the files in `docs/content/`. Set `order` in a page's frontmatter to place the page, and put pages in a folder to make a group.
 
 ## Set the position of a page
 
@@ -25,7 +25,7 @@ The sidebar sorts pages by `order`, lowest first. Pages with the same `order` so
 A folder is a group in the sidebar. The folder's `index.md` is the group's own page: its title names the group, and its `order` places the group among the other pages.
 
 ```text
-content/
+docs/content/
 ├── index.md
 ├── write-a-page.md
 └── reference/
@@ -34,7 +34,7 @@ content/
     └── markdown.md
 ```
 
-The pages in `reference/` appear under the title of `reference/index.md`, sorted by their own `order`. A folder inside a folder is a group inside a group.
+The pages in `reference/` appear under the title of `reference/index.md`, sorted by their own `order`. A folder inside a folder is a group inside a group. A site can also show its top-level folders as [tabs in the header](/reference/configuration/#header-tabs), each with its own sidebar.
 
 ## Open and close a group
 
@@ -44,7 +44,7 @@ The site opens the groups that hold the page being read and scrolls the sidebar 
 
 ## Give every folder an index page
 
-A folder without an `index.md` stops the build. The message says which file to add:
+A folder without an `index.md` stops the build. The message says which file to add, with its path from the docs folder:
 
 ```text
 The folder content/reference/ has no index page. Add content/reference/index.md; its title names the sidebar group.
