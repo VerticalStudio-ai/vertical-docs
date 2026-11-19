@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { copyFileSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import {
+	copyFileSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
@@ -47,4 +53,32 @@ test("any, default exports and barrel files are reported", () => {
 	assert.match(stderr, /noExplicitAny/);
 	assert.match(stderr, /noDefaultExport/);
 	assert.match(stderr, /noBarrelFile/);
+});
+
+test("the JSON files of the template are printed as Prettier prints them by default: two spaces, and in a .jsonc file a comma after the last entry", () => {
+	const dir = mkdtempSync(join(tmpdir(), "biome-"));
+	for (const file of ["biome.json", ".gitignore"]) {
+		copyFileSync(join(root, file), join(dir, file));
+	}
+	mkdirSync(join(dir, "template/docs"), { recursive: true });
+	// Each second text is what Prettier 3.9.6 prints for the first one without a configuration.
+	const files = [
+		[
+			"template/docs/docs.config.json",
+			'{\n\t"name": "Your Docs",\n\t"tabs": ["guides", "reference"]\n}\n',
+			'{\n  "name": "Your Docs",\n  "tabs": ["guides", "reference"]\n}\n',
+		],
+		[
+			"template/docs/wrangler.jsonc",
+			'{\n\t// The Worker.\n\t"assets": {\n\t\t"run_worker_first": ["/*", "!/_astro/*"]\n\t}\n}\n',
+			'{\n  // The Worker.\n  "assets": {\n    "run_worker_first": ["/*", "!/_astro/*"],\n  },\n}\n',
+		],
+	] as const;
+	for (const [file, tabbed] of files) writeFileSync(join(dir, file), tabbed);
+	spawnSync(join(root, "node_modules/.bin/biome"), ["format", "--write"], {
+		cwd: dir,
+	});
+	for (const [file, , prettier] of files) {
+		assert.equal(readFileSync(join(dir, file), "utf8"), prettier, file);
+	}
 });

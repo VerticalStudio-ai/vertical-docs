@@ -39,8 +39,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        # The npm line is the one in the docs.yml that init writes, and leaves no package.json in the folder.
-        install: [npm install --no-save --ignore-scripts, pnpm add -D]
+        layout: [linked, pnpm]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -52,7 +51,13 @@ jobs:
       - run: |
           mkdir "$RUNNER_TEMP/product"
           cd "$RUNNER_TEMP/product"
-          ${{ matrix.install }} ../vertical-docs-*.tgz
+          if [ ${{ matrix.layout }} = pnpm ]; then
+            pnpm add -D ../vertical-docs-*.tgz
+          else
+            # The layout of the docs.yml that init writes: npm installs outside the product, which has no package.json and gets a link.
+            (cd "$RUNNER_TEMP" && npm install --no-save --ignore-scripts vertical-docs-*.tgz)
+            ln -s "$RUNNER_TEMP/node_modules" node_modules
+          fi
           npx vertical-docs init
           npx vertical-docs check
           # The preview answers with the first page. It starts without npx, which on Linux runs the command through a shell that passes no signal on.

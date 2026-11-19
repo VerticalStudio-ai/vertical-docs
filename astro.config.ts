@@ -17,7 +17,23 @@ const site = dirname(content);
 export default defineConfig({
 	publicDir: join(site, "public"),
 	// src/load.ts finds the image files of the content folder as @docs; the pages find the site's own files as @site.
-	vite: { resolve: { alias: { "@docs": content, "@site": site } } },
+	vite: {
+		resolve: { alias: { "@docs": content, "@site": site } },
+		plugins: [
+			{
+				name: "target-current",
+				// lightningcss 1.33.0 does not know :target-current and warns on every build, although it writes the rule out unchanged. Neither Vite nor lightningcss has an option that names a pseudo-class, so this drops that one message.
+				configResolved({ logger }) {
+					const { warn } = logger;
+					logger.warn = (message, options) => {
+						if (!message.includes("'target-current' is not recognized")) {
+							warn(message, options);
+						}
+					};
+				},
+			},
+		],
+	},
 	markdown: {
 		shikiConfig: {
 			themes: {

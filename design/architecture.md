@@ -146,7 +146,7 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 | Address with no page | `src/pages/404.astro` builds `dist/404.html`: the page shell with the sidebar and the search, without a canonical URL or a Markdown copy. The Worker's static files answer it with status 404 (`not_found_handling` in `wrangler.jsonc`). |
 | Search dialog | `<dialog>`, with the search in a Web Worker. A lazy `import()` would be the obvious way to load the search on first open, but Vite adds a preload helper of about 0.8 KB gzipped to any page script that has one. A worker loads just as late, needs no helper, and keeps indexing off the page. |
 | Theme | `color-scheme` and `light-dark()`; a few inline lines apply a saved choice before paint |
-| Active section in the table of contents | CSS `scroll-target-group` and `:target-current`, as an enhancement. Tested on 2026-11-17: Chrome 157 marks the section at the top of the window, the first entry above the first heading and the last entry at the end of the page. Safari 26.2 and Firefox 151 do not support it and show a plain list. The brief's JavaScript scroll-spy is not built unless this proves too weak. |
+| Active section in the table of contents | CSS `scroll-target-group` and `:target-current`, as an enhancement. Tested on 2026-11-17: Chrome 157 marks the section at the top of the window, the first entry above the first heading and the last entry at the end of the page. Safari 26.2 and Firefox 151 do not support it and show a plain list. The brief's JavaScript scroll-spy is not built unless this proves too weak. lightningcss 1.33.0, which minifies the stylesheet, does not know `:target-current`: it writes the rule out unchanged and warns on every build, and no form of the rule or option of Vite avoids that, so `astro.config.ts` drops that one message. |
 
 ### For agents reading the docs
 
@@ -207,7 +207,8 @@ The research changed how the rules are enforced more than what they are. The one
 | No unused files, exports or dependencies | knip |
 | Dependency list is fixed | `check-dist` compares `package.json` with the list |
 | The package holds what the command reads, no test and nothing of the kit's own site; the sync workflow names the package's version | `package.test.ts`, on the list `npm pack` gives |
-| The package runs from `node_modules` | The `package` job in CI: it packs, installs into an empty folder with npm and with pnpm, and runs `init`, `check` and `dev` there, and sees the preview stop with the command. Not in `pnpm check` |
+| The package runs from `node_modules` | The `package` job in CI: it packs, installs once the way the `docs.yml` that `init` writes does (npm outside the product's folder, which gets a link to `node_modules/`) and once with pnpm, and runs `init`, `check` and `dev` there, and sees the preview stop with the command. Not in `pnpm check` |
+| The JSON files `init` writes are in the form Prettier prints by default | Biome's formatter, set to spaces for `template/` and to a comma after a last entry for its `.jsonc` file; `biome.test.ts` compares both with what Prettier 3.9.6 printed. Prettier is not a dependency and does not run in `pnpm check` |
 | JavaScript and CSS size budgets | `check-dist` through `src/check.ts`, gzip sizes: 4 KB of CSS, 1.25 KB of JavaScript that a page loads and 8 KB of JavaScript that loads on demand. The phase 3a build measures 2.5 KB, 1.2 KB and 6.1 KB; the page budget rose from 1 KB for the copy buttons. |
 | Lighthouse scores | Lighthouse CI job in CI, not in `pnpm check` |
 | No broken links or anchors, including every search result URL | `check-dist` |

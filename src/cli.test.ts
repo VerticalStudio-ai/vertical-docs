@@ -107,6 +107,12 @@ test("build takes the docs folder as an argument", async () => {
 	);
 });
 
+test("build prints no warning from Vite, which builds only the kit's own styles and script", async () => {
+	const { status, stdout, stderr } = await command(product(), ["build"]);
+	assert.equal(status, 0, stderr);
+	assert.doesNotMatch(stdout + stderr, /warn.*vite/i);
+});
+
 test("fails and names the folder when it holds no docs", async () => {
 	const cwd = realpathSync(mkdtempSync(join(tmpdir(), "cli-")));
 	for (const args of [["build"], ["dev", "website"]]) {
@@ -322,9 +328,13 @@ test("a folder written by init passes check as it is", async () => {
 	);
 });
 
-// A wrangler.jsonc without its comment lines, which JSON does not allow.
+// A wrangler.jsonc without what JSON does not allow: its comment lines, and the comma after a last entry.
 const wrangler = (file: string) =>
-	JSON.parse(readFileSync(file, "utf8").replace(/^\s*\/\/.*$/gm, ""));
+	JSON.parse(
+		readFileSync(file, "utf8")
+			.replace(/^\s*\/\/.*$/gm, "")
+			.replace(/,(?=\s*[\]}])/g, ""),
+	);
 
 test("init writes a wrangler.jsonc that finds the Worker inside the installed package, serves the folder's dist as the kit's own does, and leaves the name of the Worker to the product", async () => {
 	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
