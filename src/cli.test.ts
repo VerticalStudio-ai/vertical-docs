@@ -359,10 +359,11 @@ test("init writes an AGENTS.md that tells a coding agent to edit the page with t
 		readFileSync(join(cwd, "AGENTS.md"), "utf8"),
 		`## Keep the docs in step with the code
 
-The docs of this repository are the Markdown pages in \`website/content/\`. When a change to the code changes behaviour that a page describes, edit that page in the same change.
+The docs of this repository are the Markdown pages in \`website/content/\`. When a change to the code changes behaviour that a page describes, do these three steps in the same change:
 
-- Follow the writing rules, \`WRITING.md\` of the \`vertical-docs\` package: \`npx vertical-docs rules\` prints them.
-- Run \`npx vertical-docs check website\` before you say the docs are done.
+1. Read the writing rules, \`WRITING.md\` of the \`vertical-docs\` package: \`npx vertical-docs rules\` prints them.
+2. Edit the page so that it describes the code as it is now.
+3. Run \`npx vertical-docs check website\`, and fix what it reports.
 `,
 	);
 	const pnpm = mkdtempSync(join(tmpdir(), "cli-"));
