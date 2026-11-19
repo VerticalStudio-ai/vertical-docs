@@ -38,7 +38,7 @@ pnpm add -D vertical-docs
 pnpm exec vertical-docs init
 ```
 
-`init` then names `pnpm exec` in its last line and in the starter page, and nothing asks before a command runs. `pnpm add` changes `package.json` and `pnpm-lock.yaml`: commit both with the docs.
+`init` then names `pnpm exec` in its last line and in the starter page, and nothing asks before a command runs. `pnpm add` changes `package.json` and `pnpm-lock.yaml`: add both to the commit in the last step.
 
 ## Preview the docs
 

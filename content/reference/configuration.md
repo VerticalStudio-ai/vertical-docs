@@ -82,7 +82,7 @@ The logo is placed in the page as inline SVG. Draw it with `fill="currentColor"`
 A site that moves keeps its old addresses in `docs/public/_redirects`. Each line is the old path, the page that replaces it and `301`:
 
 ```txt
-/guides/setup /write-a-page/ 301
+/getting-started / 301
 ```
 
 Cloudflare answers a request for the old path with a permanent redirect when the site runs as a [Worker](/reference/worker/). `vertical-docs check` fails for a line that points to no page or that does not end with `301`.
