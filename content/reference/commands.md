@@ -16,7 +16,7 @@ vertical-docs search "<query>" [folder] [--json] [--url <site>]
 
 ## Run a command
 
-`npx vertical-docs` runs a command in any repository, with or without a `package.json`. You need Node 22.23.4 or later, on macOS or Linux: Windows is not tested. `npx` asks before it installs the package. npm 10, which comes with Node 22, asks on every run, and npm 11 asks once.
+`npx vertical-docs` runs a command in a repository with or without a `package.json`, unless the `package.json` allows only pnpm. You need Node 22.23.4 or later, on macOS or Linux: Windows is not tested. `npx` asks before it installs the package. npm 10, which comes with Node 22, asks on every run, and npm 11 asks once.
 
 ```sh
 npx vertical-docs check
@@ -32,7 +32,7 @@ In a JavaScript project, `npm install -D vertical-docs` adds the package to the 
 }
 ```
 
-In a project that uses pnpm, `pnpm add -D vertical-docs` adds the package, with `-w` in the root of a workspace, and `pnpm exec vertical-docs` runs a command. `npx` stops with `EBADDEVENGINES` in a project whose `package.json` allows only pnpm.
+In a project that uses pnpm, `pnpm add -D vertical-docs` adds the package, with `-w` in the root of a workspace, and `pnpm exec vertical-docs` runs a command. In a project whose `package.json` allows only pnpm, `npx` stops with `EBADDEVENGINES`.
 
 ```sh
 pnpm add -D vertical-docs

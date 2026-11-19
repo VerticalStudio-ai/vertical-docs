@@ -257,14 +257,14 @@ test("the docs.yml that init writes runs npm outside the repository, whose packa
 	const steps = readFileSync(join(cwd, ".github/workflows/docs.yml"), "utf8")
 		.split("\n      - ")
 		.slice(1)
-		// Without the comment above the next step.
+		// The split leaves the comment of the next step at the end of each one.
 		.map((step) => step.replace(/\n\s*#.*$/gm, "").trimEnd());
 	assert.deepEqual(
 		steps
 			.filter((step) => /^(if: .*\n\s+)?run: np[mx] /.test(step))
 			.map((step) => [
 				step.match(/run: (\S+ \S+)/)?.[1],
-				/\n {8}working-directory: \$\{\{ runner\.temp \}\}/.test(step),
+				/\n {8}working-directory: \$\{\{ runner\.temp \}\}$/m.test(step),
 			]),
 		[
 			["npm install", true],
