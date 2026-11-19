@@ -115,8 +115,9 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
+      # As in the kit's own install, no dependency runs an install script: none needs one.
       - working-directory: ${{ runner.temp }}
-        run: npx vertical-docs check "$GITHUB_WORKSPACE/$SITE"
+        run: npx --ignore-scripts vertical-docs check "$GITHUB_WORKSPACE/$SITE"
 
   # Can write, and runs nothing from the repository or the patch: it checks the paths of the patch and commits it.
   publish:
