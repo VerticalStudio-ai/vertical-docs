@@ -4,7 +4,7 @@ description: Install the dependencies, start the local site, and run the one che
 order: 1
 ---
 
-Run `pnpm install` once, `pnpm dev` to read the site while you write, and `pnpm check` before you call a change done. You need Node 22.23 or later and the pnpm version pinned in `package.json`.
+Run `pnpm install` once, `pnpm dev` to read the site while you write, and `pnpm check` before you call a change done. You need Node 22.23.4 or later and the pnpm version pinned in `package.json`.
 
 ## Install the dependencies
 

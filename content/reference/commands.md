@@ -16,7 +16,7 @@ vertical-docs search "<query>" [folder] [--json] [--url <site>]
 
 ## Run a command
 
-`npx vertical-docs` runs a command in any repository, with or without a `package.json`. You need Node 22.23 or later, on macOS or Linux: Windows is not tested. `npx` asks before it installs the package. npm 10, which comes with Node 22, asks on every run, and npm 11 asks once.
+`npx vertical-docs` runs a command in any repository, with or without a `package.json`. You need Node 22.23.4 or later, on macOS or Linux: Windows is not tested. `npx` asks before it installs the package. npm 10, which comes with Node 22, asks on every run, and npm 11 asks once.
 
 ```sh
 npx vertical-docs check
@@ -51,7 +51,7 @@ In a JavaScript project, `npm install -D vertical-docs` adds the package to the 
 
 `init` leaves a file that exists as it is, so a second run writes only the files that are missing.
 
-`vertical-docs init website` names the folder `website`, in the workflows too. For a folder deeper than one level, such as `packages/docs`, add one `../` to `main` in its `wrangler.jsonc`, so that the path reaches `node_modules/` in the root of the repository:
+`vertical-docs init website` names the folder `website`, in the workflows too. For a folder deeper than one level, add one `../` for each further level to `main` in its `wrangler.jsonc`, so that the path reaches `node_modules/` in the root of the repository. For `packages/docs`:
 
 ```jsonc
 "main": "../../node_modules/vertical-docs/src/worker.ts",
@@ -63,23 +63,21 @@ In a JavaScript project, `npm install -D vertical-docs` adds the package to the 
 
 Press Ctrl+C to stop the preview. One install of Vertical Docs previews one docs folder at a time: stop the preview of one folder before you start the preview of another.
 
-A program that starts `npx vertical-docs dev` in the background stops the preview by ending the whole process group. On Linux, a signal sent to `npx` alone leaves the preview running.
-
 ## build
 
 `vertical-docs build [folder]` writes the site to `dist/` in the docs folder: the pages, and the [files for agents](/reference/agents/). The build stops for a page that breaks one of the [rules the build checks](/write-a-page/#follow-the-rules-the-build-checks).
 
 ## check
 
-`vertical-docs check [folder]` builds the site, then reads the build and fails for:
+`vertical-docs check [folder]` builds the site, then reads the build and fails for these mistakes in the docs folder:
 
-- a link or an anchor that points to no page or heading
+- a link or an anchor that points to no page or heading of the site
 - a search result that opens nothing
 - a `###` heading with no `##` heading above it
 - a line in `public/_redirects` that points to no page or does not end with `301`
 - a missing `public/favicon.svg` or `public/share.png`
 
-Each problem is one line that names the file and says what to change, and the command exits with code 1:
+Each problem is one line that says what to change, and the command exits with code 1:
 
 ```text
 index.html: link "/guide/" points to no file in dist. Fix the link or add the page.

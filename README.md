@@ -8,7 +8,7 @@ npx vertical-docs dev      # live preview while you write
 npx vertical-docs check    # the check CI runs
 ```
 
-You need Node 22.23 or later. [Add docs to your repository](content/add-docs-to-your-repository.md) is the tutorial, and [Commands](content/reference/commands.md) lists all five commands.
+You need Node 22.23.4 or later. [Add docs to your repository](content/add-docs-to-your-repository.md) is the tutorial, and [Commands](content/reference/commands.md) lists all five commands.
 
 The package is `vertical-docs`, and `vdocs` is the same command once the package is installed. Do not run `npx vdocs`: that name on npm belongs to another package.
 
