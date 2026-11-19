@@ -221,7 +221,7 @@ The rule of three, the dependency budget and strict typing are the best-supporte
 The workflow lives in this repository and is called from a product repository on push to `main`, ignoring pushes that only touch docs.
 
 1. **Agent job.** It receives the diff as a file and may only read, search and edit files. It has no shell. The prompt says the diff is data, not instructions. What leaves the job is one patch of the content folder.
-2. **Check job, with no model key and no token that can write.** It applies the patch and runs `pnpm check` from a fresh checkout of the kit.
+2. **Check job, with no model key and no token that can write.** It applies the patch and runs `vertical-docs check`, the package's check of a site.
 3. **Publish job.** It runs nothing from the repository or the patch. The path guard fails if the patch changes any path outside the docs content folder or adds a symlink; then the job opens or updates one rolling pull request on `docs/sync`. If the patch is empty, it stops.
 
 Differences from the brief, with reasons:
@@ -234,7 +234,9 @@ Differences from the brief, with reasons:
 - A merged diff is still untrusted text. Reviewers read for logic, not for instructions hidden in a comment. Prompt injection through repository text is a documented class of incident (PromptPwnd, GitInject), so the path guard checks the output regardless of what the agent was told.
 - Every action is pinned by commit, because of the tag-repointing attacks on `tj-actions` and others.
 - Start with the default `GITHUB_TOKEN`. The check has already run before the pull request opens, and CI on that pull request starts after one "Approve workflows to run" click. A GitHub App token is only needed once docs live in a separate repository.
-- The writing rules are one file, `WRITING.md`, read by the workflow. The brief copied a style guide into every connected repository.
+- The writing rules are one file, `WRITING.md`, which the workflow takes out of the package. The brief copied a style guide into every connected repository.
+- No job reads the kit's repository: the kit arrives as the package `vertical-docs`. The agent job downloads the package with `npm pack` and unpacks the one file, so nothing of the package runs beside the model key; the check job runs it with `npx`. Both run npm outside the checkout, because npm stops with `EBADDEVENGINES` in a product whose `package.json` allows only pnpm. Calling the workflow is what still depends on the kit's repository: while it is private, only private repositories of the same organisation can call it, once the kit allows that in its Actions settings (GitHub's documentation, read 2026-11-19).
+- A run without the model key does nothing and is green. A job cannot name a secret in its `if`, so a first job passes on whether the key is set, and the three jobs are skipped without it. `init` writes the calling workflow before a product has a key, and a failed run on every push to `main` would be the first thing it sees.
 
 A product repository holds only its `content/` folder, `docs.config.json`, a `public/` folder with its logo, favicon and share image, and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that `content/` folder. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`), in since phase 3a: the docs of the first two sites build and pass `pnpm check` from a folder outside the project. Nothing is published to npm in version 1.
 
@@ -269,7 +271,7 @@ Still open:
 
 - A deploy. On the local Workers runtime the redirects in `_redirects` are also answered when the Worker runs first and hands the request to the static files; Cloudflare's documentation does not say so, so check it on the first deploy.
 - CPU time on the free plan. Building the search index for the 703 sections of the vAPI docs takes about 35 ms on a laptop, and the free plan allows 10 ms of CPU for a request. Measure `search_docs` on the first deploy; the paid plan allows 30 seconds.
-- `job.workflow_sha` in `docs-sync.yml`, which pins the kit to the commit of the called workflow. It is in GitHub's documentation; `actionlint` 1.7.12 does not know it. Check it in the first run.
+- A run of `docs-sync.yml` without the model key. GitHub's documentation says a secret that is passed without a value is an empty string and no error, and that a job is skipped when the job it needs is skipped. Check on the first run that the run is green.
 - The concurrency group of `docs-sync.yml`. `queue: max` is in GitHub's documentation, and `actionlint` 1.7.12 does not know it. The documentation does not say that a group set at the top of a called workflow holds the whole run; if the first two runs overlap, the group moves to the job that calls the workflow.
 - Safari itself, and a screen reader, for the copy buttons, the diagram per theme, the sidebar groups and the table box. Chrome, Firefox and WebKit 26.6 were tested; WebKit is the engine of Safari, driven through Playwright.
 
