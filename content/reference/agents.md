@@ -21,7 +21,7 @@ The copy starts with the page title as a `#` heading and the page description. T
 ```md
 # Reference
 
-Look up the frontmatter fields, the Markdown a page can use, the site configuration file, the files for agents and the Worker routes.
+Look up the frontmatter fields, the Markdown a page can use, the site configuration file, the files for agents, the Worker routes and the commands.
 
 The reference pages list every option Vertical Docs reads.
 
@@ -30,6 +30,7 @@ The reference pages list every option Vertical Docs reads.
 - [Site configuration](/reference/configuration/): the name, the description, the public address, the accent colour, the logo, the favicon and old addresses.
 - [Files for agents](/reference/agents/): the Markdown copy of a page, `llms.txt` and `search.json`.
 - [Worker routes](/reference/worker/): Markdown from a page URL and the MCP server.
+- [Commands](/reference/commands/): the five commands of `vertical-docs`, and the files `init` writes.
 ```
 
 Each page links to its copy twice: "View this page as Markdown" at the end of the page, and a `link` element with `rel="alternate"` and `type="text/markdown"` in the HTML head. The Copy page button beside the page title puts the same Markdown on the clipboard.
@@ -50,6 +51,7 @@ curl http://localhost:4321/llms.txt
 ## Docs
 
 - [Run Vertical Docs locally](https://vdocs.example/index.md): Install the dependencies, start the local site, and run the one check that decides whether a change is done.
+- [Add docs to your repository](https://vdocs.example/add-docs-to-your-repository.md): Write a docs folder into your product's repository with one command, preview it as a live site, check it and commit it.
 - [Write a page](https://vdocs.example/write-a-page.md): Add a Markdown file to the content folder and read it as a page on the local site.
 - [Add an image to a page](https://vdocs.example/add-an-image.md): Put an image file beside the page, write one Markdown line with its alt text, and show a diagram that follows the light and the dark theme.
 - [Order pages in the sidebar](https://vdocs.example/order-the-sidebar.md): Set the position of a page with one frontmatter field, and group pages by putting them in a folder.
@@ -58,12 +60,13 @@ curl http://localhost:4321/llms.txt
 
 ## Reference
 
-- [Reference](https://vdocs.example/reference.md): Look up the frontmatter fields, the Markdown a page can use, the site configuration file, the files for agents and the Worker routes.
+- [Reference](https://vdocs.example/reference.md): Look up the frontmatter fields, the Markdown a page can use, the site configuration file, the files for agents, the Worker routes and the commands.
 - [Frontmatter fields](https://vdocs.example/reference/frontmatter.md): The three fields a page can set at the top of its Markdown file, with their limits.
 - [Markdown in a page](https://vdocs.example/reference/markdown.md): The Markdown a page can use, with the source for each element and the way the site shows it.
 - [Site configuration](https://vdocs.example/reference/configuration.md): Set the site name, its description, its public address, the repository link and the accent colour, and replace the logo, favicon and share image.
 - [Files for agents](https://vdocs.example/reference/agents.md): The three files an agent can fetch from a site without rendering a page, each with its URL and its format.
 - [Worker routes](https://vdocs.example/reference/worker.md): Run the built site as a Cloudflare Worker, fetch a page as Markdown from its own URL and call the two MCP tools.
+- [Commands](https://vdocs.example/reference/commands.md): The five commands of vertical-docs, with the docs folder each one reads, the files it writes and the way it fails.
 ```
 
 The first line is `name` from `docs.config.json` and the quote is `description`. See [Site configuration](/reference/configuration/).

@@ -37,7 +37,7 @@ pnpm check
 A passing run ends with the build summary and exits with code 0:
 
 ```text
-[build] 11 page(s) built in 624ms
+[build] 15 page(s) built in 668ms
 [build] Complete!
 ```
 

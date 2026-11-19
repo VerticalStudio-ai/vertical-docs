@@ -28,7 +28,7 @@ curl -s -H "Accept: text/markdown" http://localhost:8787/reference/ | head -n 3
 ```md
 # Reference
 
-Look up the frontmatter fields, the Markdown a page can use, the site configuration file, the files for agents and the Worker routes.
+Look up the frontmatter fields, the Markdown a page can use, the site configuration file, the files for agents, the Worker routes and the commands.
 ```
 
 The answer holds the same bytes as `/reference.md`. A request without that header gets the HTML page.

@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phases 0 to 3a are built. Phase 3b is built up to what needs an account, a key or a product repository: the deploy, a run of the sync workflow and the first site going live. Phase 4 is built: a 404 page, tables that scroll at every width, and the name, mark and share image. Versions are left out until a site needs them. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
+Status: phases 0 to 3a are built. Phase 3b is built up to what needs an account, a key or a product repository: the deploy, a run of the sync workflow and the first site going live. Phase 4 is built: a 404 page, tables that scroll at every width, and the name, mark and share image. Phase 5 is built up to the two first sites and the release: the kit is the package `vertical-docs` 0.1.0, which a product installs and runs in its own repository, and nothing is published. Versions are left out until a site needs them. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -16,7 +16,7 @@ content/*.md  +  docs.config.json
 src/core/ — pure functions: nav · sections · search · llms
         │
         ├── site (Astro)    HTML pages, /<page>.md, /llms.txt, /search.json
-        ├── src/cli.ts      pnpm run search "<query>"
+        ├── src/cli.ts      vertical-docs init · dev · build · check · search
         └── src/worker.ts   /mcp (search_docs, get_page), Accept: text/markdown
 ```
 
@@ -29,7 +29,7 @@ This is the "functional core, imperative shell" pattern. It is the lightest form
 | Concern | Choice | Why |
 |---|---|---|
 | Package manager | **pnpm**, pinned in `packageManager` | Its strict `node_modules` makes an undeclared import fail, which is what enforces the dependency list. It skips dependency install scripts by default (`allowBuilds` lists exceptions; no dependency needs one) and refuses versions published less than three days ago (`minimumReleaseAge` in `pnpm-workspace.yaml`). It is already used in your other repos. |
-| Runtime | Node 22.23 or later | Required by Astro 7. It also runs `.ts` files and `node --test` directly, which removes the test framework and any build step for the command-line tool. |
+| Runtime | Node 22.23 or later | Required by Astro 7. It also runs `.ts` files and `node --test` directly, which removes the test framework and, in the kit, any build step for the command-line tool. Only the package carries the command as JavaScript, because Node does not run TypeScript from `node_modules`. |
 | Framework | **Astro 7.4**, static output | Zero client JavaScript by default. Content collections validate frontmatter. A `content/` folder outside `src/` works, and so does one outside the project folder (both tested). |
 | Markdown | Astro's built-in engine | Plain `.md` only. Callouts use GitHub alert syntax through a 15-line plugin of our own (tested). |
 | Images | Astro's built-in image handling | A Markdown image beside the page gets its width and height, loads lazily and is served as WebP. It works for a content folder outside the project, and `sharp` comes with Astro, so nothing is added (tested in phase 3a). |
@@ -89,6 +89,7 @@ vertical-docs/
 │   ├── pages/
 │   │   ├── [...slug].astro
 │   │   ├── [...slug].md.ts
+│   │   ├── 404.astro
 │   │   ├── llms.txt.ts
 │   │   ├── search.json.ts
 │   │   ├── sitemap.xml.ts
@@ -104,15 +105,17 @@ vertical-docs/
 │   ├── check.ts              the checks on a built site: links, anchors, heading order, search results, redirects, favicon, share image, sizes
 │   ├── cli.ts                terminal edge; `pnpm pack` writes it and what it imports to lib/ as JavaScript for the installed command
 │   └── worker.ts             Cloudflare edge: Markdown negotiation and MCP
+├── lib/                      written by `pnpm pack` and not kept in Git: the command as JavaScript, which the two command names run
 ├── scripts/check-dist.ts     last step of `pnpm check`: the site checks of src/check.ts on dist/, and the dependency list
 ├── wrangler.jsonc            the Worker and the folder of static files it serves
 ├── AGENTS.md                 rules for agents changing the code
 ├── WRITING.md                rules for anyone writing a page
 ├── astro.config.ts
 ├── biome.json
-├── package.json
+├── package.json              also the package: its name, version, `files` list and the two command names
+├── package.test.ts           holds the `files` list, and the version the sync workflow names
 ├── tsconfig.json
-└── .github/workflows/        ci.yml, docs-sync.yml
+└── .github/workflows/        ci.yml, which also tries the packed package in an empty folder, and docs-sync.yml, which a product calls
 ```
 
 About 30 files. The brief's `Header`, `PageActions`, `PrevNext` and `ThemeToggle` components are each used once, so they start inside `Doc.astro` and are split out only if that file comes to hold two responsibilities.
@@ -244,11 +247,11 @@ Differences from the brief, with reasons:
 - No job reads the kit's repository: the kit arrives as the package `vertical-docs`, at the version in `package.json` at the pinned commit. The agent job downloads the package with `npm pack` and unpacks the one file, so nothing of the package runs beside the model key; the check job runs it with `npx --ignore-scripts`, so that no dependency runs an install script there, as in the kit's own install. Both run npm outside the checkout, because npm stops with `EBADDEVENGINES` in a product whose `package.json` allows only pnpm. Calling the workflow is what still depends on the kit's repository: while it is private, only private repositories of the same organisation can call it, once the kit allows that in its Actions settings (GitHub's documentation, read 2026-11-19).
 - A run without the model key does nothing and is green. A job cannot name a secret in its `if`, so a first job passes on whether the key is set, and the three jobs are skipped without it. `init` writes the calling workflow before a product has a key, and a failed run on every push to `main` would be the first thing it sees. Seen on GitHub on 2026-11-19: called from a branch of this repository, which has no key, the run was green and the three jobs were skipped.
 
-A product repository holds only its `content/` folder, `docs.config.json`, a `public/` folder with its logo, favicon and share image, and a short workflow. Its build checks out this kit at a pinned commit and builds with `DOCS_ROOT` pointing at that `content/` folder. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`), in since phase 3a: the docs of the first two sites build and pass `pnpm check` from a folder outside the project. Nothing is published to npm in version 1.
+A product repository holds only its docs folder and two short workflows, all written by `vertical-docs init`: `content/`, `docs.config.json`, a `public/` folder with its logo, favicon and share image, and a `wrangler.jsonc`. Its build installs the package `vertical-docs` at the version its `docs.yml` names and runs `vertical-docs check` on the docs folder. Nothing of the kit is checked out or copied in. Until phase 5 the plan was a checkout of the kit at a pinned commit, with `DOCS_ROOT` pointing at the product's `content/` folder. `DOCS_ROOT` is still how the command hands the docs folder to Astro, and how the kit's own `pnpm check` builds another site. Tested on 2026-11-17 with a folder outside the project: the build, the writing rules, the link check and the local site's reload on edit all work. The change is one line in `src/content.config.ts` (`base: process.env.DOCS_ROOT ?? "./content"`), in since phase 3a. The package is not published yet: it becomes public on npm on your word (answered 2026-11-18), and until then a product installs the file `npm pack` writes.
 
 ## Build order
 
-Phase 0 is small enough to do directly. Phases 1 to 3b are ticket-sized. Each phase ends with a deletion pass. Phase 3a was added after phase 2: the first two sites (the vAPI docs and the Vertical Studio docs, both on GitBook today) need images and a sidebar for a hundred pages, and hosting a site that cannot show its content proves nothing.
+Phase 0 is small enough to do directly. Phases 1 to 3b are ticket-sized, and phase 5 is nine tickets. Each phase ends with a deletion pass. Phase 3a was added after phase 2: the first two sites (the vAPI docs and the Vertical Studio docs, both on GitBook today) need images and a sidebar for a hundred pages, and hosting a site that cannot show its content proves nothing.
 
 | Phase | Builds | Done when |
 |---|---|---|
@@ -258,6 +261,7 @@ Phase 0 is small enough to do directly. Phases 1 to 3b are ticket-sized. Each ph
 | 3a. Real content | `DOCS_ROOT`, images, diagrams per theme, a sidebar with groups that open and close, copy buttons, tables on a small screen, and build rules for images, task lists and heading order | Both sites, imported into throwaway folders, pass `pnpm check` and the Lighthouse scores |
 | 3b. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected, old GitBook paths redirected. With the site's public URL: canonical URLs, `sitemap.xml`, `robots.txt`, share-image tags, structured data, and absolute URLs in `llms.txt` | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
 | 4. Finish version 1 | A 404 page, wide tables, the image file rule, sync runs one at a time; the name Vertical Docs, its mark, favicon and share image | Your sign-off |
+| 5. The package | The command `vertical-docs` with `init`, `dev`, `build`, `check` and `search`, `template/`, the deploy and the sync from a product's own repository, the `files` list and the version, the `package` job in CI, the tutorial and the commands page; then the two first sites in the new layout, and the release | Both sites pass `vertical-docs check` from the installed package; the package is on npm on your word |
 
 ## Versions, when a site needs them
 
@@ -284,6 +288,6 @@ Still open:
 
 1. **Cloudflare account.** The plan needs one for hosting. Vercel also works but puts the MCP route in a separate function.
 2. **Model key for the sync workflow.** A Claude subscription token (`claude setup-token`) is documented for personal repositories; an API key is recommended for organisation repositories.
-3. **Public or private kit.** Public removes the clone token in each product repository's build and makes the shared workflow callable from any account. I recommend public once phase 2 is done.
-4. **Name and accent colour**: answered on 2026-11-18. The product is Vertical Docs, a product of Vertical Labs, with the short name `vdocs` for the package and the Worker. The kit's own site stays black and white. The repository is `VerticalStudio-ai/vertical-docs`, and `docs-sync.yml` names it.
+3. **Public or private kit**: answered on 2026-11-18 for the package. It becomes public on npm when you say so, because every other route puts a token in each product's CI. No product build clones the kit any more. Still yours, with the release: whether the repository becomes public too. While it is private, only private repositories of the same organisation can call the shared sync workflow.
+4. **Name and accent colour**: answered on 2026-11-18. The product is Vertical Docs, a product of Vertical Labs, with the short name `vdocs`. The package is `vertical-docs` (answered the same day), because `vdocs` on npm belongs to someone else: `vdocs` is the short command of the installed package and the name of the kit's own Worker, and `npx vdocs` is never written. The kit's own site stays black and white. The repository is `VerticalStudio-ai/vertical-docs`, and `docs-sync.yml` names it.
 5. **First repository to connect**: answered. The vAPI docs come first (their source is already in Git), then the Vertical Studio docs.
