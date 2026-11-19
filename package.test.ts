@@ -56,9 +56,14 @@ test("the package holds no test and nothing of the kit's own site", () => {
 });
 
 test("the shared sync workflow names the package at this version both times it downloads it", () => {
+	// Only a line that runs: a comment that names a command starts with a #.
 	assert.deepEqual(
-		readFileSync(join(root, ".github/workflows/docs-sync.yml"), "utf8").match(
-			/(npm pack|npx --ignore-scripts) \S+/g,
+		Array.from(
+			readFileSync(
+				join(root, ".github/workflows/docs-sync.yml"),
+				"utf8",
+			).matchAll(/^\s*(?:run: )?((?:npm pack|npx --ignore-scripts) \S+)/gm),
+			([, command]) => command,
 		),
 		[`npm pack ${name}@${version}`, `npx --ignore-scripts ${name}@${version}`],
 	);

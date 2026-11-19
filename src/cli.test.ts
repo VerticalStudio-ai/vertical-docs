@@ -244,9 +244,10 @@ test("init names the package at its own version in the install step of docs.yml"
 		readFileSync(join(import.meta.dirname, "../package.json"), "utf8"),
 	);
 	assert.match(version, /^\d+\.\d+\.\d+$/);
-	assert.match(
-		readFileSync(join(cwd, ".github/workflows/docs.yml"), "utf8"),
-		new RegExp(`^ +- run: npm install .*vertical-docs@${version}$`, "m"),
+	assert.ok(
+		readFileSync(join(cwd, ".github/workflows/docs.yml"), "utf8").includes(
+			`\n      - run: npm install --no-save --ignore-scripts vertical-docs@${version}\n`,
+		),
 	);
 });
 
