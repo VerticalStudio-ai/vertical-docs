@@ -32,7 +32,7 @@ In a JavaScript project, `npm install -D vertical-docs` adds the package to the 
 }
 ```
 
-In a project that uses pnpm, `pnpm add -D vertical-docs` adds the package, with `-w` in the root of a workspace, and `pnpm exec vertical-docs` runs a command. In a project whose `package.json` allows only pnpm, `npx` stops with `EBADDEVENGINES`.
+In a project that uses pnpm, `pnpm add -D vertical-docs` adds the package, with `-w` in the root of a workspace, and `pnpm exec vertical-docs` runs a command. `init` started with `pnpm exec` names `pnpm exec` in its last line and in the starter page. In a project whose `package.json` allows only pnpm, `npx` stops with `EBADDEVENGINES`.
 
 ```sh
 pnpm add -D vertical-docs
@@ -57,6 +57,8 @@ pnpm exec vertical-docs check
 | `.github/workflows/docs-sync.yml` | After a code change on `main`, an agent edits the docs to match and opens one pull request. The agent needs the repository secret `ANTHROPIC_API_KEY`: without that secret a run does nothing. |
 
 `init` leaves a file that exists as it is, so a second run writes only the files that are missing.
+
+In a repository with a formatter such as Prettier, name the docs folder in `.prettierignore`, or format the folder and name only `docs/dist/` there: Prettier does not read `docs/.gitignore`.
 
 `vertical-docs init website` names the folder `website`, in the workflows too. For a folder deeper than one level, add one `../` for each further level to `main` in its `wrangler.jsonc`, so that the path reaches `node_modules/` in the root of the repository. For `packages/docs`:
 

@@ -4,17 +4,19 @@ description: Set the site name, its description, its public address, the reposit
 order: 3
 ---
 
-A site is one folder that holds a configuration file, a `public/` folder and a `content/` folder with the pages. Change `docs.config.json` for the name, the description, the public address, the repository link, the accent colour and the header tabs, and replace the files in `public/` for the logo, the favicon and the share image.
+A site is one docs folder: `docs/docs.config.json`, `docs/public/` and `docs/content/` with the pages. Change `docs.config.json` for the name, the description, the public address, the repository link, the accent colour and the header tabs, and replace the files in `public/` for the logo, the favicon and the share image.
 
 ## docs.config.json
 
+`init` writes the file with placeholders:
+
 ```json
 {
-	"name": "Vertical Docs",
-	"description": "Markdown files become a website, a Markdown copy of every page and one search index for readers, terminals and agents.",
-	"url": "https://vdocs.example",
-	"repo": "https://github.com/VerticalStudio-ai/vertical-docs",
-	"accent": "#171717"
+  "name": "Your Docs",
+  "description": "What your product does, in one sentence.",
+  "url": "https://docs.example.com",
+  "repo": "https://github.com/your-org/your-repo",
+  "accent": "#171717"
 }
 ```
 
@@ -27,17 +29,17 @@ A site is one folder that holds a configuration file, a `public/` folder and a `
 | `accent` | The colour of links, the current page in the sidebar, the focus ring and the edge of a callout. |
 | `tabs` | Optional. The folders that become [header tabs](#header-tabs). A site without `tabs` has one sidebar with every page. |
 
-## Content folder
+## Docs folder
 
-The site reads its pages and their images from `content/` in the project folder, and `docs.config.json` and `public/` from the folder that holds `content/`. Set the `DOCS_ROOT` environment variable to the content folder of another site, such as the docs of a product repository:
+Every command reads one docs folder: the pages and their images in `content/`, and `docs.config.json` and `public/` beside it. The folder is `docs` in the folder where the command runs. Name another folder after the command:
 
 ```sh
-DOCS_ROOT=../product/docs/content pnpm check
+npx vertical-docs check website
 ```
 
-This command builds the pages in `../product/docs/content/` with `../product/docs/docs.config.json` and the files in `../product/docs/public/`.
+This command builds the pages in `website/content/` with `website/docs.config.json` and the files in `website/public/`, and writes the site to `website/dist/`.
 
-`DOCS_ROOT` is a path from the project folder, or a full path. Every command reads it: `pnpm dev` shows that site, and `pnpm check` builds and checks it.
+`npx vertical-docs init website` writes a docs folder with that name, and names the folder in the two workflows.
 
 ## Accent colour
 
@@ -47,19 +49,19 @@ The default, `#171717`, is a neutral colour: the site is black on white in the l
 
 ## Header tabs
 
-`tabs` is a list of folders directly under `content/`. Each folder becomes a tab in the header, in the order of the list, and the sidebar shows only the pages of the tab that holds the page being read.
+`tabs` is a list of folders directly under `docs/content/`. Each folder becomes a tab in the header, in the order of the list, and the sidebar shows only the pages of the tab that holds the page being read.
 
 ```json
 "tabs": ["guides", "reference"]
 ```
 
-With this line the header has three tabs. The first tab is always "Overview": it opens the home page and holds every page outside the listed folders. The other two take their names from the titles of `content/guides/index.md` and `content/reference/index.md`, and each opens that page.
+With this line the header has three tabs. The first tab is always "Overview": it opens the home page and holds every page outside the listed folders. The other two take their names from the titles of `docs/content/guides/index.md` and `docs/content/reference/index.md`, and each opens that page.
 
 In the sidebar of a folder's tab, the folder's index page comes first and the folder's pages and groups follow. The previous and next links at the end of a page stay inside the tab. On a small screen the tabs are in the menu, above the pages. On a wide screen the tabs are one row that does not wrap, so keep the list short.
 
 Tabs change the header and the sidebar only. The address of every page, the search and `/llms.txt` stay as they are without tabs.
 
-The build stops for a name that matches nothing directly under `content/`:
+The build stops for a name that matches nothing directly under `docs/content/`. The message names the file to add, with its path from the docs folder:
 
 ```txt
 docs.config.json lists the tab "guides", but content/guides/index.md does not exist. A tab is a folder directly under content/, and its index page names the tab.
@@ -69,18 +71,18 @@ docs.config.json lists the tab "guides", but content/guides/index.md does not ex
 
 | File | Shown |
 |---|---|
-| `public/logo.svg` | In the header, 20 pixels high, next to the name. |
-| `public/favicon.svg` | In the browser tab. |
-| `public/share.png` | In the preview of a link to the site, in a chat or on a social network. Make it 1,200 by 630 pixels. |
+| `docs/public/logo.svg` | In the header, 20 pixels high, next to the name. |
+| `docs/public/favicon.svg` | In the browser tab. |
+| `docs/public/share.png` | In the preview of a link to the site, in a chat or on a social network. Make it 1,200 by 630 pixels. |
 
 The logo is placed in the page as inline SVG. Draw it with `fill="currentColor"` and the logo takes the text colour of the theme.
 
 ## Old addresses
 
-A site that moves keeps its old addresses in `public/_redirects`. Each line is the old path, the page that replaces it and `301`:
+A site that moves keeps its old addresses in `docs/public/_redirects`. Each line is the old path, the page that replaces it and `301`:
 
 ```txt
 /guides/setup /write-a-page/ 301
 ```
 
-Cloudflare answers a request for the old path with a permanent redirect when the site runs as a [Worker](/reference/worker/). `pnpm check` fails for a line that points to no page or that does not end with `301`.
+Cloudflare answers a request for the old path with a permanent redirect when the site runs as a [Worker](/reference/worker/). `vertical-docs check` fails for a line that points to no page or that does not end with `301`.

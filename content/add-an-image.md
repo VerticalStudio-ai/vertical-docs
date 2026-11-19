@@ -4,14 +4,14 @@ description: Put an image file beside the page, write one Markdown line with its
 order: 4
 ---
 
-An image is a file in `content/`, beside the page that shows it. Write one Markdown line with the path of the file and a text that says what the image shows.
+An image is a file in `docs/content/`, beside the page that shows it. Write one Markdown line with the path of the file and a text that says what the image shows.
 
 ## Add the file and the line
 
-Save the file beside the page, or in a folder beside the page. This site keeps its images in `content/images/`:
+Save the file beside the page, or in a folder beside the page, such as `docs/content/images/`:
 
 ```text
-content/
+docs/content/
 ├── add-an-image.md
 └── images/
     └── sidebar.png
@@ -62,7 +62,7 @@ There is no caption syntax. Write the caption as a line in italics under the ima
 The build stops when an image breaks one of these rules:
 
 - An image has alt text. The alt text is what a screen reader, the search and an agent read in place of the image.
-- An image is a file in `content/`. A web address or a path that starts with `/` is not allowed.
+- An image is a file in `docs/content/`. A web address or a path that starts with `/` is not allowed.
 - The file name ends in `.png`, `.jpg`, `.jpeg`, `.webp`, `.avif`, `.gif`, `.svg` or `.tiff`, in lower case.
 - The path is written in the image itself. An image that names a reference, such as `![The sidebar][sidebar]`, is not allowed.
 - The alt text and the file name have no brackets, so that the Markdown copy of the page can point at the file.

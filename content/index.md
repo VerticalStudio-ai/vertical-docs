@@ -1,48 +1,44 @@
 ---
-title: Run Vertical Docs locally
-description: Install the dependencies, start the local site, and run the one check that decides whether a change is done.
+title: Run your docs locally
+description: Start the live preview of the docs folder in your repository, and run the one check that decides whether a change to the docs is done.
 order: 1
 ---
 
-Run `pnpm install` once, `pnpm dev` to read the site while you write, and `pnpm check` before you call a change done. You need Node 22.23.4 or later and the pnpm version pinned in `package.json`.
+Run `npx vertical-docs dev` to read your docs as a site while you write, and `npx vertical-docs check` before you commit a change. Both run in the root of a repository that holds a docs folder, which [Add docs to your repository](/add-docs-to-your-repository/) writes. You need Node 22.23.4 or later. In a repository that uses pnpm, write `pnpm exec` in place of `npx`.
 
-## Install the dependencies
+## Start the preview
 
 ```sh
-pnpm install
+npx vertical-docs dev
 ```
 
-The last line names the pinned pnpm version:
+The command prints the address of the preview:
 
 ```text
-Done in 2.5s using pnpm v12.21.0
+┃ Local    http://localhost:4321/
 ```
 
-## Start the local site
-
-```sh
-pnpm dev
-```
-
-The local site is at `http://localhost:4321/`. Each Markdown file in `content/` is one page, and the file path is the URL.
+Each Markdown file in `docs/content/` is one page, and the file path is the URL. The preview shows a change when you save a file. Press Ctrl+C to stop the preview.
 
 ## Check a change
 
 ```sh
-pnpm check
+npx vertical-docs check
 ```
 
-`pnpm check` checks types, lint and formatting, unused code and tests. `pnpm check` then builds the site into `dist/` and checks every link, anchor and search result in the build, the size of the CSS and JavaScript, and the dependency list in `package.json`.
+The check builds the site into `docs/dist/`, then reads the build and fails for a link or an anchor that points nowhere and for a search result that opens nothing. [`check`](/reference/commands/#check) lists every mistake the command finds.
 
-A passing run ends with the build summary and exits with code 0:
+A passing check ends with the build summary and exits with code 0:
 
 ```text
-[build] 15 page(s) built in 668ms
+[build] 2 page(s) built in 863ms
 [build] Complete!
 ```
 
-A failing run stops at the first failing step and exits with a non-zero code. The message names the file and says what to change:
+A failing check exits with code 1. Each problem is one line that names the file and says what to change:
 
 ```text
-index.html: link "/nope" points to no file in dist. Fix the link or add the page.
+index.html: link "/guide/" points to no file in dist. Fix the link or add the page.
 ```
+
+On GitHub, the workflow in `.github/workflows/docs.yml` runs the same check on every pull request and on every push to `main`.

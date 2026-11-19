@@ -28,9 +28,9 @@ A list of items:
 
 A list of steps:
 
-1. Run `pnpm install`.
-2. Run `pnpm dev`.
-3. Open `http://localhost:4321/`.
+1. Run `npx vertical-docs dev`.
+2. Open `http://localhost:4321/`.
+3. Change a page and save the file.
 
 ## Code
 
@@ -49,7 +49,7 @@ const rank = (page: Page) => page.order ?? Number.MAX_VALUE;
 Use `sh` for commands and `text` for output:
 
 ```sh
-pnpm check
+npx vertical-docs check
 ```
 
 Each code block has a Copy button in its top right corner.
@@ -58,9 +58,9 @@ Each code block has a Copy button in its top right corner.
 
 | Command | Does |
 |---|---|
-| `pnpm dev` | Starts the local site. |
-| `pnpm check` | Checks the code, builds the site and checks the build. |
-| `pnpm fix` | Formats the code and applies safe lint fixes. |
+| `vertical-docs dev` | Starts the live preview. |
+| `vertical-docs build` | Writes the site to `docs/dist/`. |
+| `vertical-docs check` | Builds the site and checks the build. |
 
 A table that is wider than the text scrolls sideways inside itself, on every screen size. The page stays as wide as the window. Press Tab to reach the table, then scroll it with the arrow keys.
 
@@ -88,17 +88,17 @@ A quote whose first line is one of four markers becomes a callout. Use a callout
 
 ```md
 > [!NOTE]
-> The local site reloads when you save a file.
+> The preview shows a change when you save a file.
 ```
 
 > [!NOTE]
-> The local site reloads when you save a file.
+> The preview shows a change when you save a file.
 
 > [!TIP]
-> Run `pnpm fix` before `pnpm check` to apply the formatting for you.
+> Run `vertical-docs check` before you commit. The workflow on GitHub runs the same check.
 
 > [!WARNING]
-> A renamed heading breaks every link to its anchor. `pnpm check` lists the broken links.
+> A renamed heading breaks every link to its anchor. `vertical-docs check` lists the broken links.
 
 > [!CAUTION]
 > Deleting a page removes its URL. Other sites that link to the URL get an error page.
