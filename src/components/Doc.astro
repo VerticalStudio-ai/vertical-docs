@@ -3,7 +3,7 @@ import config from "@site/docs.config.json";
 import logo from "@site/public/logo.svg?raw";
 import type { MarkdownHeading } from "astro";
 import { markdownUrl } from "../core/llms.ts";
-import { type NavItem, neighbours } from "../core/nav.ts";
+import { type NavItem, navigation, neighbours } from "../core/nav.ts";
 import { structuredData } from "../core/seo.ts";
 import mono from "../fonts/geist-mono.woff2?url";
 import sans from "../fonts/geist-sans.woff2?url";
@@ -22,7 +22,9 @@ interface Props {
 }
 
 const { title, description, href, tree, headings } = Astro.props;
-const { previous, next } = href ? neighbours(tree, href) : {};
+// The type of the configuration is read from the kit's own file, which lists no tabs.
+const { tabs, items } = navigation(tree, (config as { tabs?: string[] }).tabs ?? [], href);
+const { previous, next } = href ? neighbours(items, href) : {};
 ---
 
 <!doctype html>
@@ -69,10 +71,32 @@ const { previous, next } = href ? neighbours(tree, href) : {};
 					<path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1m0 1.5v11a5.5 5.5 0 0 1 0-11"></path>
 				</svg>
 			</button>
+			{
+				tabs.length > 1 && (
+					<nav class="tabs" aria-label="Sections">
+						{tabs.map((tab) => (
+							<a href={tab.href} aria-current={tab.current ? "true" : undefined}>
+								{tab.title}
+							</a>
+						))}
+					</nav>
+				)
+			}
 		</header>
 		<div class="frame">
 			<nav id="sidebar" class="sidebar" popover aria-label="Pages">
-				<Sidebar items={tree} current={href ?? ""} />
+				{
+					tabs.length > 1 && (
+						<nav class="tabs" aria-label="Sections">
+							{tabs.map((tab) => (
+								<a href={tab.href} aria-current={tab.current ? "true" : undefined}>
+									{tab.title}
+								</a>
+							))}
+						</nav>
+					)
+				}
+				<Sidebar items={items} current={href ?? ""} />
 			</nav>
 			<main>
 				<article class="prose">
@@ -118,7 +142,7 @@ const { previous, next } = href ? neighbours(tree, href) : {};
 
 			// Brings the current page into view in a long sidebar: on load, and when a phone opens the menu.
 			const sidebar = document.getElementById("sidebar");
-			const show = () => sidebar?.querySelector("[aria-current]")?.scrollIntoView({ block: "nearest" });
+			const show = () => sidebar?.querySelector("[aria-current=page]")?.scrollIntoView({ block: "nearest" });
 			show();
 			sidebar?.addEventListener("toggle", show);
 

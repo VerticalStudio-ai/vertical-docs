@@ -71,12 +71,12 @@ Compared with the brief, this removes `tailwindcss`, `@tailwindcss/vite`, `remar
 ```
 vertical-docs/
 ├── content/                  the kit's own docs and their images; the only folder a docs agent edits
-├── docs.config.json          name, description, url, repo, accent
+├── docs.config.json          name, description, url, repo, accent, and tabs for a site that wants them
 ├── public/                   what a site replaces: logo.svg, favicon.svg, share.png, and _redirects when it has old addresses
 ├── template/                 what `vertical-docs init` writes into a product: docs/ with a first page, the config, placeholder images, the ignore file and the Worker's wrangler.jsonc, and two workflows
 ├── src/
 │   ├── core/                 pure: no Astro, Node or browser imports
-│   │   ├── nav.ts            pages → sidebar tree, previous and next
+│   │   ├── nav.ts            pages → sidebar tree, previous and next, header tabs
 │   │   ├── sections.ts       Markdown → heading-level section records
 │   │   ├── search.ts         records → index; query → ranked hits
 │   │   ├── llms.ts           pages → llms.txt; page → Markdown with title and image URLs
@@ -123,12 +123,12 @@ About 30 files. The brief's `Header`, `PageActions`, `PrevNext` and `ThemeToggle
 ## Content model
 
 - Frontmatter has three fields: `title` (70 characters at most), `description` (160 at most) and an optional `order`. `draft` is removed; a draft is a branch.
-- The URL is the file path. A folder is a sidebar group, and its `index.md` sets the group's title and order. Navigation has no second source in the config file.
+- The URL is the file path. A folder is a sidebar group, and its `index.md` sets the group's title and order. The config file holds one fact about navigation, and only for a site that wants header tabs: `tabs`, the top-level folders that are tabs. A tab's name, its pages and their order still come from the files.
 - Callouts are GitHub alerts: `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`. GitHub renders them, and anywhere else they degrade to a readable blockquote. The `:::steps` block is removed; an ordered list is already a list of steps.
 - `docs.config.json` is JSON so that a consuming repository needs no TypeScript. A site is one folder: `docs.config.json` and `public/` sit beside `content/`, and `DOCS_ROOT` names that `content/` folder. The kit's own site has the same shape, so there is no second way to configure a site.
 - `url` in `docs.config.json` is the public address. It is required, because the canonical URL, the share tags, `sitemap.xml`, `robots.txt` and the links in `llms.txt` are wrong without it.
 - An image is a Markdown image whose file sits in the content folder, beside the page. Alt text is required, and a web address is not allowed: a local file is the only kind the build can size and convert. A diagram drawn per theme is two files, `name-light.*` and `name-dark.*`, on two lines; one CSS rule shows the right one. A caption is a line in italics.
-- Left out on purpose, because the two first sites do not need them: task lists, tabs, columns, cards, mermaid diagrams, code block titles, hidden pages and breadcrumbs. Task lists fail the build with a message; the rest is plain Markdown that has no syntax here.
+- Left out on purpose, because the two first sites do not need them: task lists, tabs inside a page, columns, cards, mermaid diagrams, code block titles, hidden pages and breadcrumbs. Task lists fail the build with a message; the rest is plain Markdown that has no syntax here.
 
 ## Surfaces
 
@@ -139,7 +139,8 @@ Three columns: sidebar, content, table of contents. Client JavaScript is limited
 | Feature | Built with |
 |---|---|
 | Mobile navigation | Popover API |
-| Sidebar groups | `<details>`: a folder is a group that opens and closes, and the build opens the groups that hold the current page. One sidebar holds all sections; header tabs per section were prototyped and dropped. |
+| Sidebar groups | `<details>`: a folder is a group that opens and closes, and the build opens the groups that hold the current page. |
+| Header tabs | A site chooses: `tabs` in `docs.config.json` lists top-level folders, and without it one sidebar holds every page. `navigation` in `src/core/nav.ts` gives the tabs and the sidebar of the tab a page is in: "Overview" first, with every page outside the listed folders, then one tab per folder, named after its index page. The tabs are links: a second row of the header on a wide screen, which `:has()` makes 2.75rem higher, and chips at the top of the menu on a small one, so the page of a phone is as it is without tabs. Previous and next stay inside a tab; the addresses, the search, `llms.txt` and the structured data do not know about tabs. Phase 3a prototyped tabs for every site and dropped them; phase 5 brought them back as a choice, because the vAPI docs are seven tabs on GitBook and one sidebar of 16 groups hid that. On a phone a row under the header that scrolls sideways was prototyped too and not taken: it costs 44 pixels of every screen, and only Chrome can bring the current tab into view without a script. |
 | Diagram per theme | One CSS rule on the file name (`-light.` and `-dark.`), which also follows the manual theme switch. Tested in Chrome and Firefox. |
 | Wide table | The build puts every table in a `div` that scrolls sideways, at every width. The first version turned the table itself into a scrolling block on a small screen, which left wide tables pushing a desktop window sideways and takes the table role away in some screen readers. The `div` has `tabindex="0"`: Safari gives a scrolling box no place in the tab order, so without it the keyboard cannot reach the hidden columns. |
 | Address with no page | `src/pages/404.astro` builds `dist/404.html`: the page shell with the sidebar and the search, without a canonical URL or a Markdown copy. The Worker's static files answer it with status 404 (`not_found_handling` in `wrangler.jsonc`). |
@@ -261,7 +262,7 @@ Phase 0 is small enough to do directly. Phases 1 to 3b are ticket-sized, and pha
 | 3a. Real content | `DOCS_ROOT`, images, diagrams per theme, a sidebar with groups that open and close, copy buttons, tables on a small screen, and build rules for images, task lists and heading order | Both sites, imported into throwaway folders, pass `pnpm check` and the Lighthouse scores |
 | 3b. Hosting, MCP, sync | Worker, deploy, `docs-sync.yml`, first product repository connected, old GitBook paths redirected. With the site's public URL: canonical URLs, `sitemap.xml`, `robots.txt`, share-image tags, structured data, and absolute URLs in `llms.txt` | An MCP client can search and fetch; a signature change in a demo repository produces a correct docs pull request |
 | 4. Finish version 1 | A 404 page, wide tables, the image file rule, sync runs one at a time; the name Vertical Docs, its mark, favicon and share image | Your sign-off |
-| 5. The package | The command `vertical-docs` with `init`, `dev`, `build`, `check` and `search`, `template/`, the deploy and the sync from a product's own repository, the `files` list and the version, the `package` job in CI, the tutorial and the commands page; then the two first sites in the new layout, and the release | Both sites pass `vertical-docs check` from the installed package; the package is on npm on your word |
+| 5. The package | The command `vertical-docs` with `init`, `dev`, `build`, `check` and `search`, `template/`, the deploy and the sync from a product's own repository, the `files` list and the version, the `package` job in CI, the tutorial and the commands page; then the two first sites in the new layout, header tabs for a site that lists them, and the release | Both sites pass `vertical-docs check` from the installed package; the package is on npm on your word |
 
 ## Versions, when a site needs them
 

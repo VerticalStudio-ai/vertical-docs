@@ -30,6 +30,13 @@
 	--mono: "Geist Mono", ui-monospace, monospace;
 	--header: 3.5rem;
 
+	/* On a wide screen the tabs of a site are a second row of the header, and what sticks under the header starts lower. */
+	@media (width >= 56rem) {
+		&:has(.tabs) {
+			--header: 6.25rem;
+		}
+	}
+
 	&[data-theme="light"] {
 		color-scheme: light;
 	}
@@ -137,6 +144,11 @@
 	}
 
 	.find :is(span, kbd) {
+		display: none;
+	}
+
+	/* The tabs of a site are in the page twice: a row in the header of a wide screen, chips in the menu of a small one. */
+	.top .tabs {
 		display: none;
 	}
 
@@ -315,6 +327,21 @@
 			color: var(--tint);
 			font-weight: 500;
 		}
+
+		& .tabs {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.375rem;
+			margin-bottom: 1rem;
+			padding-bottom: 1rem;
+			border-bottom: 1px solid var(--border);
+
+			& a {
+				padding-block: 0.25rem;
+				border: 1px solid var(--border);
+				border-radius: 1rem;
+			}
+		}
 	}
 
 	.toc {
@@ -351,6 +378,47 @@
 		dialog {
 			margin-top: 5rem;
 			max-height: calc(100dvh - 10rem);
+		}
+
+		.top:has(.tabs) {
+			flex-wrap: wrap;
+			align-content: start;
+			row-gap: 0;
+
+			/* Keeps the first row as high as the header of a site without tabs. */
+			& .brand {
+				height: 3.5rem;
+			}
+		}
+
+		.sidebar .tabs {
+			display: none;
+		}
+
+		.top .tabs {
+			display: flex;
+			flex-basis: 100%;
+			gap: 1.5rem;
+			height: 2.75rem;
+			/* The line under the current tab lies on the border of the header. */
+			margin-bottom: -1px;
+
+			& a {
+				display: flex;
+				align-items: center;
+				border-block: 2px solid transparent;
+				color: var(--fg-muted);
+
+				&:hover {
+					color: var(--fg);
+				}
+
+				&[aria-current] {
+					border-bottom-color: var(--tint);
+					color: var(--fg);
+					font-weight: 500;
+				}
+			}
 		}
 
 		.frame {
