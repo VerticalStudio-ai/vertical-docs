@@ -251,6 +251,36 @@ test("init names the package at its own version in the install step of docs.yml"
 	);
 });
 
+test("the docs.yml that init writes runs npm outside the repository, whose package.json can refuse npm, and links the package to node_modules/ for the check and for wrangler", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(cwd, ["init", "website"]);
+	const steps = readFileSync(join(cwd, ".github/workflows/docs.yml"), "utf8")
+		.split("\n      - ")
+		.slice(1)
+		// Without the comment above the next step.
+		.map((step) => step.replace(/\n\s*#.*$/gm, "").trimEnd());
+	assert.deepEqual(
+		steps
+			.filter((step) => /^(if: .*\n\s+)?run: np[mx] /.test(step))
+			.map((step) => [
+				step.match(/run: (\S+ \S+)/)?.[1],
+				/\n {8}working-directory: \$\{\{ runner\.temp \}\}/.test(step),
+			]),
+		[
+			["npm install", true],
+			["npx wrangler@4.161.0", true],
+		],
+	);
+	assert.deepEqual(steps.slice(3, 5), [
+		'run: ln -s "$RUNNER_TEMP/node_modules" node_modules',
+		"run: node_modules/.bin/vertical-docs check website",
+	]);
+	assert.match(
+		steps.slice(5).join(),
+		/ --config "\$GITHUB_WORKSPACE\/website\/wrangler\.jsonc" /,
+	);
+});
+
 test("init leaves a file that exists as it is", async () => {
 	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
 	mkdirSync(join(cwd, "docs/content"), { recursive: true });

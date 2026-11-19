@@ -32,6 +32,13 @@ In a JavaScript project, `npm install -D vertical-docs` adds the package to the 
 }
 ```
 
+In a project that uses pnpm, `pnpm add -D vertical-docs` adds the package, with `-w` in the root of a workspace, and `pnpm exec vertical-docs` runs a command. `npx` stops with `EBADDEVENGINES` in a project whose `package.json` allows only pnpm.
+
+```sh
+pnpm add -D vertical-docs
+pnpm exec vertical-docs check
+```
+
 > [!WARNING]
 > Do not run `npx vdocs`. The name `vdocs` on npm belongs to another package, and `npx` downloads and runs that package in a repository that has not installed `vertical-docs`.
 
