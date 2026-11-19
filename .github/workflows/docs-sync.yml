@@ -1,6 +1,7 @@
 name: docs-sync
 
 # A product repository calls this on a push to main that changes code. An agent edits the docs to match the change, and the result arrives as one pull request on docs/sync.
+# The kit arrives as the package vertical-docs, so no job reads the kit's repository. npm runs outside the checkout, where it reads no package.json: a product's may allow only another package manager.
 on:
   workflow_call:
     inputs:
@@ -23,8 +24,22 @@ env:
   SITE: ${{ inputs.site }}
 
 jobs:
+  # A product that has not set the model key gets a run that does nothing, not a failed run on every push. A job cannot name a secret in its `if`, so this job passes on whether the key is set.
+  key:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      set: ${{ steps.key.outputs.set }}
+    steps:
+      - id: key
+        run: echo "set=$SET" >> "$GITHUB_OUTPUT"
+        env:
+          SET: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+
   # Holds the model key and can only read. What leaves this job is one patch.
   write:
+    needs: key
+    if: needs.key.outputs.set == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -46,13 +61,12 @@ jobs:
       - run: git diff "$BEFORE" "$GITHUB_SHA" -- . ":(exclude)$SITE" > change.diff
         env:
           BEFORE: ${{ github.event.before }}
-      # WRITING.md, at the commit of this workflow.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: VerticalStudio-ai/vertical-docs
-          ref: ${{ job.workflow_sha }}
-          path: .vdocs
-          persist-credentials: false
+      # WRITING.md, out of the package. npm downloads the package and runs nothing of it.
+      - working-directory: ${{ runner.temp }}
+        run: |
+          npm pack vertical-docs
+          mkdir "$GITHUB_WORKSPACE/.vdocs"
+          tar -xzf vertical-docs-*.tgz -C "$GITHUB_WORKSPACE/.vdocs" --strip-components 1 package/WRITING.md
       # The agent reads, searches and edits files. It has no shell, so it cannot run the code it reads.
       - uses: anthropics/claude-code-action@cc98b3ae241b0fcfb6a42a2690751afffecb4452 # v1.0.278
         with:
@@ -98,22 +112,12 @@ jobs:
           name: docs-patch
           path: ${{ runner.temp }}
       - run: git apply --allow-empty "$RUNNER_TEMP/docs.patch"
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: VerticalStudio-ai/vertical-docs
-          ref: ${{ job.workflow_sha }}
-          path: .vdocs
-          persist-credentials: false
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-        with:
-          package_json_file: .vdocs/package.json
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-      - working-directory: .vdocs
-        run: pnpm install --frozen-lockfile && pnpm check
-        env:
-          DOCS_ROOT: ${{ github.workspace }}/${{ inputs.site }}/content
+      # As in the kit's own install, no dependency runs an install script: none needs one.
+      - working-directory: ${{ runner.temp }}
+        run: npx --ignore-scripts vertical-docs check "$GITHUB_WORKSPACE/$SITE"
 
   # Can write, and runs nothing from the repository or the patch: it checks the paths of the patch and commits it.
   publish:
@@ -151,6 +155,6 @@ jobs:
           git -c user.name=docs-sync -c user.email=docs-sync@users.noreply.github.com commit -m "Docs: follow the code"
           git push --force "https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY" docs/sync
           gh pr view docs/sync --json state --jq .state | grep -q OPEN ||
-            gh pr create --head docs/sync --title "Docs: follow the code" --body "Written by the docs-sync workflow from the code merged to main. It changes only $SITE/content/, and pnpm check passed on it."
+            gh pr create --head docs/sync --title "Docs: follow the code" --body "Written by the docs-sync workflow from the code merged to main. It changes only $SITE/content/, and vertical-docs check passed on it."
         env:
           GH_TOKEN: ${{ github.token }}
