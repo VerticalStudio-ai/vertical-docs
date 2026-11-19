@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { existsSync, readFileSync } from "node:fs";
+import {
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+	writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type ParseArgsOptionsConfig, parseArgs } from "node:util";
@@ -9,6 +16,7 @@ import { siteProblems } from "./check.ts";
 import { search } from "./core/search.ts";
 
 const usage = `Usage:
+  vertical-docs init [folder]
   vertical-docs dev [folder]
   vertical-docs build [folder]
   vertical-docs check [folder]
@@ -84,6 +92,33 @@ const sections = async (folder: string, url: string | undefined) => {
 		);
 	}
 };
+
+if (command === "init") {
+	const folder = args({}).positionals[0] ?? "docs";
+	const template = join(import.meta.dirname, "../template");
+	for (const file of readdirSync(template, {
+		recursive: true,
+		encoding: "utf8",
+	}).sort()) {
+		const from = join(template, file);
+		// The template holds the docs folder as docs/, and the ignore file without its dot: npm leaves a file named .gitignore out of a package.
+		const to = file
+			.replace(/^docs(?=\/)/, folder)
+			.replace(/gitignore$/, ".gitignore");
+		if (!statSync(from).isFile() || existsSync(to)) continue;
+		mkdirSync(dirname(to), { recursive: true });
+		const bytes = readFileSync(from);
+		writeFileSync(
+			to,
+			/\.(md|yml)$/.test(file)
+				? bytes.toString().replaceAll("<folder>", folder)
+				: bytes,
+		);
+		console.log(`Wrote ${to}`);
+	}
+	console.log(`Next: npx vertical-docs dev ${folder}`);
+	process.exit();
+}
 
 if (command === "dev" || command === "build" || command === "check") {
 	const site = resolve(args({}).positionals[0] ?? "docs");

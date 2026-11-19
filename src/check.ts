@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 
-// What is wrong in a built site, one line for each problem with what to change: links, anchors, heading order, search results, redirects, the share image and sizes.
+// What is wrong in a built site, one line for each problem with what to change: links, anchors, heading order, search results, redirects, the favicon, the share image and sizes.
 export const siteProblems = (dist: string) => {
 	const problems: string[] = [];
 
@@ -39,7 +39,10 @@ export const siteProblems = (dist: string) => {
 		for (const [, link = ""] of html.matchAll(/\s(?:href|src)="([^"]+)"/g)) {
 			const { file, problem, fix } = follow(page, link);
 			if (file) loaded.add(file);
-			if (problem) problems.push(`${page}: link "${link}" ${problem}. ${fix}`);
+			// The favicon is a file of the site, not a link a writer wrote: one line below names the file.
+			if (problem && link !== "/favicon.svg") {
+				problems.push(`${page}: link "${link}" ${problem}. ${fix}`);
+			}
 		}
 		// A screen reader user moves through a page by heading level, so a level may not be skipped.
 		if (/^(?:(?!<h2).)*<h3/s.test(html)) {
@@ -110,6 +113,15 @@ export const siteProblems = (dist: string) => {
 				);
 			}
 		}
+	}
+
+	if (
+		pages.some((page) => read(page).includes('href="/favicon.svg"')) &&
+		!isFile(`${dist}/favicon.svg`)
+	) {
+		problems.push(
+			"public/favicon.svg is missing: every page names it as the icon of its browser tab. Add an SVG file.",
+		);
 	}
 
 	if (

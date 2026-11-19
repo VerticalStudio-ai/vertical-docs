@@ -237,6 +237,19 @@ test("fails for a page that names a share image the site does not have", () => {
 	);
 });
 
+test("fails once, with the name of the file, for pages that name a favicon the site does not have", () => {
+	const page = '<link rel="icon" href="/favicon.svg" type="image/svg+xml">';
+	const { status, stderr } = run(
+		{},
+		{ "index.html": page, "guide/index.html": page },
+	);
+	assert.equal(status, 1);
+	assert.equal(
+		stderr,
+		"public/favicon.svg is missing: every page names it as the icon of its browser tab. Add an SVG file.\n",
+	);
+});
+
 test("reads a redirect file with a comment, an empty line and wide spacing", () => {
 	const { status, stderr } = run(
 		{},
