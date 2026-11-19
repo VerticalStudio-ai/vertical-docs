@@ -73,7 +73,7 @@ vertical-docs/
 ├── content/                  the kit's own docs and their images; the only folder a docs agent edits
 ├── docs.config.json          name, description, url, repo, accent
 ├── public/                   what a site replaces: logo.svg, favicon.svg, share.png, and _redirects when it has old addresses
-├── template/                 what `vertical-docs init` writes into a product: docs/ with a first page, the config, placeholder images and the ignore file, and two workflows
+├── template/                 what `vertical-docs init` writes into a product: docs/ with a first page, the config, placeholder images, the ignore file and the Worker's wrangler.jsonc, and two workflows
 ├── src/
 │   ├── core/                 pure: no Astro, Node or browser imports
 │   │   ├── nav.ts            pages → sidebar tree, previous and next
@@ -171,7 +171,7 @@ From a product's repository the same file is the installed command, `vertical-do
 
 | Command | Does |
 |---|---|
-| `vertical-docs init [folder]` | Writes the docs folder, `docs` unless named: a first page, `docs.config.json`, a placeholder logo, favicon and share image, and a `.gitignore` for `dist/`. Writes `docs.yml` and `docs-sync.yml` to `.github/workflows/` of the current folder. Leaves a file that exists as it is, and prints what it wrote and the next command |
+| `vertical-docs init [folder]` | Writes the docs folder, `docs` unless named: a first page, `docs.config.json`, a placeholder logo, favicon and share image, a `wrangler.jsonc` for the deploy, and a `.gitignore` for `dist/` and `.wrangler/`. Writes `docs.yml` and `docs-sync.yml` to `.github/workflows/` of the current folder. Leaves a file that exists as it is, and prints what it wrote and the next command |
 | `vertical-docs dev [folder]` | Live site of the docs folder, `docs` unless named |
 | `vertical-docs build [folder]` | Writes the site to `<folder>/dist` |
 | `vertical-docs check [folder]` | Builds, then checks `<folder>/dist`: links, anchors, heading order, search results, redirects, favicon, share image and sizes. Exit code 1 on a problem, with one line for each that says what to change |
@@ -184,6 +184,7 @@ The kit stays the one Astro project, also inside `node_modules`: the command sta
 - `DOCS_ROOT` is absolute. `astro.config.ts` resolves it from the current folder and Astro's content loader from the Astro root, so a relative path gives a site with no pages when the two differ. That was the cause of the 404 answers in the first trial with `astro dev --root`.
 - Node does not run TypeScript from `node_modules`, so `pnpm pack` first writes `src/cli.ts` and the files it imports (`src/check.ts`, the core search) as JavaScript into `lib/`, which is what the two command names point at. The files in `lib/` sit one folder deep, like their sources in `src/`, so the folder above is the kit from both. Astro reads the `.ts` and `.astro` sources as they are.
 - The files `init` writes are the files in `template/`, copied as they are with two exceptions. The docs folder is `docs/` there and takes the name given to `init`, which also replaces `<folder>` in the first page and the two workflows. The ignore file is `gitignore` there and is written as `.gitignore`, because npm leaves a file named `.gitignore` out of a package, also when `files` names it, and pnpm does unless `files` names it (tried 2026-11-18).
+- A product deploys with the `wrangler.jsonc` in its docs folder. Wrangler takes the Worker as a file path, so `main` is `../node_modules/vertical-docs/src/worker.ts`: the package sits in `node_modules/` beside the docs folder, which is where npm and pnpm put it and where `docs.yml` installs it before the check. Wrangler bundles the TypeScript source from there, also through pnpm's link (tried 2026-11-19), and writes its own files to `.wrangler/` in the docs folder. The name is a placeholder that wrangler refuses, because a valid one would let two sites in one Cloudflare account replace each other. The other settings repeat the kit's own `wrangler.jsonc`, and a test holds the two together.
 - Astro writes its generated files to `.astro/` in its root, which is the installed kit; `cacheDir` moves only the build cache. Two docs folders can be built in turn from one install (tested: 48 and 110 pages), but two previews at once would share those files. For the same reason `dev` passes `--ignore-lock`: Astro's lock file and its `astro dev stop` belong to that folder, and when an agent starts `astro dev` Astro moves the server to the background, where a product has no command to stop it. The preview stays in the terminal and stops with the command.
 
 ## How it stays clean

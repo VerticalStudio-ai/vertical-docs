@@ -7,6 +7,7 @@ import {
 	readFileSync,
 	realpathSync,
 	statSync,
+	symlinkSync,
 	writeFileSync,
 } from "node:fs";
 import { createServer } from "node:http";
@@ -185,6 +186,7 @@ const starter = (folder: string) => [
 	`${folder}/public/favicon.svg`,
 	`${folder}/public/logo.svg`,
 	`${folder}/public/share.png`,
+	`${folder}/wrangler.jsonc`,
 ];
 
 // Every file under a folder with its bytes, to compare a folder before and after a command.
@@ -208,7 +210,10 @@ test("init writes the docs folder with its ignore file and the two workflows, an
 			.map((file) => `Wrote ${file}`)
 			.join("\n")}\nNext: npx vertical-docs dev docs\n`,
 	);
-	assert.equal(readFileSync(join(cwd, "docs/.gitignore"), "utf8"), "dist/\n");
+	assert.equal(
+		readFileSync(join(cwd, "docs/.gitignore"), "utf8"),
+		"dist/\n.wrangler/\n",
+	);
 });
 
 test("init takes the docs folder as an argument and names it in the workflows, the first page and the next command", async () => {
@@ -270,6 +275,33 @@ test("a folder written by init passes check as it is", async () => {
 	assert.match(
 		readFileSync(join(cwd, "docs/dist/index.html"), "utf8"),
 		/<title>[^<]*Docs/,
+	);
+});
+
+// A wrangler.jsonc without its comment lines, which JSON does not allow.
+const wrangler = (file: string) =>
+	JSON.parse(readFileSync(file, "utf8").replace(/^\s*\/\/.*$/gm, ""));
+
+test("init writes a wrangler.jsonc that finds the Worker inside the installed package, serves the folder's dist as the kit's own does, and leaves the name of the Worker to the product", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	// The package as pnpm installs it in a product: a link in node_modules, here to the kit itself.
+	mkdirSync(join(cwd, "node_modules"));
+	symlinkSync(
+		join(import.meta.dirname, ".."),
+		join(cwd, "node_modules/vertical-docs"),
+	);
+	await command(cwd, ["init", "website"]);
+	const written = wrangler(join(cwd, "website/wrangler.jsonc"));
+	const kit = wrangler(join(import.meta.dirname, "../wrangler.jsonc"));
+	assert.equal(
+		realpathSync(join(cwd, "website", written.main)),
+		join(import.meta.dirname, "worker.ts"),
+	);
+	// Wrangler refuses a name with other characters, so no site is deployed under a name it shares with another.
+	assert.doesNotMatch(written.name, /^[a-z0-9-]+$/);
+	assert.deepEqual(
+		[written.compatibility_date, written.assets],
+		[kit.compatibility_date, kit.assets],
 	);
 });
 
