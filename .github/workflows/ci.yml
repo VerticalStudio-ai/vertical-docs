@@ -32,3 +32,36 @@ jobs:
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  # The package as a product gets it: packed, installed into an empty folder and run there. Astro runs from inside node_modules, which few projects do, so only this job sees a release of Astro that breaks it.
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        # The npm line is the one in the docs.yml that init writes, and leaves no package.json in the folder.
+        install: [npm install --no-save --ignore-scripts, pnpm add -D]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: pnpm install --frozen-lockfile
+      - run: npm pack --pack-destination "$RUNNER_TEMP"
+      - run: |
+          mkdir "$RUNNER_TEMP/product"
+          cd "$RUNNER_TEMP/product"
+          ${{ matrix.install }} ../vertical-docs-*.tgz
+          npx vertical-docs init
+          npx vertical-docs check
+          # The preview answers with the first page. It starts without npx, which on Linux runs the command through a shell that passes no signal on.
+          node node_modules/vertical-docs/lib/cli.js dev &
+          curl --fail --silent --retry 30 --retry-delay 1 --retry-connrefused http://localhost:4321/ | grep -q "<title>Start your docs"
+          kill $!
+          # The preview stops with the command: within ten seconds the address no longer answers.
+          for _ in 1 2 3 4 5 6 7 8 9 10; do
+            curl --silent --output /dev/null http://localhost:4321/ || exit 0
+            sleep 1
+          done
+          exit 1

@@ -1,8 +1,20 @@
 {
-	"name": "vdocs",
+	"name": "vertical-docs",
+	"version": "0.1.0",
 	"private": true,
 	"type": "module",
 	"packageManager": "pnpm@12.21.0",
+	"files": [
+		"lib",
+		"src",
+		"!**/*.test.ts",
+		"astro.config.ts",
+		"template",
+		"WRITING.md"
+	],
+	"engines": {
+		"node": ">=22.23.4"
+	},
 	"bin": {
 		"vertical-docs": "lib/cli.js",
 		"vdocs": "lib/cli.js"

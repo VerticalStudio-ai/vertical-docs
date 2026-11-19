@@ -237,6 +237,20 @@ test("init takes the docs folder as an argument and names it in the workflows, t
 	}
 });
 
+test("init names the package at its own version in the install step of docs.yml", async () => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(cwd, ["init"]);
+	const { version } = JSON.parse(
+		readFileSync(join(import.meta.dirname, "../package.json"), "utf8"),
+	);
+	assert.match(version, /^\d+\.\d+\.\d+$/);
+	assert.ok(
+		readFileSync(join(cwd, ".github/workflows/docs.yml"), "utf8").includes(
+			`\n      - run: npm install --no-save --ignore-scripts vertical-docs@${version}\n`,
+		),
+	);
+});
+
 test("init leaves a file that exists as it is", async () => {
 	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
 	mkdirSync(join(cwd, "docs/content"), { recursive: true });
