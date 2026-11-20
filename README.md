@@ -14,7 +14,7 @@ The package is `vertical-docs`, and `vdocs` is the same command once the package
 
 Vertical Docs is a product of Vertical Labs.
 
-Status: version 0.1.0 is the first release on npm, under the MIT licence. Built: the site with its sidebar, themes and search, the files for agents, images, the Cloudflare Worker with the MCP server, redirects, the search-engine files, and the package with its six commands and the files `init` writes. Not run yet on the day of the release: a deploy to Cloudflare, and the two workflows that `init` writes, on GitHub. Not tested on Windows. Next: the first two docs sites move into their product repositories, and Vertical Docs gets a site of its own.
+Status: version 0.1.0 is the first release on npm, under the MIT licence. Built: the site with its sidebar, themes and search, the files for agents, images, the Cloudflare Worker with the MCP server, redirects, the search-engine files, and the package with its six commands and the files `init` writes. Vertical Docs' own site, built with Vertical Docs, is at [verticaldocs.dev](https://verticaldocs.dev) since 2026-11-20. Not run yet: the two workflows that `init` writes, on GitHub. Not tested on Windows. Next: the first two docs sites move into their product repositories.
 
 - [Features](design/features.md): what the product does today and what is planned, each built line with its proof.
 - [Architecture and stack plan](design/architecture.md): what is built, with what, in which order.

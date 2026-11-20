@@ -1,6 +1,6 @@
 # Architecture and stack plan
 
-Status: phases 0 to 3a are built. Phase 3b is built up to what needs an account, a key or a product repository: the deploy, a run of the sync workflow and the first site going live. Phase 4 is built: a 404 page, tables that scroll at every width, and the name, mark and share image. Phase 5 is built up to the two first sites and the release: the kit is the package `vertical-docs` 0.1.0, which a product installs and runs in its own repository. The release is done: 0.1.0 is on npm since 2026-11-20. The two first sites have not moved into their product repositories. Versions are left out until a site needs them. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
+Status: phases 0 to 3a are built. Phase 3b is built up to what needs a key or a product repository: a run of the sync workflow and the first product's site going live. The kit's own site is deployed, at `https://verticaldocs.dev` since 2026-11-20. Phase 4 is built: a 404 page, tables that scroll at every width, and the name, mark and share image. Phase 5 is built up to the two first sites and the release: the kit is the package `vertical-docs` 0.1.0, which a product installs and runs in its own repository. The release is done: 0.1.0 is on npm since 2026-11-20. The two first sites have not moved into their product repositories. Versions are left out until a site needs them. This replaced everything in the original brief except its goals and non-goals, which are all the [brief](brief.md) now holds; where this plan says "the brief", it means the full proposal in that file's history.
 
 Every version and API below was checked on 2026-11-17 against the npm registry, official documentation, or a throwaway Astro project. Items that are still unverified are listed in [Still to verify](#still-to-verify).
 
@@ -284,14 +284,14 @@ Checked at the start of phase 3b, on 2026-11-17:
 
 Still open:
 
-- A deploy. On the local Workers runtime the redirects in `_redirects` are also answered when the Worker runs first and hands the request to the static files; Cloudflare's documentation does not say so, so check it on the first deploy.
-- CPU time on the free plan. Building the search index for the 703 sections of the vAPI docs takes about 35 ms on a laptop, and the free plan allows 10 ms of CPU for a request. Measure `search_docs` on the first deploy; the paid plan allows 30 seconds.
+- Redirects on a deployed site: the kit's own site, the first deploy, has none. On the local Workers runtime the redirects in `_redirects` are also answered when the Worker runs first and hands the request to the static files; Cloudflare's documentation does not say so, so check it on the first deploy of a site that has redirects.
+- CPU time on the free plan. Building the search index for the 703 sections of the vAPI docs takes about 35 ms on a laptop, and the free plan allows 10 ms of CPU for a request. Measure `search_docs` on the first deploy of a site that size (the kit's own site has 82 sections, and `search_docs` answers there); the paid plan allows 30 seconds.
 - The concurrency group of `docs-sync.yml`. `queue: max` is in GitHub's documentation, and `actionlint` 1.7.12 does not know it; GitHub ran the workflow with it on 2026-11-19. The documentation does not say that a group set at the top of a called workflow holds the whole run; if the first two runs overlap, the group moves to the job that calls the workflow.
 - Safari itself, and a screen reader, for the copy buttons, the diagram per theme, the sidebar groups and the table box. Chrome, Firefox and WebKit 26.6 were tested; WebKit is the engine of Safari, driven through Playwright.
 
 ## Decisions that are yours
 
-1. **Cloudflare account.** The plan needs one for hosting. Vercel also works but puts the MCP route in a separate function.
+1. **Cloudflare account**: answered on 2026-11-20 for the kit's own site, which is deployed to the account that holds `verticaldocs.dev`. Each product deploys to its own account.
 2. **Model key for the sync workflow.** A Claude subscription token (`claude setup-token`) is documented for personal repositories; an API key is recommended for organisation repositories.
 3. **Public or private kit**: answered. The package is public on npm since 2026-11-20, because every other route puts a token in each product's CI, and the repository is public since 2026-11-19, so a repository under any owner can call the shared sync workflow. No product build clones the kit any more.
 4. **Name and accent colour**: answered on 2026-11-18. The product is Vertical Docs, a product of Vertical Labs, with the short name `vdocs`. The package is `vertical-docs` (answered the same day), because `vdocs` on npm belongs to someone else: `vdocs` is the short command of the installed package and the name of the kit's own Worker, and `npx vdocs` is never written. The kit's own site stays black and white. The repository is `VerticalStudio-ai/vertical-docs`, and `docs-sync.yml` names it.
