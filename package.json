@@ -1,6 +1,19 @@
 {
 	"name": "vertical-docs",
 	"version": "0.1.0",
+	"description": "Docs that live in your repository: plain Markdown becomes a fast, lightweight site for agents and humans.",
+	"keywords": [
+		"docs",
+		"documentation",
+		"markdown",
+		"static-site-generator",
+		"llms-txt",
+		"mcp",
+		"agents",
+		"cloudflare-workers"
+	],
+	"homepage": "https://verticaldocs.dev",
+	"bugs": "https://github.com/VerticalStudio-ai/vertical-docs/issues",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
