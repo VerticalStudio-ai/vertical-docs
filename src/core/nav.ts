@@ -52,8 +52,13 @@ export const neighbours = (tree: NavItem[], href: string) => {
 	return { previous: items[at - 1], next: items[at + 1] };
 };
 
-/** Returns what the page at `href` shows around it: the header tabs, and the sidebar items of the tab the page is in. The first tab is "Overview", with every page outside `folders`; each folder is a tab in the order given, named after its index page, which is also its first item. A site with no folders has the one tab, which holds the whole tree. Throws when a name is not a folder directly under `content/`. */
-export const navigation = (tree: NavItem[], folders: string[], href = "/") => {
+/** Returns what the page at `href` shows around it: the header tabs, and the sidebar items of the tab the page is in. The first tab is "Overview", with every page outside `folders`; each folder is a tab in the order given, named after its index page, which is also its first item. A site with no folders has the one tab, which holds the whole tree. Throws when a name is not a folder directly under `content/`. With `home`, the page at `/` is a home page that no sidebar lists. */
+export const navigation = (
+	tree: NavItem[],
+	folders: string[],
+	href = "/",
+	home = false,
+) => {
 	const picked = folders.map((folder) => {
 		// The address of a folder is its name the way Astro writes a page id.
 		const item = tree.find((item) => item.href === `/${slug(folder)}/`);
@@ -74,6 +79,8 @@ export const navigation = (tree: NavItem[], folders: string[], href = "/") => {
 		})),
 		items: folder
 			? [{ ...folder, children: [] }, ...folder.children]
-			: tree.filter((item) => !picked.includes(item)),
+			: tree.filter(
+					(item) => !picked.includes(item) && !(home && item.href === "/"),
+				),
 	};
 };

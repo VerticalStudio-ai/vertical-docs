@@ -4,7 +4,7 @@ description: Set the site name, its description, its public address, the reposit
 order: 3
 ---
 
-A site is one docs folder: `docs/docs.config.json`, `docs/public/` and `docs/content/` with the pages. Change `docs.config.json` for the name, the description, the public address, the repository link, the accent colour and the header tabs, and replace the files in `public/` for the logo, the favicon and the share image.
+A site is one docs folder: `docs/docs.config.json`, `docs/public/` and `docs/content/` with the pages. Change `docs.config.json` for the name, the description, the public address, the repository link, the accent colour, the header tabs and the home page, and replace the files in `public/` for the logo, the favicon and the share image.
 
 ## docs.config.json
 
@@ -28,6 +28,7 @@ A site is one docs folder: `docs/docs.config.json`, `docs/public/` and `docs/con
 | `repo` | The GitHub link in the header. |
 | `accent` | The colour of links, the current page in the sidebar, the focus ring and the edge of a callout. |
 | `tabs` | Optional. The folders that become [header tabs](#header-tabs). A site without `tabs` has one sidebar with every page. |
+| `home` | Optional. `true` shows the first page as a [home page](#home-page), without the sidebar. |
 
 ## Docs folder
 
@@ -66,6 +67,24 @@ The build stops for a name that matches nothing directly under `docs/content/`. 
 ```txt
 docs.config.json lists the tab "guides", but content/guides/index.md does not exist. A tab is a folder directly under content/, and its index page names the tab.
 ```
+
+## Home page
+
+`home` set to `true` shows the first page of the site, `docs/content/index.md`, as a home page: one centred column under a large title, without the sidebar, the list of headings and the previous and next links.
+
+```json
+"home": true
+```
+
+The header of the home page has a "Docs" link to the first of the other pages, and the sidebar of every other page leaves the home page out. The name of the site in the header opens the home page.
+
+The home page is plain Markdown like every page. Three things look different on it:
+
+- The first code block is the command to start with: a narrow block with a `$` before the command.
+- A list is a grid of entries, and the bold words at the start of an entry are its title.
+- An image has a frame.
+
+The address of the page, its Markdown copy, the search and `/llms.txt` stay as they are without `home`.
 
 ## Logo and favicon
 
