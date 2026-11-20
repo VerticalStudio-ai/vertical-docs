@@ -1,6 +1,6 @@
 {
 	"name": "Vertical Docs",
-	"description": "Markdown files become a website, a Markdown copy of every page and one search index for readers, terminals and agents.",
+	"description": "Docs that live in your repository: a fast, lightweight site built by agents, for agents and humans, and hosted by you.",
 	"url": "https://verticaldocs.dev",
 	"repo": "https://github.com/VerticalStudio-ai/vertical-docs",
 	"accent": "#171717",

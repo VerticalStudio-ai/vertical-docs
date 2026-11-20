@@ -1,6 +1,6 @@
 ---
 title: Docs that live in your repository
-description: Vertical Docs turns the Markdown in your repository into a fast site, a Markdown copy of every page and one search for readers, terminals and agents.
+description: Vertical Docs turns the Markdown in your repository into a fast, lightweight site. Built by agents, for agents and humans, and hosted by you.
 order: 0
 ---
 
@@ -19,12 +19,12 @@ You write a page once. The build makes the page for readers, a Markdown copy for
 
 ## What you get
 
-- **Docs in your repository.** Plain Markdown in `docs/content/`. One file is one page, and a change to the docs is a pull request like any other.
-- **A fast site.** This site scores 100 in all four Lighthouse categories. A page loads 2.9 KB of CSS and 1.2 KB of JavaScript, gzipped.
-- **Search that opens the right section.** Press `/` and type a word. The same search runs in your terminal.
 - **Made for agents.** Every page has a Markdown copy at `.md`, the site has an `llms.txt`, and an MCP server answers at `/mcp`.
-- **Docs that stay in step with the code.** `init` adds a few lines to `AGENTS.md` that tell your coding agent to change the page with the code.
+- **Kept current by agents.** `init` adds a few lines to `AGENTS.md` that tell your coding agent to change the page with the code.
+- **Lives in your repository.** Plain Markdown in `docs/content/`. One file is one page, and a change to the docs is a pull request like any other.
 - **Hosted by you.** Your own CI builds the site and deploys one Cloudflare Worker to your own account. Nobody edits online.
+- **Fast and lightweight.** This site scores 100 in all four Lighthouse categories. A page loads 2.9 KB of CSS and 1.2 KB of JavaScript, gzipped.
+- **Search that opens the right section.** Press `/` and type a word. A result opens the page at the heading that matched.
 
 ## Start with three commands
 

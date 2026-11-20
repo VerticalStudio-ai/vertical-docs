@@ -1,6 +1,6 @@
 # Vertical Docs
 
-Docs that live in your product's repository. Plain Markdown becomes a static site, a Markdown copy of every page and one search index shared by readers, terminals and agents, and an agent keeps the docs in step with the code.
+Docs that live in your product's repository. Plain Markdown becomes a static site, a Markdown copy of every page and one search index for agents and humans, and an agent keeps the docs in step with the code.
 
 ```sh
 npx vertical-docs init     # writes docs/ with a first page, two workflows, and the lines for coding agents in AGENTS.md
