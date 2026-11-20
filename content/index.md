@@ -1,6 +1,6 @@
 ---
 title: Docs that live in your repository
-description: Vertical Docs turns the Markdown in your repository into a fast, lightweight site. Built by agents, for agents and humans, and hosted by you.
+description: Open-source docs that turn the Markdown in your repository into a fast, lightweight site. Built by agents, for agents and humans, hosted by you.
 order: 0
 ---
 
@@ -8,7 +8,7 @@ order: 0
 npx vertical-docs init
 ```
 
-[Read the tutorial](/add-docs-to-your-repository/) · [All six commands](/reference/commands/)
+[Read the tutorial](/add-docs-to-your-repository/) · [All six commands](/reference/commands/) · [GitHub](https://github.com/VerticalStudio-ai/vertical-docs)
 
 ## One Markdown file, three outputs
 
@@ -39,3 +39,7 @@ You need Node 22.23.4 or later. [Add docs to your repository](/add-docs-to-your-
 ## This site is the demo
 
 This site is a folder of Markdown built with Vertical Docs. Press `/` to search it, add `.md` to the address of a page to read its Markdown copy, or start with [Run your docs locally](/run-your-docs-locally/).
+
+## Open source
+
+Vertical Docs is open source under the MIT licence. The code is on [GitHub](https://github.com/VerticalStudio-ai/vertical-docs) and the package is on [npm](https://www.npmjs.com/package/vertical-docs). Issues and pull requests are welcome: [CONTRIBUTING.md](https://github.com/VerticalStudio-ai/vertical-docs/blob/main/CONTRIBUTING.md) says how to run the project and what a change needs.

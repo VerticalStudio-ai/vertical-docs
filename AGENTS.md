@@ -24,6 +24,7 @@ A static docs site generator. Markdown in `content/` becomes a website, per-page
 - `scripts/check-dist.ts`: the last step of `pnpm check`: the same site checks on `dist/`, and the dependency list, which is a rule of the kit and not of a site.
 - `.github/workflows/`: `ci.yml` runs the check and tries the packed package in an empty folder, `docs-sync.yml` is what a product repository calls to keep its docs in step with its code, and `publish.yml`, started by hand, puts the version in `package.json` on npm.
 - `lighthouserc.json`: the Lighthouse scores CI enforces on the build.
+- `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md`: what a visitor of the repository reads first. The README is also the package's page on npm.
 - `design/features.md`: what the product does, in a customer's words. Every phase updates it: one line per feature, and a built line carries its proof.
 
 ## Rules the tools cannot check
