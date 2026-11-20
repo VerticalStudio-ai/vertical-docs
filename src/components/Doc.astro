@@ -23,12 +23,13 @@ interface Props {
 
 const { title, description, href, tree, headings } = Astro.props;
 // The type of the configuration is read from the kit's own file, which lists no tabs.
-const { tabs, items } = navigation(tree, (config as { tabs?: string[] }).tabs ?? [], href);
+const { tabs, items } = navigation(tree, (config as { tabs?: string[] }).tabs ?? [], href, config.home);
 const { previous, next } = href ? neighbours(items, href) : {};
+const home = config.home && href === "/";
 ---
 
 <!doctype html>
-<html lang="en" style={`--accent: ${config.accent}`}>
+<html lang="en" class={home ? "home" : undefined} style={`--accent: ${config.accent}`}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -65,6 +66,7 @@ const { previous, next } = href ? neighbours(items, href) : {};
 			</button>
 			<a href="/" class="brand"><Fragment set:html={logo} />{config.name}</a>
 			<Search />
+			{home && items[0] && <a href={items[0].href} class="repo">Docs</a>}
 			<a href={config.repo} class="repo">GitHub</a>
 			<button type="button" id="theme" aria-label="Switch between light and dark theme">
 				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">

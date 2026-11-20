@@ -173,3 +173,15 @@ test("says what a tab is when the site lists a name that has no page", () => {
 		/docs\.config\.json lists the tab "router", but content\/router\/index\.md does not exist/,
 	);
 });
+
+test("a site whose first page is a home page leaves that page out of every sidebar, so the first page after it has no previous page", () => {
+	const { tabs, items } = navigation(site, [], "/glossary/", true);
+	assert.deepEqual(tabs, [{ title: "Overview", href: "/", current: true }]);
+	assert.deepEqual(items, site.slice(1));
+	assert.equal(neighbours(items, "/glossary/").previous, undefined);
+	assert.deepEqual(navigation(site, ["call"], "/", true).items, [
+		glossary,
+		agents,
+		legal,
+	]);
+});

@@ -708,3 +708,95 @@
 		}
 	}
 }
+
+/* The first page of a site that sets home: one column without the sidebar, under a centred title. */
+@layer home {
+	.home {
+		& :is(.menu, .sidebar, .toc, .pager, [data-page]) {
+			display: none;
+		}
+
+		& .frame {
+			display: block;
+		}
+
+		& main {
+			padding-top: clamp(3.5rem, 11vw, 7.5rem);
+		}
+
+		& h1 {
+			font-size: clamp(2.5rem, 8vw, 4.25rem);
+			letter-spacing: -0.05em;
+			line-height: 1.02;
+			text-align: center;
+		}
+
+		& .lead {
+			max-width: 36rem;
+			margin: 1.75rem auto 0;
+			font-size: clamp(1.0625rem, 2.4vw, 1.25rem);
+			text-align: center;
+		}
+
+		/* The first code block is the command to start with. */
+		& pre:first-of-type {
+			max-width: 28rem;
+			margin: 2.5rem auto 0;
+			font-size: 1.0625rem;
+
+			& code::before {
+				content: "$ ";
+				color: var(--fg-muted);
+			}
+		}
+
+		/* Its Copy button follows the narrower block. */
+		& .copy:has(+ pre:first-of-type) {
+			margin: 3rem max(0.5rem, 50% - 13.5rem) -4.75rem 0;
+		}
+
+		& pre:first-of-type + p,
+		& .source {
+			text-align: center;
+		}
+
+		& h2 {
+			margin-top: 5.5rem;
+			font-size: 1.75rem;
+		}
+
+		& p:has(img) {
+			padding: 2rem 1.5rem;
+			border: 1px solid var(--border);
+			border-radius: 0.5rem;
+			text-align: center;
+		}
+
+		/* A list is a grid of short entries, each under its bold first words. */
+		& ul {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+			column-gap: 2.5rem;
+			padding: 0;
+			list-style: none;
+		}
+
+		& li {
+			margin: 0;
+			padding-block: 1.25rem;
+			border-top: 1px solid var(--border);
+			color: var(--fg-muted);
+			font-size: 0.9375rem;
+
+			& strong {
+				display: block;
+				color: var(--fg);
+				font-size: 1rem;
+			}
+		}
+
+		& .source {
+			margin-top: 5.5rem;
+		}
+	}
+}
