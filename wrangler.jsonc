@@ -4,6 +4,8 @@
 	"compatibility_date": "2026-11-01",
 	// The address of docs.config.json. Cloudflare makes the DNS record and the certificate.
 	"routes": [{ "pattern": "verticaldocs.dev", "custom_domain": true }],
+	// A Worker with a route has no workers.dev address unless it asks, and the preview of a pull request is one.
+	"preview_urls": true,
 	"assets": {
 		"directory": "dist",
 		"binding": "ASSETS",
