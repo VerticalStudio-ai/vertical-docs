@@ -64,7 +64,7 @@ jobs:
       # WRITING.md, out of the package. npm downloads the package and runs nothing of it.
       - working-directory: ${{ runner.temp }}
         run: |
-          npm pack vertical-docs@0.2.0
+          npm pack vertical-docs@0.2.1
           mkdir "$GITHUB_WORKSPACE/.vdocs"
           tar -xzf vertical-docs-*.tgz -C "$GITHUB_WORKSPACE/.vdocs" --strip-components 1 package/WRITING.md
       # The agent reads, searches and edits files. It has no shell, so it cannot run the code it reads.
@@ -117,7 +117,7 @@ jobs:
           node-version: 24
       # As in the kit's own install, no dependency runs an install script: none needs one.
       - working-directory: ${{ runner.temp }}
-        run: npx --ignore-scripts vertical-docs@0.2.0 check "$GITHUB_WORKSPACE/$SITE"
+        run: npx --ignore-scripts vertical-docs@0.2.1 check "$GITHUB_WORKSPACE/$SITE"
 
   # Can write, and runs nothing from the repository or the patch: it checks the paths of the patch and commits it.
   publish:

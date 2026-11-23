@@ -1,6 +1,6 @@
 {
 	"name": "vertical-docs",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Docs that live in your repository: plain Markdown becomes a fast, lightweight site for agents and humans.",
 	"keywords": [
 		"docs",
