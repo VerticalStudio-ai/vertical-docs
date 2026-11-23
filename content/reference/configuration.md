@@ -26,7 +26,7 @@ A site is one docs folder: `docs/docs.config.json`, `docs/public/` and `docs/con
 | `description` | The summary under the name in [`/llms.txt`](/reference/agents/#llmstxt). |
 | `url` | The public address of the site: `https://` and the host name, with no path and no slash at the end. The canonical URL and the share tags of every page start with it, and so does every link in `/sitemap.xml`, `/robots.txt` and [`/llms.txt`](/reference/agents/#llmstxt). |
 | `repo` | The GitHub link in the header. |
-| `accent` | The colour of links, the current page in the sidebar, the focus ring and the edge of a callout. |
+| `accent` | The colour of links, the focus ring and the edge of a callout. |
 | `tabs` | Optional. The folders that become [header tabs](#header-tabs). A site without `tabs` has one sidebar with every page. |
 | `home` | Optional. `true` shows the first page as a [home page](#home-page), without the sidebar. |
 | `wordmark` | Optional. `true` shows the logo without the name next to it, for a logo that already spells the name. |
