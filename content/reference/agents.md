@@ -26,7 +26,7 @@ Change this starter page, add a second page, set the name and logo of the site, 
 This page is the file `docs/content/index.md`. Replace its text with your own, add one Markdown file for each further page, and run the check before you publish.
 ```
 
-Each page links to its copy twice: "View this page as Markdown" at the end of the page, and a `link` element with `rel="alternate"` and `type="text/markdown"` in the HTML head. The Copy page button beside the page title puts the same Markdown on the clipboard.
+Each page links to its copy twice: "View this page as Markdown" at the end of the page, and a `link` element with `rel="alternate"` and `type="text/markdown"` in the HTML head. The Copy page button beside the page title puts the same Markdown on the clipboard, and the menu next to it opens the copy, or opens ChatGPT or Claude with a prompt that names the address of the copy.
 
 ## llms.txt
 

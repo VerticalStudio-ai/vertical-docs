@@ -24,7 +24,7 @@ You write a page once. The build makes the page for readers, a Markdown copy for
 - **Lives in your repository.** Plain Markdown in `docs/content/`. One file is one page, and a change to the docs is a pull request like any other.
 - **Hosted by you.** Your own CI builds the site and deploys one Cloudflare Worker to your own account. Nobody edits online.
 - **Fast and lightweight.** This site scores 100 in all four Lighthouse categories. A page loads 2.9 KB of CSS and 1.2 KB of JavaScript, gzipped.
-- **Search that opens the right section.** Press `/` and type a word. A result opens the page at the heading that matched.
+- **Search that opens the right section.** Press `/` or ⌘K and type a word. A result opens the page at the heading that matched.
 
 ## Start with three commands
 

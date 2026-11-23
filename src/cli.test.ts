@@ -322,6 +322,65 @@ test("the docs.yml that init writes runs npm outside the repository, whose packa
 	);
 });
 
+// Runs the step of the docs.yml that init writes which uploads a pull request's preview, with an npx that prints `output` and exits with `code`.
+const previewStep = async (output: string, code: number) => {
+	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
+	await command(cwd, ["init", "website"]);
+	const step = readFileSync(join(cwd, ".github/workflows/docs.yml"), "utf8")
+		.split("\n      - ")
+		.find((part) => part.includes("versions upload"));
+	const script = step
+		?.match(/run: \|\n([\s\S]*?)\n {8}working-directory/)?.[1]
+		?.replaceAll(/^ {10}/gm, "")
+		// The expressions GitHub fills in before the shell runs.
+		.replace(/\$\{\{ github\.event\.number \}\}/g, "7")
+		.replace(/\$\{\{ github\.sha \}\}/g, "abc");
+	assert.ok(
+		script,
+		"docs.yml has a step that uploads a pull request's preview",
+	);
+	const bin = join(cwd, "bin");
+	mkdirSync(bin);
+	writeFileSync(
+		join(bin, "npx"),
+		`#!/bin/sh\necho '${output}'\nexit ${code}\n`,
+		{ mode: 0o755 },
+	);
+	return new Promise<{ status: number; stdout: string }>((done) => {
+		execFile(
+			"bash",
+			["-e", "-c", script],
+			{
+				cwd,
+				env: {
+					PATH: `${bin}:${process.env.PATH}`,
+					RUNNER_TEMP: cwd,
+					GITHUB_WORKSPACE: cwd,
+				},
+			},
+			(error, stdout) =>
+				done({ status: error ? Number(error.code) : 0, stdout }),
+		);
+	});
+};
+
+test("a pull request before main's first deploy passes and says that its preview comes after that deploy, and any other failure of the upload fails", async () => {
+	const missing = await previewStep(
+		"You cannot upload a new version of a Worker that does not yet exist. Please run the `deploy` command first.",
+		1,
+	);
+	assert.equal(missing.status, 0);
+	assert.match(missing.stdout, /::notice::/);
+	const other = await previewStep("Authentication error", 1);
+	assert.equal(other.status, 1);
+	const uploaded = await previewStep(
+		"Version Preview Alias URL: https://pr-7-docs.example.workers.dev",
+		0,
+	);
+	assert.equal(uploaded.status, 0);
+	assert.doesNotMatch(uploaded.stdout, /::notice::/);
+});
+
 test("init leaves a file that exists as it is", async () => {
 	const cwd = mkdtempSync(join(tmpdir(), "cli-"));
 	mkdirSync(join(cwd, "docs/content"), { recursive: true });
