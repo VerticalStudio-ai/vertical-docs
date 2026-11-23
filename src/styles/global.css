@@ -448,27 +448,29 @@
 		.toc {
 			position: sticky;
 			top: var(--header);
-			display: block;
+			display: flex;
 			height: calc(100dvh - var(--header));
+			flex-direction: column;
 			padding: 3rem 1.5rem 2rem 0;
-			overflow-y: auto;
-			scrollbar-width: thin;
-			/* A long list fades out at the bottom edge instead of ending in a hard cut. */
-			mask-image: linear-gradient(#000 calc(100% - 3rem), transparent);
 
 			& p {
 				margin: 0 0 0.75rem;
 				font-weight: 500;
 			}
 
+			/* A long list scrolls on its own and fades out at its bottom edge, so "Scroll to top" stays in view under it. */
 			& ul {
-				border-left: 1px solid var(--border);
+				min-height: 0;
+				padding-bottom: 2.5rem;
+				overflow-y: auto;
+				scrollbar-width: none;
 				scroll-target-group: auto;
+				mask-image: linear-gradient(#000 calc(100% - 2.5rem), transparent);
 			}
 
-			& a {
-				margin-left: -1px;
-				border-left: 1px solid transparent;
+			/* The line is the links' own edge, so the list can clip what overflows it and keep the marker. */
+			& li a {
+				border-left: 1px solid var(--border);
 			}
 
 			& .sub {
@@ -476,7 +478,6 @@
 			}
 
 			& .up {
-				margin-top: 1rem;
 				padding: 1rem 0 0;
 				border: 0;
 				border-top: 1px solid var(--border);
