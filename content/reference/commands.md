@@ -114,11 +114,11 @@ The output starts with the title of the rules:
 
 ## Update to a new version
 
-The version of Vertical Docs a repository uses is written in its two workflows: in the install step of `docs.yml`, and as the commit after `@` in `docs-sync.yml`. To move both, delete the two files and run `init` from the new version, with its number in place of `0.1.0`:
+The version of Vertical Docs a repository uses is written in its two workflows: in the install step of `docs.yml`, and as the commit after `@` in `docs-sync.yml`. To move both, delete the two files and run `init` from the new version, with its number in place of `0.2.0`:
 
 ```sh
 rm .github/workflows/docs.yml .github/workflows/docs-sync.yml
-npx vertical-docs@0.1.0 init
+npx vertical-docs@0.2.0 init
 ```
 
 `init` writes the two workflows for that version and leaves every other file as it is. Name the docs folder after `init` when the folder is not `docs`.
