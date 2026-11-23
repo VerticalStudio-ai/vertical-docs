@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: VerticalStudio-ai/vertical-docs/.github/workflows/docs-sync.yml@ee8309a1499ef478d2507106a09767e35f19d682
+    uses: VerticalStudio-ai/vertical-docs/.github/workflows/docs-sync.yml@01261d34de4debfb8531494e30dbd3e34334b414
     with:
       site: <folder>
     secrets:
