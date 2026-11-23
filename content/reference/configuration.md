@@ -29,6 +29,7 @@ A site is one docs folder: `docs/docs.config.json`, `docs/public/` and `docs/con
 | `accent` | The colour of links, the current page in the sidebar, the focus ring and the edge of a callout. |
 | `tabs` | Optional. The folders that become [header tabs](#header-tabs). A site without `tabs` has one sidebar with every page. |
 | `home` | Optional. `true` shows the first page as a [home page](#home-page), without the sidebar. |
+| `wordmark` | Optional. `true` shows the logo without the name next to it, for a logo that already spells the name. |
 
 ## Docs folder
 
@@ -90,11 +91,13 @@ The address of the page, its Markdown copy, the search and `/llms.txt` stay as t
 
 | File | Shown |
 |---|---|
-| `docs/public/logo.svg` | In the header, 20 pixels high, next to the name. |
+| `docs/public/logo.svg` | In the header, 20 pixels high, next to the name. Its width follows its `viewBox`. |
 | `docs/public/favicon.svg` | In the browser tab. |
 | `docs/public/share.png` | In the preview of a link to the site, in a chat or on a social network. Make it 1,200 by 630 pixels. |
 
 The logo is placed in the page as inline SVG. Draw it with `fill="currentColor"` and the logo takes the text colour of the theme.
+
+A logo that spells the name, a wordmark, makes the name next to it a repeat. Set `"wordmark": true` and the header shows the logo alone; the name stays the label of the link, in the page title and in `/llms.txt`.
 
 ## Old addresses
 

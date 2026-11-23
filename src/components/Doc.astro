@@ -26,6 +26,8 @@ const { title, description, href, tree, headings } = Astro.props;
 const { tabs, items } = navigation(tree, (config as { tabs?: string[] }).tabs ?? [], href, config.home);
 const { previous, next } = href ? neighbours(items, href) : {};
 const home = config.home && href === "/";
+// A wordmark holds the name already: the header shows the logo alone, and the name stays the link's label.
+const wordmark = (config as { wordmark?: boolean }).wordmark;
 ---
 
 <!doctype html>
@@ -64,7 +66,7 @@ const home = config.home && href === "/";
 					<path d="M1 3h14v1.5H1zM1 7.25h14v1.5H1zM1 11.5h14V13H1z"></path>
 				</svg>
 			</button>
-			<a href="/" class="brand"><Fragment set:html={logo} />{config.name}</a>
+			<a href="/" class="brand" aria-label={wordmark ? config.name : undefined}><Fragment set:html={logo} />{!wordmark && config.name}</a>
 			<Search />
 			{home && items[0] && <a href={items[0].href} class="repo">Docs</a>}
 			<a href={config.repo} class="repo">GitHub</a>
