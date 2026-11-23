@@ -91,7 +91,7 @@ The address of the page, its Markdown copy, the search and `/llms.txt` stay as t
 
 | File | Shown |
 |---|---|
-| `docs/public/logo.svg` | In the header, 20 pixels high, next to the name. Its width follows its `viewBox`. |
+| `docs/public/logo.svg` | In the header, 22 pixels high, next to the name. Its width follows its `viewBox`. |
 | `docs/public/favicon.svg` | In the browser tab. |
 | `docs/public/share.png` | In the preview of a link to the site, in a chat or on a social network. Make it 1,200 by 630 pixels. |
 

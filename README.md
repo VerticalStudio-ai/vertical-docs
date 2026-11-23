@@ -41,7 +41,7 @@ The package is `vertical-docs`, and `vdocs` is the same command once the package
 
 ## Status
 
-Version 0.2.0 is on npm. Vertical Docs' own site runs on main since 2026-11-20. The vAPI docs run on it from their own repository: `docs.yml` checks every pull request there and gives it a preview address. Next: the vAPI docs move to their own domain, then the Vertical Studio docs.
+Version 0.2.1 is on npm. Vertical Docs' own site runs on main since 2026-11-20. The vAPI docs run on it from their own repository: `docs.yml` checks every pull request there and gives it a preview address. Next: the vAPI docs move to their own domain, then the Vertical Studio docs.
 
 [Features](design/features.md) lists what the product does today, each line with its proof, and [Architecture](design/architecture.md) says what is built with what, and why.
 
