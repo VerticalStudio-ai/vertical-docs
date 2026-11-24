@@ -68,7 +68,7 @@ jobs:
           mkdir "$GITHUB_WORKSPACE/.vdocs"
           tar -xzf vertical-docs-*.tgz -C "$GITHUB_WORKSPACE/.vdocs" --strip-components 1 package/WRITING.md
       # The agent reads, searches and edits files. It has no shell, so it cannot run the code it reads.
-      - uses: anthropics/claude-code-action@cc98b3ae241b0fcfb6a42a2690751afffecb4452 # v1.0.278
+      - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
