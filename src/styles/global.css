@@ -806,7 +806,7 @@
 /* The first page of a site that sets home: one column without the sidebar, under a centred title. */
 @layer home {
 	.home {
-		& :is(.menu, .sidebar, .toc, .pager, [data-page]) {
+		& :is(.menu, .sidebar, .toc, .pager, .actions) {
 			display: none;
 		}
 
