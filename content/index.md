@@ -8,8 +8,10 @@ order: 0
 npx vertical-docs init
 ```
 
-[Read the tutorial](/add-docs-to-your-repository/) · [All six commands](/reference/commands/) · [GitHub](https://github.com/VerticalStudio-ai/vertical-docs)\
-Used by vAPI Network: [docs.vapinetwork.ai](https://docs.vapinetwork.ai)
+[Read the tutorial](/add-docs-to-your-repository/) · [All six commands](/reference/commands/) · [GitHub](https://github.com/VerticalStudio-ai/vertical-docs)
+
+Used by\
+[![vAPI Network](images/vapi-network-light.svg)![vAPI Network](images/vapi-network-dark.svg)](https://docs.vapinetwork.ai)
 
 ## One Markdown file, three outputs
 
