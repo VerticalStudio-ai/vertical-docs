@@ -10,6 +10,9 @@ npx vertical-docs init
 
 [Read the tutorial](/add-docs-to-your-repository/) · [All six commands](/reference/commands/) · [GitHub](https://github.com/VerticalStudio-ai/vertical-docs)
 
+Used by\
+[![vAPI Network](images/vapi-network-light.svg)![vAPI Network](images/vapi-network-dark.svg)](https://docs.vapinetwork.ai)
+
 ## One Markdown file, three outputs
 
 You write a page once. The build makes the page for readers, a Markdown copy for agents and the search records for both.
